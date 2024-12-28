@@ -13,7 +13,7 @@ from .models import Campaign
 from .serializers import CampaignSerializer, UpdateProfileSerializer
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-
+from django.shortcuts import render
 logger = logging.getLogger(__name__)
 
 
