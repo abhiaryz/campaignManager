@@ -4,6 +4,8 @@
 *.pyo
 __pycache__/
 
+__pycache__/
+
 # Django-specific files
 *.log
 *.pot
