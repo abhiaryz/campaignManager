@@ -7,6 +7,10 @@ from social_django.utils import load_strategy
 from social_django.utils import load_backend
 from social_core.exceptions import MissingBackend, AuthTokenError
 
+from django.shortcuts import render
+
+def home(request):
+    return render(request, 'dsp/index.html')
 
 class RegisterView(APIView):
     def post(self, request):

@@ -23,7 +23,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from api.views import RegisterView, GoogleLoginView
+from api.views import RegisterView, GoogleLoginView,home
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -31,5 +31,6 @@ urlpatterns = [
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/register/", RegisterView.as_view(), name="register"),
     path("api/google-login/", GoogleLoginView.as_view(), name="google_login"),
+    path('', home, name='home'),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
