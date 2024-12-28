@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "social_django",
     "api",
+    'drf_yasg',
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -156,3 +158,21 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "<YOUR_GOOGLE_CLIENT_SECRET>"
 # Configure redirects
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = "/authenticated/"
 SOCIAL_AUTH_LOGIN_ERROR_URL = "/login-error/"
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = '<your-email>@gmail.com'
+EMAIL_HOST_PASSWORD = '<your-email-password>'
+
+AWS_ACCESS_KEY_ID = '<your-access-key-id>'
+AWS_SECRET_ACCESS_KEY = '<your-secret-access-key>'
+AWS_STORAGE_BUCKET_NAME = '<your-bucket-name>'
+AWS_S3_REGION_NAME = 'your-region'  # e.g., 'us-east-1'
+AWS_DEFAULT_ACL = None
+AWS_QUERYSTRING_AUTH = False  # Optional: make files public
+
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+INSTALLED_APPS += ['rest_framework_simplejwt.token_blacklist']

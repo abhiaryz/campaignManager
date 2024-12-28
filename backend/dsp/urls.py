@@ -23,7 +23,25 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from api.views import RegisterView, GoogleLoginView,home
+from api.views import RegisterView, GoogleLoginView,home, LogoutView, ForgotPasswordView,UpdatePasswordView,UpdateProfileView,CampaignView, DuplicateCampaignView
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+from django.urls import path
+
+
+schema_view = get_schema_view(
+    openapi.Info(
+        title="Your API Title",
+        default_version='v1',
+        description="Test description",
+        terms_of_service="https://www.google.com/policies/terms/",
+        contact=openapi.Contact(email="contact@yourapi.local"),
+        license=openapi.License(name="BSD License"),
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
+)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -31,7 +49,17 @@ urlpatterns = [
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/register/", RegisterView.as_view(), name="register"),
     path("api/google-login/", GoogleLoginView.as_view(), name="google_login"),
+    path('api/logout/', LogoutView.as_view(), name='logout'),
+    path('api/forgot-password/', ForgotPasswordView.as_view(), name='forgot_password'),
     path('', home, name='home'),
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    path('api/update-password/', UpdatePasswordView.as_view(), name='update_password'),
+    path('api/update-profile/', UpdateProfileView.as_view(), name='update_profile'),
+    path('campaigns/', CampaignView.as_view(), name='create_campaign'),
+    path('campaigns/<int:pk>/', CampaignView.as_view(), name='edit_campaign'),
+    path('campaigns/<int:pk>/duplicate/', DuplicateCampaignView.as_view(), name='duplicate_campaign'),
+    
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 if settings.DEBUG:
