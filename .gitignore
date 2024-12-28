@@ -1,0 +1,55 @@
+.vercel
+# Python bytecode files
+*.pyc
+*.pyo
+__pycache__/
+
+# Django-specific files
+*.log
+*.pot
+*.pyc
+media/
+static/
+
+# Virtual Environment
+venv/
+env/
+.venv/
+.ENV/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.iml
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# mypy
+.mypy_cache/
+
+# Coverage reports
+.coverage
+.coverage.*
+nosetests.xml
+*.cover
+
+# pytest
+.cache/
+.pytest_cache/
+
+# PyCharm
+.idea/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Environment variables and sensitive info
+.env
+.env.*
+
+# Local Django settings
+local_settings.py
