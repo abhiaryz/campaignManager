@@ -17,7 +17,6 @@ const RedirectBtn: React.FC<AddCampaignProps> = ({ url,redirect }) => {
     const handleClickOrRedirect = () => {
         if (redirect) {
             router.push(url);
-            console.log('redirecting to', url);
         }
     };
     return (
