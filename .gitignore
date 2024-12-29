@@ -2,9 +2,12 @@
 # Python bytecode files
 *.pyc
 *.pyo
+*.pyc
 __pycache__/
 
 __pycache__/
+
+backend/api/__pycache__
 
 # Django-specific files
 *.log

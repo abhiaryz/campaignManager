@@ -9,8 +9,8 @@ from django.core.mail import send_mail
 from rest_framework_simplejwt.tokens import RefreshToken
 from social_django.utils import load_backend, load_strategy
 from social_core.exceptions import MissingBackend, AuthTokenError
-from .models import Campaign
-from .serializers import CampaignSerializer, UpdateProfileSerializer
+from .models import Campaign,UserType
+from .serializers import CampaignSerializer, UpdateProfileSerializer,CustomTokenObtainPairSerializer
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from django.shortcuts import render
@@ -35,20 +35,13 @@ def home(request):
 
 # Register View
 class RegisterView(APIView):
-    @swagger_auto_schema(
-        operation_description="Register a new user",
-        manual_parameters=[
-            openapi.Parameter('username', openapi.IN_QUERY, description="Username of the user", type=openapi.TYPE_STRING),
-            openapi.Parameter('password', openapi.IN_QUERY, description="Password of the user", type=openapi.TYPE_STRING),
-            openapi.Parameter('email', openapi.IN_QUERY, description="Email of the user", type=openapi.TYPE_STRING),
-        ],
-        responses={201: "User  created successfully", 400: "Bad Request"}
-    )
+
     def post(self, request):
-        username = request.data.get("username")
         password = request.data.get("password")
         email = request.data.get("email")
-
+        first_name = request.data.get("first_name")
+        last_name = request.data.get("last_name")
+        username = email
         if not username or not password or not email:
             return error_response("All fields are required.")
 
@@ -57,8 +50,9 @@ class RegisterView(APIView):
 
         try:
             user = User.objects.create_user(
-                username=username, password=password, email=email
+                username=username, password=password, email=email, first_name=first_name, last_name=last_name
             )
+            UserType.objects.create(user=user, user_type_pm=False)
             return success_response("User created successfully.", {"id": user.id}, status.HTTP_201_CREATED)
         except Exception as e:
             logger.error(f"Error creating user: {e}")
@@ -176,18 +170,6 @@ class UpdateProfileView(APIView):
 
 # Campaign View
 class CampaignView(APIView):
-    @swagger_auto_schema(
-        operation_description="Create a new campaign",
-        manual_parameters=[
-            openapi.Parameter('name', openapi.IN_QUERY, description="Name of the campaign", type=openapi.TYPE_STRING),
-            openapi.Parameter('campaign_type', openapi.IN_QUERY, description="Type of the campaign", type=openapi.TYPE_STRING),
-            openapi.Parameter('text', openapi.IN_QUERY, description="Text for the campaign", type=openapi.TYPE_STRING),
-            openapi.Parameter('geo_location', openapi.IN_QUERY, description="Geographical location", type=openapi.TYPE_STRING),
-            openapi.Parameter('price', openapi.IN_QUERY, description="Price of the campaign", type=openapi.TYPE_NUMBER),
-            openapi.Parameter('file', openapi.IN_QUERY, description="File associated with the campaign", type=openapi.TYPE_FILE),
-        ],
-        responses={201: "Campaign created successfully", 400: "Bad Request"}
-    )
     def post(self, request):
         serializer = CampaignSerializer(data=request.data)
         if serializer.is_valid():
@@ -230,3 +212,25 @@ class DuplicateCampaignView(APIView):
         new_campaign = Campaign.objects.create(**original_data)
         serializer = CampaignSerializer(new_campaign)
         return success_response("Campaign duplicated successfully.", serializer.data)
+
+
+class CustomTokenObtainPairView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = CustomTokenObtainPairSerializer(data=request.data)
+        if serializer.is_valid():
+            return Response(
+                {"status": status.HTTP_200_OK, "data": serializer.validated_data},
+                status=status.HTTP_200_OK,
+            )
+        return Response(
+            {
+                "status": status.HTTP_400_BAD_REQUEST,
+                "error": {
+                    "code": "",
+                    "data": serializer.errors,
+                    "type": "Auth Error",
+                    "message": "Authentication failed. Please check your credentials and try again.",
+                },
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )

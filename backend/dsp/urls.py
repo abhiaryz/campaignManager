@@ -23,12 +23,12 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from api.views import RegisterView, GoogleLoginView,home, LogoutView, ForgotPasswordView,UpdatePasswordView,UpdateProfileView,CampaignView, DuplicateCampaignView
+from api.views import RegisterView, GoogleLoginView,home, CustomTokenObtainPairView, LogoutView, ForgotPasswordView,UpdatePasswordView,UpdateProfileView,CampaignView, DuplicateCampaignView
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from django.urls import path
-
+from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -45,8 +45,6 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
-    path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/register/", RegisterView.as_view(), name="register"),
     path("api/google-login/", GoogleLoginView.as_view(), name="google_login"),
     path('api/logout/', LogoutView.as_view(), name='logout'),
@@ -59,6 +57,9 @@ urlpatterns = [
     path('campaigns/', CampaignView.as_view(), name='create_campaign'),
     path('campaigns/<int:pk>/', CampaignView.as_view(), name='edit_campaign'),
     path('campaigns/<int:pk>/duplicate/', DuplicateCampaignView.as_view(), name='duplicate_campaign'),
+    path("api/token/", CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("api/token/verify/", TokenVerifyView.as_view(), name="token_verify"),
     
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
