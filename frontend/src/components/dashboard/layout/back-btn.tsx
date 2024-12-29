@@ -10,7 +10,7 @@ const BackBtn: React.FC= () => {
     const router = useRouter();
     
     const handleBack = () => {
-            router.back();
+        router.back();
     };
     
     return (
