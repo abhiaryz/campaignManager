@@ -58,10 +58,54 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("This email is already taken.")
         return value
 
-from rest_framework import serializers
-from .models import Campaign
+
+
+from rest_framework import serializers, viewsets, status
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from django.shortcuts import get_object_or_404
+from .models import Campaign, CampaignImage, CampaignLogo, TargetDemographic, Keyword, Topic
+
+# Serializers
+class CampaignImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CampaignImage
+        fields = ['id', 'image', 'created_at']
+
+class CampaignLogoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CampaignLogo
+        fields = ['id', 'logo', 'created_at']
+
+class TargetDemographicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TargetDemographic
+        fields = ['id', 'name']
+
+class KeywordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Keyword
+        fields = ['id', 'keyword']
+
+class TopicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Topic
+        fields = ['id', 'topic']
 
 class CampaignSerializer(serializers.ModelSerializer):
+    images = CampaignImageSerializer(many=True, read_only=True)
+    logos = CampaignLogoSerializer(many=True, read_only=True)
+    target_demographics = TargetDemographicSerializer(many=True, read_only=True)
+    keywords = KeywordSerializer(many=True, read_only=True)
+    topics = TopicSerializer(many=True, read_only=True)
+
     class Meta:
         model = Campaign
         fields = '__all__'
+
+class CampaignCreateUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Campaign
+        fields = '__all__'
+
+

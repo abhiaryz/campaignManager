@@ -9,11 +9,12 @@ from django.core.mail import send_mail
 from rest_framework_simplejwt.tokens import RefreshToken
 from social_django.utils import load_backend, load_strategy
 from social_core.exceptions import MissingBackend, AuthTokenError
-from .models import Campaign,UserType
-from .serializers import CampaignSerializer, UpdateProfileSerializer,CustomTokenObtainPairSerializer
+from .models import Campaign,UserType,CampaignImage, CampaignLogo, TargetDemographic, Keyword, Topic
+from .serializers import  UpdateProfileSerializer,CustomTokenObtainPairSerializer,CampaignCreateUpdateSerializer,CampaignSerializer, CampaignImageSerializer, CampaignLogoSerializer,TargetDemographicSerializer,KeywordSerializer,TopicSerializer
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from django.shortcuts import render
+from rest_framework import serializers, viewsets, status
 logger = logging.getLogger(__name__)
 
 
@@ -168,50 +169,76 @@ class UpdateProfileView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# Campaign View
-class CampaignView(APIView):
-    def post(self, request):
-        serializer = CampaignSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return success_response("Campaign created successfully.", serializer.data, status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# ViewSets
+class CampaignViewSet(viewsets.ViewSet):
+    
+    def list(self, request):
+        """List all campaigns with related data."""
+        queryset = Campaign.objects.all()
+        serializer = CampaignSerializer(queryset, many=True)
+        return Response(serializer.data)
 
-    def put(self, request, pk):
-        campaign = get_object_or_404(Campaign, pk=pk)
-        serializer = CampaignSerializer(instance=campaign, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return success_response("Campaign updated successfully.", serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def get(self, request, pk):
+    def retrieve(self, request, pk=None):
+        """Retrieve a campaign by ID."""
         campaign = get_object_or_404(Campaign, pk=pk)
         serializer = CampaignSerializer(campaign)
-        return success_response("Campaign retrieved successfully.", serializer.data)
+        return Response(serializer.data)
 
+    def create(self, request):
+        """Create a new campaign."""
+        serializer = CampaignCreateUpdateSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# Duplicate Campaign View
-class DuplicateCampaignView(APIView):
-    @swagger_auto_schema(
-        operation_description="Create a new campaign",
-        manual_parameters=[
-            openapi.Parameter('name', openapi.IN_QUERY, description="Name of the campaign", type=openapi.TYPE_STRING),
-            openapi.Parameter('campaign_type', openapi.IN_QUERY, description="Type of the campaign", type=openapi.TYPE_STRING),
-            openapi.Parameter('text', openapi.IN_QUERY, description="Text for the campaign", type=openapi.TYPE_STRING),
-            openapi.Parameter('geo_location', openapi.IN_QUERY, description="Geographical location", type=openapi.TYPE_STRING),
-            openapi.Parameter('price', openapi.IN_QUERY, description="Price of the campaign", type=openapi.TYPE_NUMBER),
-            openapi.Parameter('file', openapi.IN_QUERY, description="File associated with the campaign", type=openapi.TYPE_FILE),
-        ],
-        responses={201: "Campaign created successfully", 400: "Bad Request"}
-    )
-    def post(self, request, pk):
+    def update(self, request, pk=None):
+        """Update an existing campaign."""
         campaign = get_object_or_404(Campaign, pk=pk)
-        original_data = CampaignSerializer(campaign).data
-        original_data.pop("id")  # Remove the ID to create a new instance
-        new_campaign = Campaign.objects.create(**original_data)
-        serializer = CampaignSerializer(new_campaign)
-        return success_response("Campaign duplicated successfully.", serializer.data)
+        serializer = CampaignCreateUpdateSerializer(campaign, data=request.data, partial=False)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def partial_update(self, request, pk=None):
+        """Partially update a campaign."""
+        campaign = get_object_or_404(Campaign, pk=pk)
+        serializer = CampaignCreateUpdateSerializer(campaign, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, pk=None):
+        """Delete a campaign."""
+        campaign = get_object_or_404(Campaign, pk=pk)
+        campaign.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class CampaignImageViewSet(viewsets.ModelViewSet):
+    queryset = CampaignImage.objects.all()
+    serializer_class = CampaignImageSerializer
+
+class CampaignLogoViewSet(viewsets.ModelViewSet):
+    queryset = CampaignLogo.objects.all()
+    serializer_class = CampaignLogoSerializer
+
+class TargetDemographicViewSet(viewsets.ModelViewSet):
+    queryset = TargetDemographic.objects.all()
+    serializer_class = TargetDemographicSerializer
+
+class KeywordViewSet(viewsets.ModelViewSet):
+    queryset = Keyword.objects.all()
+    serializer_class = KeywordSerializer
+
+class TopicViewSet(viewsets.ModelViewSet):
+    queryset = Topic.objects.all()
+    serializer_class = TopicSerializer
+
+
+
 
 
 class CustomTokenObtainPairView(APIView):

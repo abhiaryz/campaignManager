@@ -14,16 +14,16 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-
+from rest_framework.routers import DefaultRouter
 from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
-
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from api.views import RegisterView, GoogleLoginView,home, CustomTokenObtainPairView, LogoutView, ForgotPasswordView,UpdatePasswordView,UpdateProfileView,CampaignView, DuplicateCampaignView
+from api.views import RegisterView, GoogleLoginView,home, CustomTokenObtainPairView, LogoutView, ForgotPasswordView,UpdatePasswordView,UpdateProfileView,CampaignViewSet,CampaignImageViewSet,CampaignLogoViewSet,TargetDemographicViewSet,KeywordViewSet,TopicViewSet
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -43,6 +43,14 @@ schema_view = get_schema_view(
     permission_classes=(permissions.AllowAny,),
 )
 
+router = DefaultRouter()
+router.register(r'campaigns', CampaignViewSet, basename='campaign')
+router.register(r'campaign-images', CampaignImageViewSet, basename='campaign-image')
+router.register(r'campaign-logos', CampaignLogoViewSet, basename='campaign-logo')
+router.register(r'target-demographics', TargetDemographicViewSet, basename='target-demographic')
+router.register(r'keywords', KeywordViewSet, basename='keyword')
+router.register(r'topics', TopicViewSet, basename='topic')
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/register/", RegisterView.as_view(), name="register"),
@@ -54,14 +62,12 @@ urlpatterns = [
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('api/update-password/', UpdatePasswordView.as_view(), name='update_password'),
     path('api/update-profile/', UpdateProfileView.as_view(), name='update_profile'),
-    path('campaigns/', CampaignView.as_view(), name='create_campaign'),
-    path('campaigns/<int:pk>/', CampaignView.as_view(), name='edit_campaign'),
-    path('campaigns/<int:pk>/duplicate/', DuplicateCampaignView.as_view(), name='duplicate_campaign'),
     path("api/token/", CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/token/verify/", TokenVerifyView.as_view(), name="token_verify"),
+    path('api/', include(router.urls)),
     
 ]
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

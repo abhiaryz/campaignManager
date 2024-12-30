@@ -17,7 +17,7 @@ class Campaign(models.Model):
     text = models.TextField(null=True, blank=True)
     geo_location = models.CharField(max_length=255, null=True, blank=True)
     budget = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    file = models.FileField(upload_to='campaigns/')
+    file = models.FileField(upload_to='campaigns/',null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     language = models.CharField(max_length=255,blank=True, null=True)
