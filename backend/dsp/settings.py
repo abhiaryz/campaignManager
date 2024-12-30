@@ -11,7 +11,7 @@ SECRET_KEY = config("SECRET_KEY", default="unsafe-secret-key")
 
 DEBUG = config("DEBUG", default=True, cast=bool)
 
-ALLOWED_HOSTS = ['abhiaryz.pythonanywhere.com','pythonanywhere.com' ,'.now.sh', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['abhiaryz.pythonanywhere.com','pythonanywhere.com' ,'.now.sh', '127.0.0.1', 'localhost',  "ad-campaign.vercel.app","ad-campaign-git-dev-ga7utis-projects.vercel.app"]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -133,6 +133,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
     "http://localhost:3000",
     "https://ad-campaign.vercel.app",
+    "https://abhiaryz.pythonanywhere.com",
+    "https://ad-campaign-git-dev-ga7utis-projects.vercel.app"
 ]
 
 CSRF_TRUSTED_ORIGINS = ["http://localhost:3000"]
