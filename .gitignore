@@ -1,6 +1,9 @@
 .vercel
 # Python bytecode files
 *.pyc
+__pycache__/
+
+*.pyc
 *.pyo
 *.pyc
 __pycache__/
