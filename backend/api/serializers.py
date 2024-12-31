@@ -39,8 +39,10 @@ class CustomTokenObtainPairSerializer(serializers.Serializer):
         refresh = RefreshToken.for_user(user)
         user_type = False
         user_type = UserType.objects.get(user=user)
-        if user_type.user_type_pm == True:
+        if user_type.user_type_pm is True:
             user_type = True
+        else:
+            user_type = False
         return {
             "refresh": str(refresh),
             "access": str(refresh.access_token),
