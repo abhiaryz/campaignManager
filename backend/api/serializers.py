@@ -12,8 +12,16 @@ from django.core.mail import send_mail
 from django.core.validators import validate_email as django_validate_email
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
-
+from django.contrib.auth.models import User
+from rest_framework import serializers
+from .models import UserProfile
 from .models import UserType
+
+from rest_framework import serializers, viewsets, status
+from rest_framework.response import Response
+from rest_framework.decorators import action
+from django.shortcuts import get_object_or_404
+from .models import Campaign, CampaignImage, CampaignLogo, TargetDemographic, Keyword, Topic
 
 class CustomTokenObtainPairSerializer(serializers.Serializer):
     username = serializers.CharField()
@@ -62,11 +70,6 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
 
 
 
-from rest_framework import serializers, viewsets, status
-from rest_framework.response import Response
-from rest_framework.decorators import action
-from django.shortcuts import get_object_or_404
-from .models import Campaign, CampaignImage, CampaignLogo, TargetDemographic, Keyword, Topic
 
 # Serializers
 class CampaignImageSerializer(serializers.ModelSerializer):
@@ -110,4 +113,27 @@ class CampaignCreateUpdateSerializer(serializers.ModelSerializer):
         model = Campaign
         fields = '__all__'
 
+
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    city = serializers.CharField(source='profile.city', required=False)
+    phone_no = serializers.CharField(source='profile.phone_no', required=False)
+
+    class Meta:
+        model = User
+        fields = ['email', 'first_name', 'last_name', 'city', 'phone_no']
+
+    def update(self, instance, validated_data):
+        profile_data = validated_data.pop('profile', {})
+        instance.email = validated_data.get('email', instance.email)
+        instance.first_name = validated_data.get('first_name', instance.first_name)
+        instance.last_name = validated_data.get('last_name', instance.last_name)
+        instance.save()
+
+        profile = instance.profile
+        profile.city = profile_data.get('city', profile.city)
+        profile.phone_no = profile_data.get('phone_no', profile.phone_no)
+        profile.save()
+
+        return instance
 

@@ -16,7 +16,11 @@ from drf_yasg import openapi
 from django.shortcuts import render
 from rest_framework import serializers, viewsets, status
 logger = logging.getLogger(__name__)
-
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+from .serializers import UserUpdateSerializer
 from django.core.mail import EmailMessage
 
 # Utility Functions
@@ -155,19 +159,19 @@ class UpdatePasswordView(APIView):
         return success_response("Password updated successfully.")
 
 
-# Update Profile View
-class UpdateProfileView(APIView):
+
+
+class UserUpdateAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def put(self, request):
         user = request.user
-        serializer = UpdateProfileSerializer(instance=user, data=request.data, partial=True)
-
+        serializer = UserUpdateSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return success_response("Profile updated successfully.", serializer.data)
-
+            return Response({"message": "User updated successfully", "data": serializer.data}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 # ViewSets
