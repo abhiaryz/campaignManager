@@ -12,7 +12,19 @@ from .models import (
     Keyword,
     Topic
 )
-admin.site.register(UserType)
+class UserTypeAdmin(admin.ModelAdmin):
+    # Display the following fields in the list view
+    list_display = ('user', 'user_type_pm')
+
+    # Add search functionality
+    search_fields = ('user',)
+
+    # Add filtering options
+    list_filter = ('user',)
+
+    # Optionally, add ordering to the list view
+    ordering = ('user',)
+admin.site.register(UserType,UserTypeAdmin)
 admin.site.register(Campaign)
 admin.site.register(CampaignImage)
 admin.site.register(CampaignLogo)

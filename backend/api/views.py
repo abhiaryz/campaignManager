@@ -17,6 +17,7 @@ from django.shortcuts import render
 from rest_framework import serializers, viewsets, status
 logger = logging.getLogger(__name__)
 
+from django.core.mail import EmailMessage
 
 # Utility Functions
 def success_response(message, data=None, status_code=status.HTTP_200_OK):
@@ -53,7 +54,7 @@ class RegisterView(APIView):
             user = User.objects.create_user(
                 username=username, password=password, email=email, first_name=first_name, last_name=last_name
             )
-            UserType.objects.create(user=user, user_type_pm=False)
+            UserType.objects.create(user=user)
             return success_response("User created successfully.", {"id": user.id}, status.HTTP_201_CREATED)
         except Exception as e:
             logger.error(f"Error creating user: {e}")
@@ -238,7 +239,34 @@ class TopicViewSet(viewsets.ModelViewSet):
     serializer_class = TopicSerializer
 
 
+class TestEmailView(APIView):
+    def post(self, request):
+        """
+        Send a test email based on the provided data.
+        """
+        recipient = request.data.get('recipient')  # Email address of the recipient
+        subject = request.data.get('subject', 'Test Email')  # Default subject
+        message = request.data.get('message', 'This is a test email.')  # Default message
 
+        if not recipient:
+            return Response(
+                {"error": "Recipient email is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+       
+        email = EmailMessage(
+                subject=subject,
+                body=message,
+                from_email='aryzabhishek@gmail.com',  # Replace with your email
+                to=[recipient],
+            )    
+        email.send()
+        return Response(
+                {"message": f"Test email sent successfully to {recipient}."},
+                status=status.HTTP_200_OK,
+            )
+            
 
 
 class CustomTokenObtainPairView(APIView):
