@@ -10,13 +10,13 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.core.mail import send_mail
 from django.core.validators import validate_email as django_validate_email
-from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
-from rest_framework import serializers
 from .models import UserProfile
 from .models import UserType
-
+from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from rest_framework import serializers, viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -70,6 +70,30 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
 
 
 
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True, write_only=True)
+    new_password = serializers.CharField(required=True, write_only=True)
+    confirm_new_password = serializers.CharField(required=True, write_only=True)
+
+    def validate(self, data):
+        user = self.context['request'].user
+        if not user.check_password(data['old_password']):
+            raise serializers.ValidationError({"old_password": "Old password is not correct."})
+        if data['new_password'] != data['confirm_new_password']:
+            raise serializers.ValidationError({"confirm_new_password": "Passwords do not match."})
+        try:
+            validate_password(data['new_password'], user)
+        except ValidationError as e:
+            raise serializers.ValidationError({"new_password": e.messages})
+        return data
+
+    def save(self):
+        user = self.context['request'].user
+        user.set_password(self.validated_data['new_password'])
+        user.save()
+        return user
+
+
 
 # Serializers
 class CampaignImageSerializer(serializers.ModelSerializer):
@@ -109,9 +133,46 @@ class CampaignSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class CampaignCreateUpdateSerializer(serializers.ModelSerializer):
+    images = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=CampaignImage.objects.all(), required=False
+    )
+    logos = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=CampaignLogo.objects.all(), required=False
+    )
+    target_demographics = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=TargetDemographic.objects.all(), required=False
+    )
+    keywords = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Keyword.objects.all(), required=False
+    )
+    topics = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Topic.objects.all(), required=False
+    )
+
     class Meta:
         model = Campaign
         fields = '__all__'
+
+    def create(self, validated_data):
+        # Pop many-to-many fields from validated data
+        images = validated_data.pop('images', [])
+        logos = validated_data.pop('logos', [])
+        target_demographics = validated_data.pop('target_demographics', [])
+        keywords = validated_data.pop('keywords', [])
+        topics = validated_data.pop('topics', [])
+
+        # Create the Campaign instance
+        campaign = Campaign.objects.create(**validated_data)
+
+        # Assign many-to-many relationships
+        campaign.images.set(images)
+        campaign.logos.set(logos)
+        campaign.target_demographics.set(target_demographics)
+        campaign.keywords.set(keywords)
+        campaign.topics.set(topics)
+
+        return campaign
+
 
 
 

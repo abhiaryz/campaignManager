@@ -22,7 +22,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from .serializers import UserUpdateSerializer
 from django.core.mail import EmailMessage
-
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+from .serializers import ChangePasswordSerializer
 # Utility Functions
 def success_response(message, data=None, status_code=status.HTTP_200_OK):
     """Utility for generating a consistent success response."""
@@ -193,7 +197,7 @@ class CampaignViewSet(viewsets.ViewSet):
         """Create a new campaign."""
         serializer = CampaignCreateUpdateSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -202,7 +206,7 @@ class CampaignViewSet(viewsets.ViewSet):
         campaign = get_object_or_404(Campaign, pk=pk)
         serializer = CampaignCreateUpdateSerializer(campaign, data=request.data, partial=False)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -211,7 +215,7 @@ class CampaignViewSet(viewsets.ViewSet):
         campaign = get_object_or_404(Campaign, pk=pk)
         serializer = CampaignCreateUpdateSerializer(campaign, data=request.data, partial=True)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -272,6 +276,27 @@ class TestEmailView(APIView):
             )
             
 
+
+
+class ChangePasswordAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, *args, **kwargs):
+        serializer = ChangePasswordSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Password updated successfully"}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+from rest_framework.decorators import api_view, permission_classes
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def fetch_user_campgain(request):
+    queryset = Campaign.objects.filter(user=request.user)
+    serializer = CampaignSerializer(queryset, many=True)
+    return Response(serializer.data)
+        
 
 class CustomTokenObtainPairView(APIView):
     def post(self, request, *args, **kwargs):

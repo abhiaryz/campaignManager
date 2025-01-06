@@ -7,7 +7,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from api.views import RegisterView, GoogleLoginView,home, CustomTokenObtainPairView, LogoutView, ForgotPasswordView,UpdatePasswordView,UserUpdateAPIView,CampaignViewSet,CampaignImageViewSet,CampaignLogoViewSet,TargetDemographicViewSet,KeywordViewSet,TopicViewSet
+from api.views import fetch_user_campgain,RegisterView, GoogleLoginView,home, CustomTokenObtainPairView, ChangePasswordAPIView,LogoutView, ForgotPasswordView,UpdatePasswordView,UserUpdateAPIView,CampaignViewSet,CampaignImageViewSet,CampaignLogoViewSet,TargetDemographicViewSet,KeywordViewSet,TopicViewSet
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -41,6 +41,7 @@ urlpatterns = [
     path("api/google-login/", GoogleLoginView.as_view(), name="google_login"),
     path('api/logout/', LogoutView.as_view(), name='logout'),
     path('api/forgot-password/', ForgotPasswordView.as_view(), name='forgot_password'),
+    path('api/user/change-password/', ChangePasswordAPIView.as_view(), name='change_password'),
     path('', home, name='home'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
@@ -49,6 +50,8 @@ urlpatterns = [
     path("api/token/", CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/token/verify/", TokenVerifyView.as_view(), name="token_verify"),
+    path("api/fetch_user_campgain/", fetch_user_campgain, name="fetch_user_campgain"),
+    
     path('api/', include(router.urls)),
     
 ]

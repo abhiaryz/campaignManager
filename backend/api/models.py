@@ -11,6 +11,7 @@ class UserType(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 class Campaign(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE,related_name="campaigns",blank=True, null=True)
     CAMPAIGN_TYPE_CHOICES = [
         ('image', 'Image Campaign'),
         ('video', 'Video Campaign'),
