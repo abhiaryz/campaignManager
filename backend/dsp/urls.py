@@ -1,57 +1,42 @@
-from rest_framework.routers import DefaultRouter
-from django.contrib import admin
-from django.urls import path
-from django.conf import settings
-from django.conf.urls.static import static
-from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.contrib import admin
 from django.urls import path, include
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from api.views import fetch_user_campgain,RegisterView, GoogleLoginView,home, CustomTokenObtainPairView, ChangePasswordAPIView,LogoutView, ForgotPasswordView,UpdatePasswordView,UserUpdateAPIView,CampaignViewSet,CampaignImageViewSet,CampaignLogoViewSet,TargetDemographicViewSet,KeywordViewSet,TopicViewSet
-from rest_framework import permissions
-from drf_yasg.views import get_schema_view
-from drf_yasg import openapi
-from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
+from rest_framework.routers import DefaultRouter
+from api import views
+from api import auth
+from api import profile
 
-schema_view = get_schema_view(
-    openapi.Info(
-        title="Your API Title",
-        default_version='v1',
-        description="Test description",
-        terms_of_service="https://www.google.com/policies/terms/",
-        contact=openapi.Contact(email="contact@yourapi.local"),
-        license=openapi.License(name="BSD License"),
-    ),
-    public=True,
-    permission_classes=(permissions.AllowAny,),
-)
 
 router = DefaultRouter()
-router.register(r'campaigns', CampaignViewSet, basename='campaign')
-router.register(r'campaign-images', CampaignImageViewSet, basename='campaign-image')
-router.register(r'campaign-logos', CampaignLogoViewSet, basename='campaign-logo')
-router.register(r'target-demographics', TargetDemographicViewSet, basename='target-demographic')
-router.register(r'keywords', KeywordViewSet, basename='keyword')
-router.register(r'topics', TopicViewSet, basename='topic')
+router.register(r'campaigns', views.CampaignViewSet, basename='campaign')
+router.register(r'campaign-images', views.CampaignImageViewSet, basename='campaign-image')
+router.register(r'campaign-logos', views.CampaignLogoViewSet, basename='campaign-logo')
+router.register(r'target-demographics', views.TargetDemographicViewSet, basename='target-demographic')
+router.register(r'keywords', views.KeywordViewSet, basename='keyword')
+router.register(r'topics', views.TopicViewSet, basename='topic')
+router.register(r'proximityStore', views.ProximityStoreViewSet, basename='proximityStore')
+router.register(r'proximity', views.ProximityViewSet, basename='proximity')
+router.register(r'weather', views.WeatherViewSet, basename='weather')
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/register/", RegisterView.as_view(), name="register"),
-    path("api/google-login/", GoogleLoginView.as_view(), name="google_login"),
-    path('api/logout/', LogoutView.as_view(), name='logout'),
-    path('api/forgot-password/', ForgotPasswordView.as_view(), name='forgot_password'),
-    path('api/user/change-password/', ChangePasswordAPIView.as_view(), name='change_password'),
-    path('', home, name='home'),
-    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
-    path('api/update-password/', UpdatePasswordView.as_view(), name='update_password'),
-    path('api/user/update/', UserUpdateAPIView.as_view(), name='update_profile'),
-    path("api/token/", CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/register/", auth.RegisterView.as_view(), name="register"),
+    path('api/logout/', auth.LogoutView.as_view(), name='logout'),
+    path('api/forgot-password/', auth.ForgotPasswordView.as_view(), name='forgot_password'),
+    path('api/user/change-password/', auth.ChangePasswordAPIView.as_view(), name='change_password'),
+    path('', views.home, name='home'),
+    path('api/update-password/', auth.UpdatePasswordView.as_view(), name='update_password'),
+    path('api/user/update/', profile.UserUpdateAPIView.as_view(), name='update_profile'),
+    path("api/token/", auth.CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/token/verify/", TokenVerifyView.as_view(), name="token_verify"),
-    path("api/fetch_user_campgain/", fetch_user_campgain, name="fetch_user_campgain"),
-    
+    path("api/fetch_user_campgain/", views.fetch_user_campgain, name="fetch_user_campgain"),
+    path("api/location/", views.location, name="location"),
+    path("api/profile/", profile.profile_api, name="profile"),
+    path('api/users/', profile.UserAPIView.as_view(), name='user-list'),
+    path('api/users/<int:pk>/', profile.UserAPIView.as_view(), name='user-detail'),
     path('api/', include(router.urls)),
     
 ]

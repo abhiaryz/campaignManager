@@ -21,7 +21,7 @@ from rest_framework import serializers, viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
-from .models import Campaign, CampaignImage, CampaignLogo, TargetDemographic, Keyword, Topic
+from .models import Campaign, CampaignImage, CampaignLogo, TargetDemographic, Keyword, Topic, Location,proximity_store,proximity,weather
 
 class CustomTokenObtainPairSerializer(serializers.Serializer):
     username = serializers.CharField()
@@ -69,6 +69,10 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
         return value
 
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'date_joined']
 
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True, write_only=True)
@@ -93,7 +97,10 @@ class ChangePasswordSerializer(serializers.Serializer):
         user.save()
         return user
 
-
+class LocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Location
+        fields = ['id','country', 'state', 'city', 'tier', 'population']
 
 # Serializers
 class CampaignImageSerializer(serializers.ModelSerializer):
@@ -114,8 +121,23 @@ class TargetDemographicSerializer(serializers.ModelSerializer):
 class KeywordSerializer(serializers.ModelSerializer):
     class Meta:
         model = Keyword
-        fields = ['id', 'keyword']
+        fields = ['id', 'file']
 
+class ProximityStoreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = proximity_store
+        fields = ['id', 'file']
+
+class ProximitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = proximity
+        fields = ['id', 'file']
+
+class WeatherSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = weather
+        fields = ['id', 'file']
+                        
 class TopicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Topic
@@ -148,29 +170,40 @@ class CampaignCreateUpdateSerializer(serializers.ModelSerializer):
     topics = serializers.PrimaryKeyRelatedField(
         many=True, queryset=Topic.objects.all(), required=False
     )
+    location = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Location.objects.all(), required=False
+    )
+    proximity_store = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=proximity_store.objects.all(), required=False
+    )
+    proximity = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=proximity.objects.all(), required=False
+    )
+    weather = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=weather.objects.all(), required=False
+    )
 
     class Meta:
         model = Campaign
         fields = '__all__'
 
     def create(self, validated_data):
-        # Pop many-to-many fields from validated data
         images = validated_data.pop('images', [])
         logos = validated_data.pop('logos', [])
-        target_demographics = validated_data.pop('target_demographics', [])
         keywords = validated_data.pop('keywords', [])
-        topics = validated_data.pop('topics', [])
+        location = validated_data.pop('location', [])
+        proximity_store = validated_data.pop('proximity_store', [])
+        proximity = validated_data.pop('proximity', [])
+        weather = validated_data.pop('weather', [])
 
-        # Create the Campaign instance
         campaign = Campaign.objects.create(**validated_data)
-
-        # Assign many-to-many relationships
+        campaign.location.set(location)
         campaign.images.set(images)
         campaign.logos.set(logos)
-        campaign.target_demographics.set(target_demographics)
         campaign.keywords.set(keywords)
-        campaign.topics.set(topics)
-
+        campaign.proximity_store.set(proximity_store)
+        campaign.proximity.set(proximity)
+        campaign.weather.set(weather)
         return campaign
 
 

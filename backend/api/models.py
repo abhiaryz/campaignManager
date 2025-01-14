@@ -4,6 +4,31 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.core.exceptions import ValidationError
+import re
+
+class Location(models.Model):
+    country = models.CharField(max_length=254)
+    state = models.CharField(max_length=254)
+    city = models.CharField(max_length=254)
+    tier = models.CharField(max_length=254)
+    population = models.CharField(max_length=254)
+
+
+class CityData(models.Model):
+    TIER_CHOICES = [
+        ('Tier-I', 'Tier-I'),
+        ('Tier-II', 'Tier-II'),
+    ]
+
+    country = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+    city = models.CharField(max_length=100)
+    tier = models.CharField(max_length=10, choices=TIER_CHOICES)
+    city_population = models.BigIntegerField()
+
+    def __str__(self):
+        return f"{self.city}, {self.state}, {self.country}"
 
 class UserType(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -12,26 +37,49 @@ class UserType(models.Model):
 
 class Campaign(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,related_name="campaigns",blank=True, null=True)
-    CAMPAIGN_TYPE_CHOICES = [
-        ('image', 'Image Campaign'),
-        ('video', 'Video Campaign'),
-    ]
-    final_url = models.CharField(max_length=255,blank=True, null=True)
-    business_name = models.CharField(max_length=255,blank=True, null=True)
-    campaign_type = models.CharField(max_length=10, choices=CAMPAIGN_TYPE_CHOICES)
-    text = models.TextField(null=True, blank=True)
-    geo_location = models.CharField(max_length=255, null=True, blank=True)
-    budget = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    file = models.FileField(upload_to='campaigns/',null=True, blank=True)
+    name = models.CharField(max_length=255, blank=True, null=True)
+    age = models.JSONField(blank=True, null=True)
+    day_part = models.CharField(max_length=255, blank=True, null=True)
+    device = models.JSONField(blank=True, null=True)
+    environment = models.JSONField(blank=True, null=True)
+
+    exchange = models.JSONField(blank=True, null=True)
+    interset = models.CharField(max_length=255, null=True, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    language = models.CharField(max_length=255,blank=True, null=True)
-    bidding = models.CharField(max_length=255,blank=True, null=True)
-    bidding_focus = models.CharField(max_length=255,blank=True, null=True)
-    target_people = models.CharField(max_length=255,blank=True, null=True)
-    target_content = models.CharField(max_length=255,blank=True, null=True)
-    target_optimize = models.BooleanField(default=True)
+
+    language = models.JSONField(blank=True, null=True)
+    carrier = models.JSONField(blank=True, null=True)
+    device_price = models.JSONField(blank=True, null=True)
     
+    start_time = models.CharField(max_length=5, blank=True, null=True)
+    end_time = models.CharField(max_length=5, blank=True, null=True)
+
+    proximity_store = models.ManyToManyField(
+        'proximity_store',
+        blank=True,
+        related_name='proximity_store',
+    )
+
+    proximity = models.ManyToManyField(
+        'proximity',
+        blank=True,
+        related_name='proximity',
+    )
+
+    weather = models.ManyToManyField(
+        'weather',
+        blank=True,
+        related_name='weather',
+    )
+
+    location = models.ManyToManyField(
+        'location',
+        blank=True,
+        related_name='Location',
+    )
+
     images = models.ManyToManyField(
         'CampaignImage',
         blank=True,
@@ -47,27 +95,26 @@ class Campaign(models.Model):
         null=True,
         blank=True,
     )
-    target_demographics = models.ManyToManyField(
-        'TargetDemographic',
-        blank=True,
-        related_name='campaign_demographics',
-    )
+
     keywords = models.ManyToManyField(
         'Keyword',
         blank=True,
         related_name='campaign_keywords',
     )
-    topics = models.ManyToManyField(
-        'Topic',
-        blank=True,
-        related_name='campaign_topics',
-    )
 
+
+    def clean(self):
+        super().clean()
+        # Validate start_time and end_time format (HH:MM)
+        time_pattern = r'^\d{2}:\d{2}$'
+        if self.start_time and not re.match(time_pattern, self.start_time):
+            raise ValidationError({'start_time': 'Invalid time format. Should be HH:MM.'})
+        if self.end_time and not re.match(time_pattern, self.end_time):
+            raise ValidationError({'end_time': 'Invalid time format. Should be HH:MM.'})
 
 class CampaignImage(models.Model):
     image = models.ImageField(upload_to='campaigns/images/')
     created_at = models.DateTimeField(auto_now_add=True)
-
 
 class CampaignLogo(models.Model):
     logo = models.ImageField(upload_to='campaigns/logos/')
@@ -78,23 +125,41 @@ class TargetDemographic(models.Model):
 
     def __str__(self):
         return self.name
-
-
+from datetime import datetime
 class Keyword(models.Model):
-    keyword = models.CharField(max_length=100)
+    file = models.FileField(upload_to='campaign_keywords/',blank=True,null=True)
+    uploaded_at = models.DateTimeField(default=datetime.now,blank=True)
 
     def __str__(self):
-        return self.keyword
+        return f"File {self.id} uploaded at {self.uploaded_at}"
 
+class proximity_store(models.Model):
+    file = models.FileField(upload_to='proximity_store/',blank=True,null=True)
+    uploaded_at = models.DateTimeField(default=datetime.now,blank=True)
 
+    def __str__(self):
+        return f"File {self.id} uploaded at {self.uploaded_at}"
+
+class proximity(models.Model):
+    file = models.FileField(upload_to='proximity/',blank=True,null=True)
+    uploaded_at = models.DateTimeField(default=datetime.now,blank=True)
+
+    def __str__(self):
+        return f"File {self.id} uploaded at {self.uploaded_at}"
+
+class weather(models.Model):
+    file = models.FileField(upload_to='weather/',blank=True,null=True)
+    uploaded_at = models.DateTimeField(default=datetime.now,blank=True)
+
+    def __str__(self):
+        return f"File {self.id} uploaded at {self.uploaded_at}"
+            
 class Topic(models.Model):
     topic = models.CharField(max_length=100)
 
     def __str__(self):
         return self.topic
     
-
-
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     city = models.CharField(max_length=100, blank=True, null=True)

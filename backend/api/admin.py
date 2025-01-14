@@ -1,50 +1,49 @@
 from django.contrib import admin
 
-# Register your models here.
-from django.contrib import admin
-
 from .models import (
     UserType,
     Campaign,
     CampaignImage,
     CampaignLogo,
     TargetDemographic,
-    Keyword,
+    
     Topic,
-    UserProfile
+    UserProfile,
+    CityData,
+    Location
 )
 
 
 class UserProfileAdmin(admin.ModelAdmin):
-    # Display the following fields in the list view
     list_display = ('user', 'city','phone_no')
-
-    # Add search functionality
     search_fields = ('user',)
-
-    # Add filtering options
     list_filter = ('user',)
-
-    # Optionally, add ordering to the list view
     ordering = ('user',)
 
 class UserTypeAdmin(admin.ModelAdmin):
-    # Display the following fields in the list view
     list_display = ('user', 'user_type_pm')
-
-    # Add search functionality
     search_fields = ('user',)
-
-    # Add filtering options
     list_filter = ('user',)
-
-    # Optionally, add ordering to the list view
     ordering = ('user',)
+
+
+class LocationAdmin(admin.ModelAdmin):
+    list_display = ('country', 'state', 'city', 'tier', 'population')
+    search_fields = ('country',)
+    list_filter = ('country',)
+    ordering = ('country',)
+
 admin.site.register(UserType,UserTypeAdmin)
 admin.site.register(UserProfile,UserProfileAdmin)
 admin.site.register(Campaign)
+admin.site.register(Location,LocationAdmin)
 admin.site.register(CampaignImage)
 admin.site.register(CampaignLogo)
 admin.site.register(TargetDemographic)
-admin.site.register(Keyword)
+
 admin.site.register(Topic)
+
+@admin.register(CityData)
+class CityDataAdmin(admin.ModelAdmin):
+    list_display = ('city', 'state', 'country', 'tier', 'city_population')
+    search_fields = ('city', 'state', 'country', 'tier')
