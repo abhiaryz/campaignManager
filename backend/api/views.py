@@ -44,13 +44,13 @@ class CampaignViewSet(viewsets.ViewSet):
         """List all campaigns with related data."""
         queryset = Campaign.objects.all()
         serializer = CampaignSerializer(queryset, many=True)
-        return success_response("Campaign List", {"id": serializer.data})
+        return success_response("Campaign List", serializer.data)
 
     def retrieve(self, request, pk=None):
         """Retrieve a campaign by ID."""
         campaign = get_object_or_404(Campaign, pk=pk)
         serializer = CampaignSerializer(campaign)
-        return success_response("Campaign List", {"id": serializer.data})
+        return success_response("Campaign List",serializer.data)
 
     def create(self, request):
         """Create a new campaign."""
