@@ -44,7 +44,7 @@ class Campaign(models.Model):
     environment = models.JSONField(blank=True, null=True)
 
     exchange = models.JSONField(blank=True, null=True)
-    interset = models.CharField(max_length=255, null=True, blank=True)
+    interset = models.JSONField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
