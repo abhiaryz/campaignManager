@@ -1,27 +1,24 @@
-from rest_framework import serializers
-from django.contrib.auth.models import User
 import secrets
 import string
-from django.core.exceptions import ObjectDoesNotExist
+
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError as DjangoValidationError
+from django.core.exceptions import ObjectDoesNotExist, ValidationError, ValidationError as DjangoValidationError
 from django.core.mail import send_mail
 from django.core.validators import validate_email as django_validate_email
-from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth.models import User
-from .models import UserProfile
-from .models import UserType
-from django.contrib.auth.models import User
-from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError
-from rest_framework import serializers, viewsets, status
-from rest_framework.response import Response
-from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
-from .models import Campaign, CampaignImage, CampaignLogo, TargetDemographic, Keyword, Topic, Location,proximity_store,proximity,weather
+from rest_framework import serializers, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework_simplejwt.tokens import RefreshToken
+
+from .models import (
+    Campaign, CampaignImage, CampaignLogo, Keyword, Location, TargetDemographic, Topic, UserProfile, UserType,
+    proximity, proximity_store, weather,
+)
+
 
 class CustomTokenObtainPairSerializer(serializers.Serializer):
     username = serializers.CharField()
@@ -33,7 +30,6 @@ class CustomTokenObtainPairSerializer(serializers.Serializer):
 
         user = authenticate(username=username, password=password)
         if user is None:
-            
             try:
                 user = User.objects.get(email=username)
                 if not user.check_password(password):
@@ -54,13 +50,14 @@ class CustomTokenObtainPairSerializer(serializers.Serializer):
         return {
             "refresh": str(refresh),
             "access": str(refresh.access_token),
-            "user_type" : user_type
+            "user_type": user_type,
         }
-    
+
+
 class UpdateProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['email', 'first_name', 'last_name']
+        fields = ["email", "first_name", "last_name"]
 
     def validate_email(self, value):
         # Ensure the email is unique for other users
@@ -72,7 +69,8 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'date_joined']
+        fields = ["id", "username", "email", "first_name", "last_name", "date_joined"]
+
 
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True, write_only=True)
@@ -80,68 +78,82 @@ class ChangePasswordSerializer(serializers.Serializer):
     confirm_new_password = serializers.CharField(required=True, write_only=True)
 
     def validate(self, data):
-        user = self.context['request'].user
-        if not user.check_password(data['old_password']):
-            raise serializers.ValidationError({"old_password": "Old password is not correct."})
-        if data['new_password'] != data['confirm_new_password']:
-            raise serializers.ValidationError({"confirm_new_password": "Passwords do not match."})
+        user = self.context["request"].user
+        if not user.check_password(data["old_password"]):
+            raise serializers.ValidationError(
+                {"old_password": "Old password is not correct."}
+            )
+        if data["new_password"] != data["confirm_new_password"]:
+            raise serializers.ValidationError(
+                {"confirm_new_password": "Passwords do not match."}
+            )
         try:
-            validate_password(data['new_password'], user)
+            validate_password(data["new_password"], user)
         except ValidationError as e:
             raise serializers.ValidationError({"new_password": e.messages})
         return data
 
     def save(self):
-        user = self.context['request'].user
-        user.set_password(self.validated_data['new_password'])
+        user = self.context["request"].user
+        user.set_password(self.validated_data["new_password"])
         user.save()
         return user
+
 
 class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
-        fields = ['id','country', 'state', 'city', 'tier', 'population']
+        fields = ["id", "country", "state", "city", "tier", "population"]
+
 
 # Serializers
 class CampaignImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = CampaignImage
-        fields = ['id', 'image', 'created_at']
+        fields = ["id", "image", "created_at"]
+
 
 class CampaignLogoSerializer(serializers.ModelSerializer):
     class Meta:
         model = CampaignLogo
-        fields = ['id', 'logo', 'created_at']
+        fields = ["id", "logo", "created_at"]
+
 
 class TargetDemographicSerializer(serializers.ModelSerializer):
     class Meta:
         model = TargetDemographic
-        fields = ['id', 'name']
+        fields = ["id", "name"]
+
 
 class KeywordSerializer(serializers.ModelSerializer):
     class Meta:
         model = Keyword
-        fields = ['id', 'file']
+        fields = ["id", "file", "keywords"]
+
 
 class ProximityStoreSerializer(serializers.ModelSerializer):
     class Meta:
         model = proximity_store
-        fields = ['id', 'file']
+        fields = ["id", "file"]
+
 
 class ProximitySerializer(serializers.ModelSerializer):
     class Meta:
         model = proximity
-        fields = ['id', 'file']
+        fields = ["id", "file"]
+
 
 class WeatherSerializer(serializers.ModelSerializer):
     class Meta:
         model = weather
-        fields = ['id', 'file']
-                        
+        fields = ["id", "file"]
+
+
 class TopicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Topic
-        fields = ['id', 'topic']
+        fields = ["id", "topic"]
+
 
 class CampaignSerializer(serializers.ModelSerializer):
     images = CampaignImageSerializer(many=True, read_only=True)
@@ -152,7 +164,8 @@ class CampaignSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Campaign
-        fields = '__all__'
+        fields = "__all__"
+
 
 class CampaignCreateUpdateSerializer(serializers.ModelSerializer):
     images = serializers.PrimaryKeyRelatedField(
@@ -185,16 +198,16 @@ class CampaignCreateUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Campaign
-        fields = '__all__'
+        fields = "__all__"
 
     def create(self, validated_data):
-        images = validated_data.pop('images', [])
-        logos = validated_data.pop('logos', [])
-        keywords = validated_data.pop('keywords', [])
-        location = validated_data.pop('location', [])
-        proximity_store = validated_data.pop('proximity_store', [])
-        proximity = validated_data.pop('proximity', [])
-        weather = validated_data.pop('weather', [])
+        images = validated_data.pop("images", [])
+        logos = validated_data.pop("logos", [])
+        keywords = validated_data.pop("keywords", [])
+        location = validated_data.pop("location", [])
+        proximity_store = validated_data.pop("proximity_store", [])
+        proximity = validated_data.pop("proximity", [])
+        weather = validated_data.pop("weather", [])
 
         campaign = Campaign.objects.create(**validated_data)
         campaign.location.set(location)
@@ -207,27 +220,24 @@ class CampaignCreateUpdateSerializer(serializers.ModelSerializer):
         return campaign
 
 
-
-
 class UserUpdateSerializer(serializers.ModelSerializer):
-    city = serializers.CharField(source='profile.city', required=False)
-    phone_no = serializers.CharField(source='profile.phone_no', required=False)
+    city = serializers.CharField(source="profile.city", required=False)
+    phone_no = serializers.CharField(source="profile.phone_no", required=False)
 
     class Meta:
         model = User
-        fields = ['email', 'first_name', 'last_name', 'city', 'phone_no']
+        fields = ["email", "first_name", "last_name", "city", "phone_no"]
 
     def update(self, instance, validated_data):
-        profile_data = validated_data.pop('profile', {})
-        instance.email = validated_data.get('email', instance.email)
-        instance.first_name = validated_data.get('first_name', instance.first_name)
-        instance.last_name = validated_data.get('last_name', instance.last_name)
+        profile_data = validated_data.pop("profile", {})
+        instance.email = validated_data.get("email", instance.email)
+        instance.first_name = validated_data.get("first_name", instance.first_name)
+        instance.last_name = validated_data.get("last_name", instance.last_name)
         instance.save()
 
         profile = instance.profile
-        profile.city = profile_data.get('city', profile.city)
-        profile.phone_no = profile_data.get('phone_no', profile.phone_no)
+        profile.city = profile_data.get("city", profile.city)
+        profile.phone_no = profile_data.get("phone_no", profile.phone_no)
         profile.save()
 
         return instance
-

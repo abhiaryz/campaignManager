@@ -13,9 +13,9 @@ import { ArrowFatUp } from '@phosphor-icons/react/dist/ssr/ArrowFatUp';
     open: boolean;
   }
 
-  
+
   export function ExportFormPopover({ anchorEl, onClose, open }: UserPopoverProps): React.JSX.Element {
-  
+
     return (
       <Popover
         anchorEl={anchorEl}
@@ -28,7 +28,7 @@ import { ArrowFatUp } from '@phosphor-icons/react/dist/ssr/ArrowFatUp';
           <Card>
             <Button
               onClick={onClose}
-              sx={{ position: 'absolute', top: 8, right: 8 }} startIcon={<X fontSize="var(--icon-fontSize-md)" />} 
+              sx={{ position: 'absolute', top: 8, right: 8 }} startIcon={<X fontSize="var(--icon-fontSize-md)" />}
             />
             <CardHeader title="Location Setting" />
             <CardContent>
@@ -45,4 +45,3 @@ import { ArrowFatUp } from '@phosphor-icons/react/dist/ssr/ArrowFatUp';
       </Popover>
     );
   }
-  

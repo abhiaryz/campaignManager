@@ -1,17 +1,16 @@
-.vercel
+# Ignore Vercel files
+.vercel/
+
 # Python bytecode files
 *.pyc
 __pycache__/
 
-*.pyc
-*.pyo
-*.pyc
-__pycache__/
+# Django migrations (ignore all migrations, including those inside app directories)
+migrations/
+**/migrations/
 
+# SQLite database
 db.sqlite3
-__pycache__/
-
-backend/api/__pycache__
 
 # Django-specific files
 *.log
@@ -57,9 +56,6 @@ nosetests.xml
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# Environment variables and sensitive info
-.env
-.env.*
 
 # Local Django settings
 local_settings.py

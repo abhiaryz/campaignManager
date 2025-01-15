@@ -1,9 +1,10 @@
 import os
-from decouple import config
-from pathlib import Path
 from datetime import timedelta
+from pathlib import Path
+
 import boto3
 from botocore.client import Config
+from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -11,7 +12,15 @@ SECRET_KEY = config("SECRET_KEY", default="unsafe-secret-key")
 
 DEBUG = config("DEBUG", default=True, cast=bool)
 
-ALLOWED_HOSTS = ['abhiaryz.pythonanywhere.com','pythonanywhere.com' ,'.now.sh', '127.0.0.1', 'localhost',  "ad-campaign.vercel.app","ad-campaign-git-dev-ga7utis-projects.vercel.app"]
+ALLOWED_HOSTS = [
+    "abhiaryz.pythonanywhere.com",
+    "pythonanywhere.com",
+    ".now.sh",
+    "127.0.0.1",
+    "localhost",
+    "ad-campaign.vercel.app",
+    "ad-campaign-git-dev-ga7utis-projects.vercel.app",
+]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -24,13 +33,13 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "social_django",
     "api",
-    'drf_yasg',
-    'storages',
+    "drf_yasg",
+    "storages",
     "corsheaders",
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -62,8 +71,12 @@ WSGI_APPLICATION = "dsp.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.mysql",  # Use MySQL backend
+        "NAME": "dsp",
+        "USER": "avnadmin",  # MySQL username
+        "PASSWORD": "AVNS_22_XblXvLlBxdK2Lydq",  # MySQL password
+        "HOST": "dsp-dsp-campgain.c.aivencloud.com",  # 'localhost' for local MySQL server, or use the IP address or hostname of your server
+        "PORT": "23474",  # Default MySQL port (3306)
     }
 }
 
@@ -121,12 +134,12 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "<YOUR_GOOGLE_CLIENT_SECRET>"
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = "/authenticated/"
 SOCIAL_AUTH_LOGIN_ERROR_URL = "/login-error/"
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = '<your-email>@gmail.com'
-EMAIL_HOST_PASSWORD = '<your-email-password>'
+EMAIL_HOST_USER = "<your-email>@gmail.com"
+EMAIL_HOST_PASSWORD = "<your-email-password>"
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
@@ -135,7 +148,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "https://ad-campaign.vercel.app",
     "https://abhiaryz.pythonanywhere.com",
-    "https://ad-campaign-git-dev-ga7utis-projects.vercel.app"
+    "https://ad-campaign-git-dev-ga7utis-projects.vercel.app",
 ]
 
 CSRF_TRUSTED_ORIGINS = ["http://localhost:3000"]
@@ -155,11 +168,11 @@ CORS_ALLOW_METHODS = [
     "PUT",
 ]
 
-AWS_ACCESS_KEY_ID="AKIA4MTWN4X3A6OBKQNH"
-AWS_SECRET_ACCESS_KEY="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"
-AWS_STORAGE_BUCKET_NAME="test-mmr-dsp"
-AWS_S3_REGION_NAME="ap-south-1"
-AWS_S3_CUSTOM_DOMAIN="test-mmr-dsp.s3.amazonaws.com"
+AWS_ACCESS_KEY_ID = "AKIA4MTWN4X3A6OBKQNH"
+AWS_SECRET_ACCESS_KEY = "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"
+AWS_STORAGE_BUCKET_NAME = "test-mmr-dsp"
+AWS_S3_REGION_NAME = "ap-south-1"
+AWS_S3_CUSTOM_DOMAIN = "test-mmr-dsp.s3.amazonaws.com"
 AWS_DEFAULT_ACL = None
 AWS_QUERYSTRING_AUTH = False  # Optional: make files public
 
@@ -183,6 +196,6 @@ AWS_DEFAULT_ACL = None
 STATIC_URL = "https://test-mmr-dsp.s3.amazonaws.com/static/"
 MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com/"
 
-INSTALLED_APPS += ['rest_framework_simplejwt.token_blacklist']
+INSTALLED_APPS += ["rest_framework_simplejwt.token_blacklist"]
 
 AWS_QUERYSTRING_AUTH = True

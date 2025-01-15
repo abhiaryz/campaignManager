@@ -5,19 +5,19 @@ import { IconButton } from '@mui/material';
 import { Box } from '@mui/system';
 import { ArrowBendDownLeft } from '@phosphor-icons/react';
 
-const BackBtn: React.FC= () => {    
+const BackBtn: React.FC= () => {
 
     const router = useRouter();
-    
+
     const handleBack = () => {
         router.back();
     };
-    
+
     return (
         <Box mb={2}>
             <IconButton onClick={handleBack}>
                 <ArrowBendDownLeft/>
-            </IconButton>   
+            </IconButton>
       </Box>
  );
 };

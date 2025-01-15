@@ -1,46 +1,55 @@
 import logging
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+
 from django.contrib.auth.models import User
-from django.shortcuts import get_object_or_404
 from django.core.mail import send_mail
-from rest_framework_simplejwt.tokens import RefreshToken
-from social_django.utils import load_backend, load_strategy
-from social_core.exceptions import MissingBackend, AuthTokenError
-from .models import Campaign,UserType,CampaignImage, CampaignLogo, TargetDemographic, Keyword, Topic, Location
-from .serializers import  UpdateProfileSerializer,CustomTokenObtainPairSerializer,CampaignCreateUpdateSerializer,CampaignSerializer, CampaignImageSerializer, CampaignLogoSerializer,TargetDemographicSerializer,KeywordSerializer,TopicSerializer,LocationSerializer
-from drf_yasg.utils import swagger_auto_schema
+from django.shortcuts import get_object_or_404, render
 from drf_yasg import openapi
-from django.shortcuts import render
-from rest_framework import serializers, viewsets, status
+from drf_yasg.utils import swagger_auto_schema
+from rest_framework import serializers, status, viewsets
+from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
+from social_core.exceptions import AuthTokenError, MissingBackend
+from social_django.utils import load_backend, load_strategy
+
+from .models import Campaign, CampaignImage, CampaignLogo, Keyword, Location, TargetDemographic, Topic, UserType
+from .serializers import (
+    CampaignCreateUpdateSerializer, CampaignImageSerializer, CampaignLogoSerializer, CampaignSerializer,
+    CustomTokenObtainPairSerializer, KeywordSerializer, LocationSerializer, TargetDemographicSerializer,
+    TopicSerializer, UpdateProfileSerializer,
+)
+
 logger = logging.getLogger(__name__)
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from rest_framework import status
-from .serializers import UserUpdateSerializer
 from django.core.mail import EmailMessage
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
-from .serializers import ChangePasswordSerializer
 from rest_framework.decorators import api_view, permission_classes
-from .serializers import UserSerializer
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from .serializers import ChangePasswordSerializer, UserSerializer, UserUpdateSerializer
+
+
 # Utility Functions
 def success_response(message, data=None, status_code=status.HTTP_200_OK):
     """Utility for generating a consistent success response."""
-    return Response({"message": message, "data": data, "success": True}, status=status_code)
+    return Response(
+        {"message": message, "data": data, "success": True}, status=status_code
+    )
 
 
 def error_response(message, status_code=status.HTTP_400_BAD_REQUEST):
     """Utility for generating a consistent error response."""
-    return Response({"message": message,"success": False, "data": []}, status=status_code)
+    return Response(
+        {"message": message, "success": False, "data": []}, status=status_code
+    )
+
 
 class RegisterView(APIView):
-
     def post(self, request):
         password = request.data.get("password")
         email = request.data.get("email")
@@ -50,18 +59,30 @@ class RegisterView(APIView):
         if not username or not password or not email:
             return error_response("All fields are required.")
 
+        if "@" not in email:
+            return error_response(
+                "Invalid email format. Please include '@' in the email address."
+            )
+
         if User.objects.filter(username=username).exists():
             return error_response("Username already exists.")
 
         try:
             user = User.objects.create_user(
-                username=username, password=password, email=email, first_name=first_name, last_name=last_name
+                username=username,
+                password=password,
+                email=email,
+                first_name=first_name,
+                last_name=last_name,
             )
             UserType.objects.create(user=user)
-            return success_response("User created successfully.", {"id": user.id}, status.HTTP_201_CREATED)
+            return success_response(
+                "User created successfully.", {"id": user.id}, status.HTTP_201_CREATED
+            )
         except Exception as e:
             logger.error(f"Error creating user: {e}")
             return error_response("Failed to create user.")
+
 
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
@@ -79,6 +100,7 @@ class LogoutView(APIView):
             logger.error(f"Error during logout: {e}")
             return error_response("Invalid token.")
 
+
 class ForgotPasswordView(APIView):
     def post(self, request):
         email = request.data.get("email")
@@ -87,7 +109,9 @@ class ForgotPasswordView(APIView):
 
         user = User.objects.filter(email=email).first()
         if not user:
-            return error_response("No user found with this email.", status.HTTP_404_NOT_FOUND)
+            return error_response(
+                "No user found with this email.", status.HTTP_404_NOT_FOUND
+            )
 
         try:
             reset_link = f"http://example.com/reset-password/{user.id}/"  # Replace with actual frontend link
@@ -102,6 +126,7 @@ class ForgotPasswordView(APIView):
             logger.error(f"Error sending password reset email: {e}")
             return error_response("Failed to send email.")
 
+
 class UpdatePasswordView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -110,7 +135,9 @@ class UpdatePasswordView(APIView):
         new_password = request.data.get("new_password")
 
         if not current_password or not new_password:
-            return error_response("Both current_password and new_password are required.")
+            return error_response(
+                "Both current_password and new_password are required."
+            )
 
         if len(new_password) < 8:
             return error_response("New password must be at least 8 characters long.")
@@ -123,15 +150,19 @@ class UpdatePasswordView(APIView):
         user.save()
         return success_response("Password updated successfully.")
 
+
 class ChangePasswordAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def put(self, request, *args, **kwargs):
-        serializer = ChangePasswordSerializer(data=request.data, context={'request': request})
+        serializer = ChangePasswordSerializer(
+            data=request.data, context={"request": request}
+        )
         if serializer.is_valid():
             serializer.save()
             return success_response("Password updated successfully", serializer.data)
         return error_response(serializer.errors)
+
 
 class CustomTokenObtainPairView(APIView):
     def post(self, request, *args, **kwargs):
@@ -141,6 +172,58 @@ class CustomTokenObtainPairView(APIView):
                 {"status": status.HTTP_200_OK, "data": serializer.validated_data},
                 status=status.HTTP_200_OK,
             )
-        return error_response(
-            serializer.errors
-        )
+        return error_response(serializer.errors)
+
+
+class CustomTokenRefreshView(TokenRefreshView):
+    def post(self, request, *args, **kwargs):
+        try:
+            # Attempt to refresh the token
+            return super().post(request, *args, **kwargs)
+        except TokenError as e:
+            # Catch TokenError and return a custom error message
+            return Response(
+                {
+                    "message": "Your refresh token is invalid or has expired.",
+                    "success": False,
+                    "data": [],
+                },
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+        except AuthenticationFailed as e:
+            # Handle general authentication failure
+            return Response(
+                {
+                    "message": "Authentication failed. Please check your credentials.",
+                    "success": False,
+                    "data": [],
+                },
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+
+class CustomTokenVerifyView(TokenVerifyView):
+    def post(self, request, *args, **kwargs):
+        try:
+            # Attempt to verify the token
+            return super().post(request, *args, **kwargs)
+        except TokenError as e:
+            # Catch TokenError and return a custom error message
+            return Response(
+                {
+                    "message": "Token verification failed. The token may be invalid or expired.",
+                    "success": False,
+                    "data": [],
+                },
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+        except AuthenticationFailed as e:
+            # Handle general authentication failure
+            return Response(
+                {
+                    "message": "Authentication failed. Please check your token.",
+                    "success": False,
+                    "data": [],
+                },
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
