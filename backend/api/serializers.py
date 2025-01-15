@@ -5,7 +5,11 @@ from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ObjectDoesNotExist, ValidationError, ValidationError as DjangoValidationError
+from django.core.exceptions import (
+    ObjectDoesNotExist,
+    ValidationError,
+    ValidationError as DjangoValidationError,
+)
 from django.core.mail import send_mail
 from django.core.validators import validate_email as django_validate_email
 from django.shortcuts import get_object_or_404
@@ -15,8 +19,18 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import (
-    Campaign, CampaignImage, CampaignLogo, Keyword, Location, TargetDemographic, Topic, UserProfile, UserType,
-    proximity, proximity_store, weather,
+    Campaign,
+    CampaignImage,
+    CampaignLogo,
+    Keyword,
+    Location,
+    TargetDemographic,
+    Topic,
+    UserProfile,
+    UserType,
+    proximity,
+    proximity_store,
+    weather,
 )
 
 

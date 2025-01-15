@@ -1,13 +1,15 @@
 import streamlit as st
 import requests
 import pandas as pd
+
 # API URLs
 LOGIN_API_URL = "http://127.0.0.1:8000/api/token/"
 CAMPAIGNS_API_URL = "http://127.0.0.1:8000/api/campaigns/"
 LOCATIONS_API_URL = "http://127.0.0.1:8000/api/location"
 
 
-st.markdown("""
+st.markdown(
+    """
     <style>
         .reportview-container {
             margin-top: -2em;
@@ -17,7 +19,9 @@ st.markdown("""
         footer {visibility: hidden;}
         #stDecoration {display:none;}
     </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
 
 # Functions
@@ -25,30 +29,61 @@ def process_campaigns_data(api_response):
     campaigns = api_response.get("data", [])
     table_data = []
     for campaign in campaigns:
-        table_data.append({
-            "ID": campaign.get("id"),
-            "Name": campaign.get("name", "N/A"),
-            "Age": ", ".join(campaign.get("age", [])) if campaign.get("age") else "N/A",
-            "Device": ", ".join(campaign.get("device", [])) if campaign.get("device") else "N/A",
-            "Environment": ", ".join(campaign.get("environment", [])) if campaign.get("environment") else "N/A",
-            "Exchange": ", ".join(campaign.get("exchange", [])) if campaign.get("exchange") else "N/A",
-            "Location": ", ".join(map(str, campaign.get("location", []))) if campaign.get("location") else "N/A",
-            "Language": ", ".join(map(str, campaign.get("language", []))) if campaign.get("language") else "N/A",
-            "carrier": ", ".join(map(str, campaign.get("carrier", []))) if campaign.get("carrier") else "N/A",
-            "device_price": ", ".join(map(str, campaign.get("device_price", []))) if campaign.get("device_price") else "N/A",
-            "keywords": ", ".join(map(str, campaign.get("keywords", []))) if campaign.get("keywords") else "N/A",
-            "proximity_store": ", ".join(map(str, campaign.get("proximity_store", []))) if campaign.get("proximity_store") else "N/A",
-            "proximity": ", ".join(map(str, campaign.get("proximity", []))) if campaign.get("proximity") else "N/A",
-            "weather": ", ".join(map(str, campaign.get("weather", []))) if campaign.get("weather") else "N/A",
-            "Start Time": campaign.get("start_time", "N/A"),
-            "End Time": campaign.get("end_time", "N/A"),
-            "Created At": campaign.get("created_at", "N/A"),
-            "Updated At": campaign.get("updated_at", "N/A"),
-        })
+        table_data.append(
+            {
+                "ID": campaign.get("id"),
+                "Name": campaign.get("name", "N/A"),
+                "Age": ", ".join(campaign.get("age", []))
+                if campaign.get("age")
+                else "N/A",
+                "Device": ", ".join(campaign.get("device", []))
+                if campaign.get("device")
+                else "N/A",
+                "Environment": ", ".join(campaign.get("environment", []))
+                if campaign.get("environment")
+                else "N/A",
+                "Exchange": ", ".join(campaign.get("exchange", []))
+                if campaign.get("exchange")
+                else "N/A",
+                "Location": ", ".join(map(str, campaign.get("location", [])))
+                if campaign.get("location")
+                else "N/A",
+                "Language": ", ".join(map(str, campaign.get("language", [])))
+                if campaign.get("language")
+                else "N/A",
+                "carrier": ", ".join(map(str, campaign.get("carrier", [])))
+                if campaign.get("carrier")
+                else "N/A",
+                "device_price": ", ".join(map(str, campaign.get("device_price", [])))
+                if campaign.get("device_price")
+                else "N/A",
+                "keywords": ", ".join(map(str, campaign.get("keywords", [])))
+                if campaign.get("keywords")
+                else "N/A",
+                "proximity_store": ", ".join(
+                    map(str, campaign.get("proximity_store", []))
+                )
+                if campaign.get("proximity_store")
+                else "N/A",
+                "proximity": ", ".join(map(str, campaign.get("proximity", [])))
+                if campaign.get("proximity")
+                else "N/A",
+                "weather": ", ".join(map(str, campaign.get("weather", [])))
+                if campaign.get("weather")
+                else "N/A",
+                "Start Time": campaign.get("start_time", "N/A"),
+                "End Time": campaign.get("end_time", "N/A"),
+                "Created At": campaign.get("created_at", "N/A"),
+                "Updated At": campaign.get("updated_at", "N/A"),
+            }
+        )
     return pd.DataFrame(table_data)
 
+
 def login(username, password):
-    response = requests.post(LOGIN_API_URL, json={"username": username, "password": password})
+    response = requests.post(
+        LOGIN_API_URL, json={"username": username, "password": password}
+    )
     if response.status_code == 200:
         try:
             response_data = response.json()
@@ -58,6 +93,7 @@ def login(username, password):
     else:
         return None
 
+
 def get_campaigns(token):
     headers = {"Authorization": f"Bearer {token}"}
     response = requests.get(CAMPAIGNS_API_URL, headers=headers)
@@ -66,10 +102,12 @@ def get_campaigns(token):
     else:
         return None
 
+
 def add_campaign(token, campaign_data):
     headers = {"Authorization": f"Bearer {token}"}
     response = requests.post(CAMPAIGNS_API_URL, json=campaign_data, headers=headers)
     return response.status_code, response.json()
+
 
 def get_locations():
     """
@@ -78,9 +116,16 @@ def get_locations():
     response = requests.get(LOCATIONS_API_URL)
     if response.status_code == 200:
         locations = response.json().get("data", [])
-        return [(location["id"], f"{location['city']}, {location['state']} ({location['country']})") for location in locations]
+        return [
+            (
+                location["id"],
+                f"{location['city']}, {location['state']} ({location['country']})",
+            )
+            for location in locations
+        ]
     else:
         return []
+
 
 # Persistent Login Setup
 if "user" not in st.session_state:
@@ -92,19 +137,23 @@ if "page" not in st.session_state:
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
 
+
 def set_page(page_name):
     st.session_state["page"] = page_name
+
 
 def save_login_data(user_data):
     st.session_state["user"] = user_data
     st.session_state["logged_in"] = True
     st.experimental_set_query_params(logged_in="true")
 
+
 def load_login_data():
     query_params = st.experimental_get_query_params()
     if query_params.get("logged_in") == ["true"]:
         if not st.session_state["logged_in"]:
             st.session_state["logged_in"] = True
+
 
 # Load login state on reload
 load_login_data()
@@ -125,13 +174,16 @@ language_options = ["English", "Hindi", "Spanish", "French"]
 carrier_options = ["Airtel", "Jio", "Vodafone", "BSNL"]
 device_price_options = ["Low", "Mid", "High"]
 
+
 def upload_file(file, token):
     """
     Uploads a file to the proximityStore API and returns the ID.
     """
     headers = {"Authorization": f"Bearer {token}"}
     files = {"file": file}
-    response = requests.post("http://127.0.0.1:8000/api/proximityStore/", headers=headers, files=files)
+    response = requests.post(
+        "http://127.0.0.1:8000/api/proximityStore/", headers=headers, files=files
+    )
     if response.status_code == 200:
         return response.json().get("id")
     else:
@@ -162,26 +214,38 @@ elif st.session_state["page"] == "Add Campaign" and st.session_state["user"]:
         campaign_name = st.text_input("Name")
         selected_age = st.multiselect("Select Age Group", options=age_options)
         selected_device = st.multiselect("Select Device", options=device_options)
-        selected_environment = st.multiselect("Select Environment", options=environment_options)
+        selected_environment = st.multiselect(
+            "Select Environment", options=environment_options
+        )
         selected_exchange = st.multiselect("Select Exchange", options=exchange_options)
         selected_language = st.multiselect("Select Language", options=language_options)
         selected_carrier = st.multiselect("Select Carrier", options=carrier_options)
-        selected_device_price = st.multiselect("Select Device Price", options=device_price_options)
+        selected_device_price = st.multiselect(
+            "Select Device Price", options=device_price_options
+        )
         selected_locations = st.multiselect(
             "Select Location(s)",
             options=location_names,
             format_func=lambda x: x,
         )
         # Map selected names back to IDs
-        selected_location_ids = [location_ids[location_names.index(name)] for name in selected_locations]
+        selected_location_ids = [
+            location_ids[location_names.index(name)] for name in selected_locations
+        ]
 
         start_time = st.time_input("Start Time")
         end_time = st.time_input("End Time")
 
-        uploaded_files = st.file_uploader("Choose Keywords files", accept_multiple_files=True)
+        uploaded_files = st.file_uploader(
+            "Choose Keywords files", accept_multiple_files=True
+        )
         weathers = st.file_uploader("Choose Weather files", accept_multiple_files=True)
-        proximitys = st.file_uploader("Choose Proximity files", accept_multiple_files=True)
-        proximity_stores = st.file_uploader("Choose Proximity Store files", accept_multiple_files=True)
+        proximitys = st.file_uploader(
+            "Choose Proximity files", accept_multiple_files=True
+        )
+        proximity_stores = st.file_uploader(
+            "Choose Proximity Store files", accept_multiple_files=True
+        )
 
         submit = st.form_submit_button("Submit")
 
@@ -224,10 +288,9 @@ elif st.session_state["page"] == "Add Campaign" and st.session_state["user"]:
             "end_time": end_time.strftime("%H:%M") if end_time else None,
             "location": selected_location_ids,
             "keywords": keyword_ids,
-            "weather" :  weathers_ids,
-            "proximity" : proximitys_ids,
-            "proximity_store": proximity_stores_ids
-
+            "weather": weathers_ids,
+            "proximity": proximitys_ids,
+            "proximity_store": proximity_stores_ids,
         }
         status, response = add_campaign(token, campaign_data)
         if status == 200:

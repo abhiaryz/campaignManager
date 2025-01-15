@@ -9,13 +9,29 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import (
-    Campaign, CampaignImage, CampaignLogo, Keyword, Location, TargetDemographic, Topic, proximity, proximity_store,
+    Campaign,
+    CampaignImage,
+    CampaignLogo,
+    Keyword,
+    Location,
+    TargetDemographic,
+    Topic,
+    proximity,
+    proximity_store,
     weather,
 )
 from .serializers import (
-    CampaignCreateUpdateSerializer, CampaignImageSerializer, CampaignLogoSerializer, CampaignSerializer,
-    KeywordSerializer, LocationSerializer, ProximitySerializer, ProximityStoreSerializer, TargetDemographicSerializer,
-    TopicSerializer, WeatherSerializer,
+    CampaignCreateUpdateSerializer,
+    CampaignImageSerializer,
+    CampaignLogoSerializer,
+    CampaignSerializer,
+    KeywordSerializer,
+    LocationSerializer,
+    ProximitySerializer,
+    ProximityStoreSerializer,
+    TargetDemographicSerializer,
+    TopicSerializer,
+    WeatherSerializer,
 )
 
 logger = logging.getLogger(__name__)

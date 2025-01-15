@@ -16,11 +16,27 @@ from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 from social_core.exceptions import AuthTokenError, MissingBackend
 from social_django.utils import load_backend, load_strategy
 
-from .models import Campaign, CampaignImage, CampaignLogo, Keyword, Location, TargetDemographic, Topic, UserType
+from .models import (
+    Campaign,
+    CampaignImage,
+    CampaignLogo,
+    Keyword,
+    Location,
+    TargetDemographic,
+    Topic,
+    UserType,
+)
 from .serializers import (
-    CampaignCreateUpdateSerializer, CampaignImageSerializer, CampaignLogoSerializer, CampaignSerializer,
-    CustomTokenObtainPairSerializer, KeywordSerializer, LocationSerializer, TargetDemographicSerializer,
-    TopicSerializer, UpdateProfileSerializer,
+    CampaignCreateUpdateSerializer,
+    CampaignImageSerializer,
+    CampaignLogoSerializer,
+    CampaignSerializer,
+    CustomTokenObtainPairSerializer,
+    KeywordSerializer,
+    LocationSerializer,
+    TargetDemographicSerializer,
+    TopicSerializer,
+    UpdateProfileSerializer,
 )
 
 logger = logging.getLogger(__name__)

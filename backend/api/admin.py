@@ -1,7 +1,16 @@
 from django.contrib import admin
 
 from .models import (
-    Campaign, CampaignImage, CampaignLogo, CityData, Keyword, Location, TargetDemographic, Topic, UserProfile, UserType,
+    Campaign,
+    CampaignImage,
+    CampaignLogo,
+    CityData,
+    Keyword,
+    Location,
+    TargetDemographic,
+    Topic,
+    UserProfile,
+    UserType,
 )
 
 
