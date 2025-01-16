@@ -77,6 +77,8 @@ DATABASES = {
         "PASSWORD": "AVNS_22_XblXvLlBxdK2Lydq",  # MySQL password
         "HOST": "abhiaryz.mysql.pythonanywhere-services.com",  # 'localhost' for local MySQL server, or use the IP address or hostname of your server
         "PORT": "3306",  # Default MySQL port (3306)
+    },"OPTIONS": {
+        "init_command": "SET innodb_strict_mode=1",
     }
 }
 
