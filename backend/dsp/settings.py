@@ -71,14 +71,8 @@ WSGI_APPLICATION = "dsp.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.mysql",  # Use MySQL backend
-        "NAME": "abhiaryz@dsp",
-        "USER": "abhiaryz",  # MySQL username
-        "PASSWORD": "AVNS_22_XblXvLlBxdK2Lydq",  # MySQL password
-        "HOST": "abhiaryz.mysql.pythonanywhere-services.com",  # 'localhost' for local MySQL server, or use the IP address or hostname of your server
-        "PORT": "3306",  # Default MySQL port (3306)
-    },"OPTIONS": {
-        "init_command": "SET innodb_strict_mode=1",
+         "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3"
     }
 }
 
