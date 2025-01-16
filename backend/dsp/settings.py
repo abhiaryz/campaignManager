@@ -73,10 +73,10 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",  # Use MySQL backend
         "NAME": "dsp",
-        "USER": "avnadmin",  # MySQL username
+        "USER": "abhiaryz",  # MySQL username
         "PASSWORD": "AVNS_22_XblXvLlBxdK2Lydq",  # MySQL password
-        "HOST": "dsp-dsp-campgain.c.aivencloud.com",  # 'localhost' for local MySQL server, or use the IP address or hostname of your server
-        "PORT": "23474",  # Default MySQL port (3306)
+        "HOST": "abhiaryz.mysql.pythonanywhere-services.com",  # 'localhost' for local MySQL server, or use the IP address or hostname of your server
+        "PORT": "3306",  # Default MySQL port (3306)
     }
 }
 
