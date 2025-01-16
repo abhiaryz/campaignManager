@@ -72,7 +72,7 @@ WSGI_APPLICATION = "dsp.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",  # Use MySQL backend
-        "NAME": "dsp",
+        "NAME": "abhiaryz@dsp",
         "USER": "abhiaryz",  # MySQL username
         "PASSWORD": "AVNS_22_XblXvLlBxdK2Lydq",  # MySQL password
         "HOST": "abhiaryz.mysql.pythonanywhere-services.com",  # 'localhost' for local MySQL server, or use the IP address or hostname of your server
