@@ -6,27 +6,18 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import (
-    ObjectDoesNotExist,
     ValidationError,
     ValidationError as DjangoValidationError,
 )
 from django.core.mail import send_mail
 from django.core.validators import validate_email as django_validate_email
-from django.shortcuts import get_object_or_404
-from rest_framework import serializers, status, viewsets
-from rest_framework.decorators import action
-from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
-
+from rest_framework import serializers
 from .models import (
     Campaign,
     CampaignImage,
-    CampaignLogo,
     Keyword,
     Location,
-    TargetDemographic,
-    Topic,
-    UserProfile,
     UserType,
     proximity,
     proximity_store,
@@ -127,18 +118,6 @@ class CampaignImageSerializer(serializers.ModelSerializer):
         fields = ["id", "image", "created_at"]
 
 
-class CampaignLogoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CampaignLogo
-        fields = ["id", "logo", "created_at"]
-
-
-class TargetDemographicSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TargetDemographic
-        fields = ["id", "name"]
-
-
 class KeywordSerializer(serializers.ModelSerializer):
     class Meta:
         model = Keyword
@@ -163,18 +142,13 @@ class WeatherSerializer(serializers.ModelSerializer):
         fields = ["id", "file"]
 
 
-class TopicSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Topic
-        fields = ["id", "topic"]
-
-
 class CampaignSerializer(serializers.ModelSerializer):
     images = CampaignImageSerializer(many=True, read_only=True)
-    logos = CampaignLogoSerializer(many=True, read_only=True)
-    target_demographics = TargetDemographicSerializer(many=True, read_only=True)
     keywords = KeywordSerializer(many=True, read_only=True)
-    topics = TopicSerializer(many=True, read_only=True)
+    proximity_store = ProximityStoreSerializer(many=True, read_only=True)
+    proximity = ProximitySerializer(many=True, read_only=True)
+    weather = WeatherSerializer(many=True, read_only=True)
+    location = LocationSerializer(many=True, read_only=True)
 
     class Meta:
         model = Campaign
@@ -185,18 +159,10 @@ class CampaignCreateUpdateSerializer(serializers.ModelSerializer):
     images = serializers.PrimaryKeyRelatedField(
         many=True, queryset=CampaignImage.objects.all(), required=False
     )
-    logos = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=CampaignLogo.objects.all(), required=False
-    )
-    target_demographics = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=TargetDemographic.objects.all(), required=False
-    )
     keywords = serializers.PrimaryKeyRelatedField(
         many=True, queryset=Keyword.objects.all(), required=False
     )
-    topics = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=Topic.objects.all(), required=False
-    )
+
     location = serializers.PrimaryKeyRelatedField(
         many=True, queryset=Location.objects.all(), required=False
     )
@@ -216,7 +182,6 @@ class CampaignCreateUpdateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         images = validated_data.pop("images", [])
-        logos = validated_data.pop("logos", [])
         keywords = validated_data.pop("keywords", [])
         location = validated_data.pop("location", [])
         proximity_store = validated_data.pop("proximity_store", [])
@@ -226,7 +191,6 @@ class CampaignCreateUpdateSerializer(serializers.ModelSerializer):
         campaign = Campaign.objects.create(**validated_data)
         campaign.location.set(location)
         campaign.images.set(images)
-        campaign.logos.set(logos)
         campaign.keywords.set(keywords)
         campaign.proximity_store.set(proximity_store)
         campaign.proximity.set(proximity)

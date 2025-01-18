@@ -3,12 +3,9 @@ from django.contrib import admin
 from .models import (
     Campaign,
     CampaignImage,
-    CampaignLogo,
     CityData,
     Keyword,
     Location,
-    TargetDemographic,
-    Topic,
     UserProfile,
     UserType,
 )
@@ -40,10 +37,7 @@ admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(Campaign)
 admin.site.register(Location, LocationAdmin)
 admin.site.register(CampaignImage)
-admin.site.register(CampaignLogo)
-admin.site.register(TargetDemographic)
 admin.site.register(Keyword)
-admin.site.register(Topic)
 
 
 @admin.register(CityData)

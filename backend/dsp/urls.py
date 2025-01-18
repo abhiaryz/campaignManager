@@ -3,7 +3,6 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 
 from api import auth, profile, views
 
@@ -12,7 +11,6 @@ router.register(r"campaigns", views.CampaignViewSet, basename="campaign")
 router.register(
     r"campaign-images", views.CampaignImageViewSet, basename="campaign-image"
 )
-router.register(r"campaign-logos", views.CampaignLogoViewSet, basename="campaign-logo")
 router.register(r"keywords", views.KeywordViewSet, basename="keyword")
 router.register(
     r"proximityStore", views.ProximityStoreViewSet, basename="proximityStore"

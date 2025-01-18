@@ -10,7 +10,6 @@ migrations/
 **/migrations/
 
 # SQLite database
-db.sqlite3
 
 # Django-specific files
 *.log

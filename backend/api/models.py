@@ -89,11 +89,6 @@ class Campaign(models.Model):
         blank=True,
         related_name="campaign_images",
     )
-    logos = models.ManyToManyField(
-        "CampaignLogo",
-        blank=True,
-        related_name="campaign_logos",
-    )
     video = models.FileField(
         upload_to="campaigns/videos/",
         null=True,
@@ -121,18 +116,6 @@ class Campaign(models.Model):
 class CampaignImage(models.Model):
     image = models.ImageField(upload_to="campaigns/images/")
     created_at = models.DateTimeField(auto_now_add=True)
-
-
-class CampaignLogo(models.Model):
-    logo = models.ImageField(upload_to="campaigns/logos/")
-    created_at = models.DateTimeField(auto_now_add=True)
-
-
-class TargetDemographic(models.Model):
-    name = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.name
 
 
 from datetime import datetime
@@ -169,13 +152,6 @@ class weather(models.Model):
 
     def __str__(self):
         return f"File {self.id} uploaded at {self.uploaded_at}"
-
-
-class Topic(models.Model):
-    topic = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.topic
 
 
 class UserProfile(models.Model):

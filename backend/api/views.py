@@ -1,7 +1,6 @@
 import logging
 
 from django.contrib.auth.models import User
-from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404, render
 from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
@@ -11,11 +10,8 @@ from rest_framework.views import APIView
 from .models import (
     Campaign,
     CampaignImage,
-    CampaignLogo,
     Keyword,
     Location,
-    TargetDemographic,
-    Topic,
     proximity,
     proximity_store,
     weather,
@@ -23,14 +19,11 @@ from .models import (
 from .serializers import (
     CampaignCreateUpdateSerializer,
     CampaignImageSerializer,
-    CampaignLogoSerializer,
     CampaignSerializer,
     KeywordSerializer,
     LocationSerializer,
     ProximitySerializer,
     ProximityStoreSerializer,
-    TargetDemographicSerializer,
-    TopicSerializer,
     WeatherSerializer,
 )
 
@@ -124,11 +117,6 @@ class CampaignViewSet(viewsets.ViewSet):
 class CampaignImageViewSet(viewsets.ModelViewSet):
     queryset = CampaignImage.objects.all()
     serializer_class = CampaignImageSerializer
-
-
-class CampaignLogoViewSet(viewsets.ModelViewSet):
-    queryset = CampaignLogo.objects.all()
-    serializer_class = CampaignLogoSerializer
 
 
 class ProximityStoreViewSet(viewsets.ModelViewSet):

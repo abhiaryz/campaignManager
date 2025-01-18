@@ -1,38 +1,26 @@
 import logging
 
 from django.contrib.auth.models import User
-from django.core.mail import send_mail
-from django.shortcuts import get_object_or_404, render
-from drf_yasg import openapi
-from drf_yasg.utils import swagger_auto_schema
-from rest_framework import serializers, status, viewsets
+from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework_simplejwt.tokens import RefreshToken
-from social_core.exceptions import AuthTokenError, MissingBackend
-from social_django.utils import load_backend, load_strategy
+
 
 from .models import (
     Campaign,
     CampaignImage,
-    CampaignLogo,
     Keyword,
     Location,
-    TargetDemographic,
-    Topic,
     UserType,
 )
 from .serializers import (
     CampaignCreateUpdateSerializer,
     CampaignImageSerializer,
-    CampaignLogoSerializer,
     CampaignSerializer,
     CustomTokenObtainPairSerializer,
     KeywordSerializer,
     LocationSerializer,
-    TargetDemographicSerializer,
-    TopicSerializer,
     UpdateProfileSerializer,
 )
 
