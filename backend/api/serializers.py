@@ -22,6 +22,7 @@ from .models import (
     proximity,
     proximity_store,
     weather,
+    target_type,
 )
 
 
@@ -109,6 +110,12 @@ class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
         fields = ["id", "country", "state", "city", "tier", "population"]
+
+
+class target_typeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = target_type
+        fields = ["id", "targeting_type", "category"]
 
 
 # Serializers

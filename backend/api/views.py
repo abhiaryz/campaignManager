@@ -15,6 +15,7 @@ from .models import (
     proximity,
     proximity_store,
     weather,
+    target_type,
 )
 from .serializers import (
     CampaignCreateUpdateSerializer,
@@ -25,6 +26,7 @@ from .serializers import (
     ProximitySerializer,
     ProximityStoreSerializer,
     WeatherSerializer,
+    target_typeSerializer,
 )
 
 logger = logging.getLogger(__name__)
@@ -37,6 +39,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .serializers import ChangePasswordSerializer, UserSerializer, UserUpdateSerializer
+
+from django.shortcuts import redirect
+from django.conf import settings
+from functools import wraps
+import jwt
 
 
 # Utility Functions
@@ -54,8 +61,31 @@ def error_response(message, status_code=status.HTTP_400_BAD_REQUEST):
     )
 
 
+from django.contrib.auth.decorators import login_required
+
+
+def login_page(request):
+    return render(request, "dsp/login.html")
+
+
 def home(request):
     return render(request, "dsp/index.html")
+
+
+def campaigns_page(request):
+    return render(request, "dsp/campaigns.html")
+
+
+def add_campaign_page(request):
+    return render(request, "dsp/add_campaigns.html")
+
+
+def dashboard_profile(request):
+    return render(request, "dsp/profile.html")
+
+
+def dashboard_data(request):
+    return render(request, "dsp/data.html")
 
 
 class CampaignPagination(PageNumberPagination):
@@ -143,12 +173,11 @@ class KeywordViewSet(viewsets.ModelViewSet):
 @permission_classes([IsAuthenticated])
 def fetch_user_campgain(request):
     queryset = Campaign.objects.filter(user=request.user)
+    print(queryset)
     paginator = CampaignPagination()
     paginated_queryset = paginator.paginate_queryset(queryset, request)
-    serializer = CampaignSerializer(paginated_queryset, many=True)
-    return paginator.get_paginated_response(
-        success_response("Data successfully fetched", serializer.data)
-    )
+    serializer = CampaignSerializer(queryset, many=True)
+    return success_response("Data succcessfully fetched", serializer.data)
 
 
 @api_view(["GET"])
@@ -156,3 +185,10 @@ def location(request):
     queryset = Location.objects.all()
     serializer = LocationSerializer(queryset, many=True)
     return success_response("Data succcessfully fetched", serializer.data)
+
+
+@api_view(["GET"])
+def target_type(request):
+    queryset = target_type.objects.all()
+    # serializer = target_typeSerializer(queryset, many=True)
+    return success_response("Data succcessfully fetched", "serializer.data")

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login</title>
+</head>
+<body>
+  <h2>Login</h2>
+  <form id="login-form">
+    <label for="username">Username:</label>
+    <input type="text" id="username" required><br><br>
+
+    <label for="password">Password:</label>
+    <input type="password" id="password" required><br><br>
+
+    <button type="submit">Login</button>
+  </form>
+
+  <div id="error" style="color:red;"></div>
+
+  <script>
+    document.getElementById('login-form').addEventListener('submit', function(event) {
+      event.preventDefault();  // Prevent default form submission
+
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      // Post credentials to your token endpoint
+      fetch('http://127.0.0.1:8000/api/token/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // If CSRF is required, include CSRF token headers here
+        },
+        body: JSON.stringify({ username, password })
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Login failed. Please check your credentials.');
+        }
+        return response.json();
+      })
+      .then(data => {
+        // Depending on your implementation, the token might be under different keys:
+        // For JWT, usually data.access and data.refresh, or for Token Auth, data.token
+        console.log(data.data)
+        const token = data.data.token || data.data.access || data.data.refresh;
+        if (!token) {
+          throw new Error('Token not found in response.');
+        }
+
+        // Store the token in localStorage (or another secure place)
+        localStorage.setItem('authToken', token);
+
+        // Redirect after successful login (adjust URL as needed)
+        window.location.href = '/campaigns/';
+      })
+      .catch(error => {
+        document.getElementById('error').textContent = error.message;
+      });
+    });
+  </script>
+</body>
+</html>

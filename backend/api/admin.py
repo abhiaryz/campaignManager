@@ -8,6 +8,7 @@ from .models import (
     Location,
     UserProfile,
     UserType,
+    target_type,
 )
 
 
@@ -36,6 +37,7 @@ admin.site.register(UserType, UserTypeAdmin)
 admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(Campaign)
 admin.site.register(Location, LocationAdmin)
+admin.site.register(target_type)
 admin.site.register(CampaignImage)
 admin.site.register(Keyword)
 

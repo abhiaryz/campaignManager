@@ -159,8 +159,10 @@ class UserProfile(models.Model):
     city = models.CharField(max_length=100, blank=True, null=True)
     phone_no = models.CharField(max_length=15, blank=True, null=True)
 
-    def __str__(self):
-        return f"{self.user.username}'s Profile"
+
+class target_type(models.Model):
+    targeting_type = models.CharField(max_length=255)
+    category = models.CharField(max_length=255)
 
 
 @receiver(post_save, sender=User)

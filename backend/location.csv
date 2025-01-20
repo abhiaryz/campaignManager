@@ -1,4 +1,4 @@
-Country,State,City,Tier,Population
+country,state,city,tier,population
 India,Delhi,Delhi,Tier-I,"1,09,27,986"
 India,Maharashtra,Mumbai,Tier-I,"1,26,91,836"
 India,Maharashtra,Pune,Tier-I,"29,35,744"

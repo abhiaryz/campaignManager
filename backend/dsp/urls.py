@@ -19,6 +19,11 @@ router.register(r"proximity", views.ProximityViewSet, basename="proximity")
 router.register(r"weather", views.WeatherViewSet, basename="weather")
 
 urlpatterns = [
+    path("login/", views.login_page, name="login"),
+    path("campaigns/", views.campaigns_page, name="campaigns"),
+    path("add-campaign/", views.add_campaign_page, name="add_campaign"),
+    path("profile/", views.dashboard_profile, name="dashboard_profile"),
+    path("dashboard_data/", views.dashboard_data, name="dashboard_data"),
     path("admin/", admin.site.urls),
     path("api/register/", auth.RegisterView.as_view(), name="register"),
     path("api/logout/", auth.LogoutView.as_view(), name="logout"),
@@ -58,6 +63,7 @@ urlpatterns = [
         name="fetch_user_campgain",
     ),
     path("api/location/", views.location, name="location"),
+    path("api/target_type/", views.target_type, name="target_type"),
     path("api/profile/", profile.profile_api, name="profile"),
     path("api/users/", profile.UserAPIView.as_view(), name="user-list"),
     path("api/users/<int:pk>/", profile.UserAPIView.as_view(), name="user-detail"),
