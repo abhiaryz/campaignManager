@@ -12,10 +12,10 @@ from .models import (
     CampaignImage,
     Keyword,
     Location,
+    target_type,
     proximity,
     proximity_store,
     weather,
-    target_type,
 )
 from .serializers import (
     CampaignCreateUpdateSerializer,
@@ -188,7 +188,7 @@ def location(request):
 
 
 @api_view(["GET"])
-def target_type(request):
+def target_type_view(request):
     queryset = target_type.objects.all()
-    # serializer = target_typeSerializer(queryset, many=True)
-    return success_response("Data succcessfully fetched", "serializer.data")
+    serializer = target_typeSerializer(queryset, many=True)
+    return success_response("Data succcessfully fetched", serializer.data)

@@ -63,7 +63,7 @@ urlpatterns = [
         name="fetch_user_campgain",
     ),
     path("api/location/", views.location, name="location"),
-    path("api/target_type/", views.target_type, name="target_type"),
+    path("api/target_type/", views.target_type_view, name="target_type"),
     path("api/profile/", profile.profile_api, name="profile"),
     path("api/users/", profile.UserAPIView.as_view(), name="user-list"),
     path("api/users/<int:pk>/", profile.UserAPIView.as_view(), name="user-detail"),
