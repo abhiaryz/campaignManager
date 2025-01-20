@@ -156,6 +156,7 @@ class CampaignSerializer(serializers.ModelSerializer):
     proximity = ProximitySerializer(many=True, read_only=True)
     weather = WeatherSerializer(many=True, read_only=True)
     location = LocationSerializer(many=True, read_only=True)
+    target_type = target_typeSerializer(many=True, read_only=True)
 
     class Meta:
         model = Campaign
@@ -168,6 +169,9 @@ class CampaignCreateUpdateSerializer(serializers.ModelSerializer):
     )
     keywords = serializers.PrimaryKeyRelatedField(
         many=True, queryset=Keyword.objects.all(), required=False
+    )
+    target_type = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=target_type.objects.all(), required=False
     )
 
     location = serializers.PrimaryKeyRelatedField(
@@ -194,6 +198,7 @@ class CampaignCreateUpdateSerializer(serializers.ModelSerializer):
         proximity_store = validated_data.pop("proximity_store", [])
         proximity = validated_data.pop("proximity", [])
         weather = validated_data.pop("weather", [])
+        target_type = validated_data.pop("target_type", [])
 
         campaign = Campaign.objects.create(**validated_data)
         campaign.location.set(location)
@@ -202,6 +207,7 @@ class CampaignCreateUpdateSerializer(serializers.ModelSerializer):
         campaign.proximity_store.set(proximity_store)
         campaign.proximity.set(proximity)
         campaign.weather.set(weather)
+        campaign.target_type.set(target_type)
         return campaign
 
 

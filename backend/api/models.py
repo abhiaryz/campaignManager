@@ -48,7 +48,6 @@ class Campaign(models.Model):
     environment = models.JSONField(blank=True, null=True)
 
     exchange = models.JSONField(blank=True, null=True)
-    interset = models.JSONField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -82,6 +81,12 @@ class Campaign(models.Model):
         "location",
         blank=True,
         related_name="Location",
+    )
+
+    target_type = models.ManyToManyField(
+        "target_type",
+        blank=True,
+        related_name="target_type",
     )
 
     images = models.ManyToManyField(
