@@ -24,6 +24,8 @@ urlpatterns = [
     path("add-campaign/", views.add_campaign_page, name="add_campaign"),
     path("profile/", views.dashboard_profile, name="dashboard_profile"),
     path("dashboard_data/", views.dashboard_data, name="dashboard_data"),
+    path("register/", views.register_page, name="register_page"),
+    path("forgot_password/", views.forgot_password_page, name="forgot_password_page"),
     path("admin/", admin.site.urls),
     path("api/register/", auth.RegisterView.as_view(), name="register"),
     path("api/logout/", auth.LogoutView.as_view(), name="logout"),

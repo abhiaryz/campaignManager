@@ -7,13 +7,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 
-from .models import (
-    Campaign,
-    CampaignImage,
-    Keyword,
-    Location,
-    UserType,
-)
+from .models import UserProfile
 from .serializers import (
     CampaignCreateUpdateSerializer,
     CampaignImageSerializer,
@@ -64,9 +58,22 @@ class UserUpdateAPIView(APIView):
         return error_response(serializer.errors)
 
 
+from rest_framework.pagination import PageNumberPagination
+
+
+class UserPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = "page_size"
+    max_page_size = 100
+
+
 class UserAPIView(APIView):
     def get(self, request, pk=None):
+        """
+        Handles GET requests for retrieving a single user or a paginated list of users.
+        """
         if pk:
+            # Fetch a specific user by primary key (pk)
             try:
                 user = User.objects.get(pk=pk)
                 serializer = UserSerializer(user)
@@ -76,19 +83,37 @@ class UserAPIView(APIView):
                     {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
                 )
         else:
+            # Fetch all users and apply pagination
             users = User.objects.all()
-            serializer = UserSerializer(users, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            paginator = UserPagination()
+            paginated_users = paginator.paginate_queryset(users, request)
+            serializer = UserSerializer(paginated_users, many=True)
+            return paginator.get_paginated_response(serializer.data)
 
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def profile_api(request):
+    user_profile = UserProfile.objects.filter(user=request.user).first()
+
+    if user_profile:
+        city = user_profile.city
+        phone_no = user_profile.phone_no
+        print(f"City: {city}, Phone No: {phone_no}")
+    else:
+        city = ""
+        phone_no = ""
+
     data = {
         "id": request.user.id,
         "username": request.user.username,
         "first_name": request.user.first_name,
         "last_name": request.user.last_name,
         "email": request.user.email,
+        "city": city,
+        "phone_no": phone_no,
     }
     return success_response("Data succcessfully fetched", data)
+
+
+# Phone no added

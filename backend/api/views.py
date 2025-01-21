@@ -7,6 +7,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .models import target_type
+from .serializers import target_typeSerializer
+
 from .models import (
     Campaign,
     CampaignImage,
@@ -68,6 +73,14 @@ def login_page(request):
     return render(request, "dsp/login.html")
 
 
+def register_page(request):
+    return render(request, "dsp/register.html")
+
+
+def forgot_password_page(request):
+    return render(request, "dsp/forgot_password.html")
+
+
 def home(request):
     return render(request, "dsp/index.html")
 
@@ -86,12 +99,6 @@ def dashboard_profile(request):
 
 def dashboard_data(request):
     return render(request, "dsp/data.html")
-
-
-class CampaignPagination(PageNumberPagination):
-    page_size = 10  # Set default page size
-    page_size_query_param = "page_size"  # Allow the user to specify the page size
-    max_page_size = 100
 
 
 class CampaignViewSet(viewsets.ViewSet):
@@ -169,15 +176,26 @@ class KeywordViewSet(viewsets.ModelViewSet):
     serializer_class = KeywordSerializer
 
 
+class CampaignPagination(PageNumberPagination):
+    page_size = 10  # Set default page size
+    page_size_query_param = "page_size"  # Allow the user to specify the page size
+    max_page_size = 100
+
+
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def fetch_user_campgain(request):
-    queryset = Campaign.objects.filter(user=request.user)
-    print(queryset)
+    queryset = Campaign.objects.filter(user=request.user).order_by("-updated_at")
     paginator = CampaignPagination()
     paginated_queryset = paginator.paginate_queryset(queryset, request)
-    serializer = CampaignSerializer(queryset, many=True)
-    return success_response("Data succcessfully fetched", serializer.data)
+    serializer = CampaignSerializer(paginated_queryset, many=True)
+    return paginator.get_paginated_response(
+        {
+            "message": "Data successfully fetched",
+            "data": serializer.data,
+            "success": True,
+        }
+    )
 
 
 @api_view(["GET"])
@@ -189,6 +207,41 @@ def location(request):
 
 @api_view(["GET"])
 def target_type_view(request):
-    queryset = target_type.objects.all()
-    serializer = target_typeSerializer(queryset, many=True)
-    return success_response("Data succcessfully fetched", serializer.data)
+    query_param = request.query_params.get("query", None)
+
+    if query_param == "unique":
+        # Get distinct values of 'targeting_type'
+        queryset = target_type.objects.values("targeting_type").distinct()
+        return Response(
+            {
+                "message": "Unique targeting types fetched successfully",
+                "data": list(queryset),
+            }
+        )
+    elif query_param:
+        query_values = [value.strip() for value in query_param.split(",")]
+
+        # Filter the queryset for each value in the query_values list
+        queryset = target_type.objects.filter(targeting_type__in=query_values)
+        if queryset.exists():
+            serializer = target_typeSerializer(queryset, many=True)
+            return Response(
+                {
+                    "message": "Data successfully fetched for the given targeting_type",
+                    "data": serializer.data,
+                }
+            )
+        else:
+            return Response(
+                {
+                    "message": f"No results found for targeting_type: {query_param}",
+                    "data": [],
+                }
+            )
+    else:
+        # Default behavior: return all target_type objects if no query parameter
+        queryset = target_type.objects.all()
+        serializer = target_typeSerializer(queryset, many=True)
+        return Response(
+            {"message": "Data successfully fetched", "data": serializer.data}
+        )
