@@ -1,15 +1,7 @@
 from django.contrib import admin
 
-from .models import (
-    Campaign,
-    CampaignImage,
-    CityData,
-    Keyword,
-    Location,
-    UserProfile,
-    UserType,
-    target_type,
-)
+from .models import (Campaign, CampaignImage, CityData, Keyword, Location,
+                     UserProfile, UserType, target_type)
 
 
 class UserProfileAdmin(admin.ModelAdmin):

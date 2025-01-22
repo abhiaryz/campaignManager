@@ -2,31 +2,16 @@ import logging
 
 from django.contrib.auth.models import User
 from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 
 from .models import UserProfile
-from .serializers import (
-    CampaignCreateUpdateSerializer,
-    CampaignImageSerializer,
-    CampaignSerializer,
-    CustomTokenObtainPairSerializer,
-    KeywordSerializer,
-    LocationSerializer,
-    UpdateProfileSerializer,
-)
+from .serializers import UserSerializer, UserUpdateSerializer
 
 logger = logging.getLogger(__name__)
-from django.core.mail import EmailMessage
-from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
-
-from .serializers import ChangePasswordSerializer, UserSerializer, UserUpdateSerializer
 
 
 def success_response(message, data=None, status_code=status.HTTP_200_OK):
@@ -56,9 +41,6 @@ class UserUpdateAPIView(APIView):
                 status=status.HTTP_200_OK,
             )
         return error_response(serializer.errors)
-
-
-from rest_framework.pagination import PageNumberPagination
 
 
 class UserPagination(PageNumberPagination):

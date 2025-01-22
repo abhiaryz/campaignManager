@@ -1,5 +1,6 @@
 import logging
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from rest_framework import status
@@ -11,21 +12,11 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 
-from .models import (
-    UserType,
-)
-from .serializers import (
-    CustomTokenObtainPairSerializer,
-)
+from .models import UserType
+from .serializers import (ChangePasswordSerializer,
+                          CustomTokenObtainPairSerializer)
 
 logger = logging.getLogger(__name__)
-from django.core.mail import EmailMessage
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
-
-from .serializers import ChangePasswordSerializer
 
 
 # Utility Functions
@@ -174,8 +165,7 @@ class CustomTokenRefreshView(TokenRefreshView):
         try:
             # Attempt to refresh the token
             return super().post(request, *args, **kwargs)
-        except TokenError as e:
-            # Catch TokenError and return a custom error message
+        except TokenError:
             return Response(
                 {
                     "message": "Your refresh token is invalid or has expired.",
@@ -184,8 +174,7 @@ class CustomTokenRefreshView(TokenRefreshView):
                 },
                 status=status.HTTP_401_UNAUTHORIZED,
             )
-        except AuthenticationFailed as e:
-            # Handle general authentication failure
+        except AuthenticationFailed:
             return Response(
                 {
                     "message": "Authentication failed. Please check your credentials.",
@@ -201,7 +190,7 @@ class CustomTokenVerifyView(TokenVerifyView):
         try:
             # Attempt to verify the token
             return super().post(request, *args, **kwargs)
-        except TokenError as e:
+        except TokenError:
             # Catch TokenError and return a custom error message
             return Response(
                 {
@@ -211,7 +200,7 @@ class CustomTokenVerifyView(TokenVerifyView):
                 },
                 status=status.HTTP_401_UNAUTHORIZED,
             )
-        except AuthenticationFailed as e:
+        except AuthenticationFailed:
             # Handle general authentication failure
             return Response(
                 {

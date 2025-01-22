@@ -1,54 +1,21 @@
 import logging
 
-from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render
 from rest_framework import status, viewsets
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.views import APIView
-
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from .models import target_type
-from .serializers import target_typeSerializer
-
-from .models import (
-    Campaign,
-    CampaignImage,
-    Keyword,
-    Location,
-    target_type,
-    proximity,
-    proximity_store,
-    weather,
-)
-from .serializers import (
-    CampaignCreateUpdateSerializer,
-    CampaignImageSerializer,
-    CampaignSerializer,
-    KeywordSerializer,
-    LocationSerializer,
-    ProximitySerializer,
-    ProximityStoreSerializer,
-    WeatherSerializer,
-    target_typeSerializer,
-)
-
-logger = logging.getLogger(__name__)
-from django.core.mail import EmailMessage
-from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
-from .serializers import ChangePasswordSerializer, UserSerializer, UserUpdateSerializer
+from .models import (Campaign, CampaignImage, Keyword, Location, proximity,
+                     proximity_store, target_type, weather, UserType)
+from .serializers import (CampaignCreateUpdateSerializer,
+                          CampaignImageSerializer, CampaignSerializer,
+                          KeywordSerializer, LocationSerializer,
+                          ProximitySerializer, ProximityStoreSerializer,
+                          WeatherSerializer, target_typeSerializer)
 
-from django.shortcuts import redirect
-from django.conf import settings
-from functools import wraps
-import jwt
+logger = logging.getLogger(__name__)
 
 
 # Utility Functions
@@ -64,9 +31,6 @@ def error_response(message, status_code=status.HTTP_400_BAD_REQUEST):
     return Response(
         {"message": message, "success": False, "data": []}, status=status_code
     )
-
-
-from django.contrib.auth.decorators import login_required
 
 
 def login_page(request):
@@ -185,7 +149,13 @@ class CampaignPagination(PageNumberPagination):
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def fetch_user_campgain(request):
-    queryset = Campaign.objects.filter(user=request.user).order_by("-updated_at")
+    user_type_pm_values = UserType.objects.filter(user=request.user).values_list('user_type_pm', flat=True)
+    if user_type_pm_values is True:
+        print("abc")
+        queryset = Campaign.objects.all().order_by("-updated_at")
+    else:
+        queryset = Campaign.objects.filter(user=request.user).order_by("-updated_at")
+
     paginator = CampaignPagination()
     paginated_queryset = paginator.paginate_queryset(queryset, request)
     serializer = CampaignSerializer(paginated_queryset, many=True)

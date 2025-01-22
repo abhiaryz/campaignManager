@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -121,9 +122,6 @@ class Campaign(models.Model):
 class CampaignImage(models.Model):
     image = models.ImageField(upload_to="campaigns/images/")
     created_at = models.DateTimeField(auto_now_add=True)
-
-
-from datetime import datetime
 
 
 class Keyword(models.Model):

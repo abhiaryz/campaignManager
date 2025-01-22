@@ -1,29 +1,12 @@
-import secrets
-import string
-
-from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import (
-    ValidationError,
-    ValidationError as DjangoValidationError,
-)
-from django.core.mail import send_mail
-from django.core.validators import validate_email as django_validate_email
-from rest_framework_simplejwt.tokens import RefreshToken
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
-from .models import (
-    Campaign,
-    CampaignImage,
-    Keyword,
-    Location,
-    UserType,
-    proximity,
-    proximity_store,
-    weather,
-    target_type,
-)
+from rest_framework_simplejwt.tokens import RefreshToken
+
+from .models import (Campaign, CampaignImage, Keyword, Location, UserType,
+                     proximity, proximity_store, target_type, weather, UserProfile)
 
 
 class CustomTokenObtainPairSerializer(serializers.Serializer):
@@ -72,10 +55,17 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
         return value
 
 
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ["city", "phone_no"]
+
+
 class UserSerializer(serializers.ModelSerializer):
+    profile = UserProfileSerializer(read_only=True)
     class Meta:
         model = User
-        fields = ["id", "username", "email", "first_name", "last_name", "date_joined"]
+        fields = ["id", "username", "email", "first_name", "last_name", "date_joined", "profile"]
 
 
 class ChangePasswordSerializer(serializers.Serializer):
@@ -130,11 +120,23 @@ class KeywordSerializer(serializers.ModelSerializer):
         model = Keyword
         fields = ["id", "file", "keywords"]
 
+    def validate(self, data):
+        # Check if both 'file' and 'keywords' are empty
+        if not data.get("file") and not data.get("keywords"):
+            raise serializers.ValidationError(
+                "Either 'file' or 'keywords' must be provided."
+            )
+        return data
+
 
 class ProximityStoreSerializer(serializers.ModelSerializer):
     class Meta:
         model = proximity_store
         fields = ["id", "file"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["file"].required = True
 
 
 class ProximitySerializer(serializers.ModelSerializer):
@@ -142,11 +144,19 @@ class ProximitySerializer(serializers.ModelSerializer):
         model = proximity
         fields = ["id", "file"]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["file"].required = True
+
 
 class WeatherSerializer(serializers.ModelSerializer):
     class Meta:
         model = weather
         fields = ["id", "file"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["file"].required = True
 
 
 class CampaignSerializer(serializers.ModelSerializer):
