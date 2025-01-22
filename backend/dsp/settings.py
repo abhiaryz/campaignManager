@@ -1,6 +1,6 @@
 from datetime import timedelta
 from pathlib import Path
-
+import os
 import boto3
 from botocore.client import Config
 from decouple import config
@@ -119,12 +119,6 @@ ROOT_URLCONF = "dsp.urls"
 STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "<YOUR_GOOGLE_CLIENT_ID>"
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "<YOUR_GOOGLE_CLIENT_SECRET>"
-
-# Configure redirects
-SOCIAL_AUTH_LOGIN_REDIRECT_URL = "/authenticated/"
-SOCIAL_AUTH_LOGIN_ERROR_URL = "/login-error/"
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
@@ -160,32 +154,26 @@ CORS_ALLOW_METHODS = [
     "PUT",
 ]
 
-AWS_ACCESS_KEY_ID = "AKIA4MTWN4X3A6OBKQNH"
-AWS_SECRET_ACCESS_KEY = "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"
-AWS_STORAGE_BUCKET_NAME = "test-mmr-dsp"
+AWS_ACCESS_KEY_ID = "AKIA2S2Y4I2T2SK4HRX5"
+AWS_SECRET_ACCESS_KEY = "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"
+AWS_STORAGE_BUCKET_NAME = "diginfluancer"
 AWS_S3_REGION_NAME = "ap-south-1"
-AWS_S3_CUSTOM_DOMAIN = "test-mmr-dsp.s3.amazonaws.com"
-AWS_DEFAULT_ACL = None
-AWS_QUERYSTRING_AUTH = False  # Optional: make files public
+AWS_S3_CUSTOM_DOMAIN = "diginfluancer.s3.amazonaws.com"
 
 AWS_S3_OBJECT_PARAMETERS = {
     "CacheControl": "max-age=86400",
 }
 
-s3 = boto3.resource(
-    "s3",
-    region_name=AWS_S3_REGION_NAME,
-    aws_access_key_id=AWS_ACCESS_KEY_ID,
-    aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
-    config=Config(signature_version="s3v4"),
-)
-
-BUCKET = s3.Bucket(AWS_STORAGE_BUCKET_NAME)
 
 AWS_LOCATION = "static"
-AWS_DEFAULT_ACL = None
 
-STATIC_URL = "https://test-mmr-dsp.s3.amazonaws.com/static/"
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
+
+STATIC_URL = '/static/'
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
 MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com/"
 
 INSTALLED_APPS += ["rest_framework_simplejwt.token_blacklist"]
