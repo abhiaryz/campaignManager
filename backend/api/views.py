@@ -150,8 +150,7 @@ class CampaignPagination(PageNumberPagination):
 @permission_classes([IsAuthenticated])
 def fetch_user_campgain(request):
     user_type_pm_values = UserType.objects.filter(user=request.user).values_list('user_type_pm', flat=True)
-    if user_type_pm_values is True:
-        print("abc")
+    if user_type_pm_values.first() is True:
         queryset = Campaign.objects.all().order_by("-updated_at")
     else:
         queryset = Campaign.objects.filter(user=request.user).order_by("-updated_at")
