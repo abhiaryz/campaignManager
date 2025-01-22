@@ -159,6 +159,7 @@ AWS_SECRET_ACCESS_KEY = "Eh7OGL8TyWrfyTLaUhsdaocA8GwTShmQazSfYQga"
 AWS_STORAGE_BUCKET_NAME = "diginfluancer"
 AWS_S3_REGION_NAME = "ap-south-1"
 AWS_S3_CUSTOM_DOMAIN = "diginfluancer.s3.amazonaws.com"
+AWS_QUERYSTRING_AUTH = True
 
 AWS_S3_OBJECT_PARAMETERS = {
     "CacheControl": "max-age=86400",
