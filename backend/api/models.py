@@ -15,6 +15,33 @@ class Location(models.Model):
     tier = models.CharField(max_length=254)
     population = models.CharField(max_length=254)
 
+class DevicePrice(models.Model):
+    price = models.CharField(max_length=254, unique=True)
+
+class Device(models.Model):
+    device = models.CharField(max_length=254, unique=True)
+
+class DistinctInterest(models.Model):
+    interest = models.CharField(max_length=254, unique=True)
+
+class Age(models.Model):
+    age = models.CharField(max_length=254)
+
+class CarrierData(models.Model):
+    carrier = models.CharField(max_length=254)
+
+class Environment(models.Model):
+    env = models.CharField(max_length=254)
+
+class Exchange(models.Model):
+    exchange = models.CharField(max_length=254)
+
+class Language(models.Model):
+    language = models.CharField(max_length=254)
+    iso_code = models.CharField(max_length=254, blank=True, null=True,default="")
+
+class Impression(models.Model):
+    impression = models.JSONField()
 
 class CityData(models.Model):
     TIER_CHOICES = [
@@ -57,9 +84,26 @@ class Campaign(models.Model):
     carrier = models.JSONField(blank=True, null=True)
     device_price = models.JSONField(blank=True, null=True)
 
+    total_budget = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    buy_type = models.CharField(max_length=50, choices=[('CPM', 'CPM'), ('CVC', 'CVC'), ('Other', 'Other')], blank=True, null=True)
+    unit_rate = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+
+    landing_page = models.URLField(max_length=256, blank=True, null=True)
+    reports_url = models.URLField(max_length=256, blank=True, null=True)
+    tag = models.CharField(max_length=255, blank=True, null=True)
+    tracker = models.CharField(max_length=255, blank=True, null=True)
+
     start_time = models.CharField(max_length=5, blank=True, null=True)
     end_time = models.CharField(max_length=5, blank=True, null=True)
+    status = models.CharField(max_length=50, choices=[('Created', 'CREATED'), ('Learning', 'LEARNING'), ('Live', 'LIVE'),('Pause Option', 'PAUSE OPTION'),
+    ('Completed', 'COMPLETED'),('Other', 'Other')], blank=True, null=True)
 
+    impressions = models.PositiveIntegerField(default=0)
+    clicks = models.PositiveIntegerField(default=0)
+    ctr = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+    views = models.PositiveIntegerField(default=0)
+    vtr = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+    
     proximity_store = models.ManyToManyField(
         "proximity_store",
         blank=True,

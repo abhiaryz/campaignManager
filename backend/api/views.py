@@ -8,7 +8,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .models import (Campaign, CampaignImage, Keyword, Location, proximity,
-                     proximity_store, target_type, weather, UserType)
+                     proximity_store, target_type, weather, UserType, Age, CarrierData,
+    Environment,
+    Exchange,
+    Language,
+    Impression,
+    DevicePrice,
+    Device,
+    DistinctInterest,)
 from .serializers import (CampaignCreateUpdateSerializer,
                           CampaignImageSerializer, CampaignSerializer,
                           KeywordSerializer, LocationSerializer,
@@ -145,12 +152,92 @@ class CampaignPagination(PageNumberPagination):
     page_size_query_param = "page_size"  # Allow the user to specify the page size
     max_page_size = 100
 
+@api_view(["GET"])
+def age_api(request):
+    age_queryset = Age.objects.all()
+    data = []
+    for age in age_queryset:
+        data.append({"id": age.id,"value": age.age})
+    return success_response("Data succcessfully fetched", data)
+
+@api_view(["GET"])
+def DevicePrice_api(request):
+    age_queryset = DevicePrice.objects.all()
+    data = []
+    for age in age_queryset:
+        data.append({"id": age.id,"value": age.price})
+    return success_response("Data succcessfully fetched", data)
+
+@api_view(["GET"])
+def Device_api(request):
+    age_queryset = Device.objects.all()
+    data = []
+    for age in age_queryset:
+        data.append({"id": age.id, "value": age.device})
+    return success_response("Data succcessfully fetched", data)
+
+@api_view(["GET"])
+def DistinctInterest_api(request):
+    age_queryset = DistinctInterest.objects.all()
+    data = []
+    for age in age_queryset:
+        data.append({"id": age.id,"value": age.interest})
+    return success_response("Data succcessfully fetched", data)
+
+@api_view(["GET"])
+def CarrierData_api(request):
+    age_queryset = CarrierData.objects.all()
+    data = []
+    for age in age_queryset:
+        data.append({"id": age.id,"value": age.carrier})
+    return success_response("Data succcessfully fetched", data)
+
+@api_view(["GET"])
+def Environment_api(request):
+    age_queryset = Environment.objects.all()
+    data = []
+    for age in age_queryset:
+        data.append({"id": age.id,"value": age.env})
+    return success_response("Data succcessfully fetched", data)
+
+@api_view(["GET"])
+def Exchange_api(request):
+    age_queryset = Exchange.objects.all()
+    data = []
+    for age in age_queryset:
+        data.append({"id": age.id,"value": age.exchange})
+    return success_response("Data succcessfully fetched", data)
+
+@api_view(["GET"])
+def Language_api(request):
+    age_queryset = Language.objects.all()
+    data = []
+    for age in age_queryset:
+        data.append({"id": age.id,"value": age.language , "iso_code" : age.iso_code})
+    return success_response("Data succcessfully fetched", data)
+
+@api_view(["GET"])
+def Impression_api(request):
+    age_queryset = Impression.objects.all()
+    data = []
+    for age in age_queryset:
+        data = age.impression
+    return Response(data)
+
+
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def fetch_user_campgain(request):
+
+    query_param = request.query_params.get("query", None)
+
     user_type_pm_values = UserType.objects.filter(user=request.user).values_list('user_type_pm', flat=True)
-    if user_type_pm_values.first() is True:
+
+    if query_param:
+        query_values = [value.strip() for value in query_param.split(",")]
+        queryset = Campaign.objects.filter(name__in=query_values)
+    elif user_type_pm_values.first() is True:
         queryset = Campaign.objects.all().order_by("-updated_at")
     else:
         queryset = Campaign.objects.filter(user=request.user).order_by("-updated_at")

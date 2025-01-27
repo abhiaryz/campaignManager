@@ -1,7 +1,24 @@
 from django.contrib import admin
 
-from .models import (Campaign, CampaignImage, CityData, Keyword, Location,
-                     UserProfile, UserType, target_type)
+from .models import (
+    Campaign,
+    CampaignImage,
+    CityData,
+    Keyword,
+    Location,
+    UserProfile,
+    UserType,
+    target_type,
+    Age,
+    CarrierData,
+    Environment,
+    Exchange,
+    Language,
+    Impression,
+    DevicePrice,
+    Device,
+    DistinctInterest,
+)
 
 
 class UserProfileAdmin(admin.ModelAdmin):
@@ -32,6 +49,15 @@ admin.site.register(Location, LocationAdmin)
 admin.site.register(target_type)
 admin.site.register(CampaignImage)
 admin.site.register(Keyword)
+admin.site.register(Age)
+admin.site.register(CarrierData)
+admin.site.register(Environment)
+admin.site.register(Exchange)
+admin.site.register(Language)
+admin.site.register(Impression)
+admin.site.register(DevicePrice)
+admin.site.register(Device)
+admin.site.register(DistinctInterest)
 
 
 @admin.register(CityData)

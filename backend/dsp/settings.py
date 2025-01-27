@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config("SECRET_KEY", default="unsafe-secret-key")
 
-DEBUG = config("DEBUG", default=True, cast=bool)
+DEBUG = False
 
 ALLOWED_HOSTS = [
     "abhiaryz.pythonanywhere.com",
@@ -78,6 +78,8 @@ AUTHENTICATION_BACKENDS = (
 )
 
 REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
@@ -167,7 +169,7 @@ AWS_S3_OBJECT_PARAMETERS = {
 
 
 AWS_LOCATION = "static"
-
+AWS_DEFAULT_ACL = None
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
