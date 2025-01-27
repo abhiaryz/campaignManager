@@ -15,12 +15,12 @@ from .models import (Campaign, CampaignImage, Keyword, Location, proximity,
     Impression,
     DevicePrice,
     Device,
-    DistinctInterest,)
+    DistinctInterest,Bidding_details)
 from .serializers import (CampaignCreateUpdateSerializer,
                           CampaignImageSerializer, CampaignSerializer,
                           KeywordSerializer, LocationSerializer,
                           ProximitySerializer, ProximityStoreSerializer,
-                          WeatherSerializer, target_typeSerializer)
+                          WeatherSerializer, target_typeSerializer,BiddingDetailsSerializer)
 
 logger = logging.getLogger(__name__)
 
@@ -125,6 +125,11 @@ class CampaignViewSet(viewsets.ViewSet):
 class CampaignImageViewSet(viewsets.ModelViewSet):
     queryset = CampaignImage.objects.all()
     serializer_class = CampaignImageSerializer
+
+class BiddingDetailsViewSet(viewsets.ModelViewSet):
+    queryset = Bidding_details.objects.all()
+    serializer_class = BiddingDetailsSerializer
+
 
 
 class ProximityStoreViewSet(viewsets.ModelViewSet):

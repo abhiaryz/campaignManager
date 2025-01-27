@@ -18,6 +18,7 @@ from .models import (
     DevicePrice,
     Device,
     DistinctInterest,
+    Bidding_details
 )
 
 
@@ -58,6 +59,7 @@ admin.site.register(Impression)
 admin.site.register(DevicePrice)
 admin.site.register(Device)
 admin.site.register(DistinctInterest)
+admin.site.register(Bidding_details)
 
 
 @admin.register(CityData)

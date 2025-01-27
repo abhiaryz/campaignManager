@@ -16,6 +16,7 @@ router.register(
 )
 router.register(r"proximity", views.ProximityViewSet, basename="proximity")
 router.register(r"weather", views.WeatherViewSet, basename="weather")
+router.register(r"biddingDetails", views.BiddingDetailsViewSet, basename="biddingDetails")
 
 urlpatterns = [
     path("login/", views.login_page, name="login"),

@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import UserProfile
+from .models import UserProfile,UserType
 from .serializers import UserSerializer, UserUpdateSerializer
 
 logger = logging.getLogger(__name__)
@@ -77,7 +77,7 @@ class UserAPIView(APIView):
 @permission_classes([IsAuthenticated])
 def profile_api(request):
     user_profile = UserProfile.objects.filter(user=request.user).first()
-
+    user_type = UserType.objects.filter(user=request.user).first()
     if user_profile:
         city = user_profile.city
         phone_no = user_profile.phone_no
@@ -94,8 +94,7 @@ def profile_api(request):
         "email": request.user.email,
         "city": city,
         "phone_no": phone_no,
+        "user_type": user_type.user_type_pm
     }
     return success_response("Data succcessfully fetched", data)
 
-
-# Phone no added

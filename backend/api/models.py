@@ -85,8 +85,7 @@ class Campaign(models.Model):
     device_price = models.JSONField(blank=True, null=True)
 
     total_budget = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    buy_type = models.CharField(max_length=50, choices=[('CPM', 'CPM'), ('CVC', 'CVC'), ('Other', 'Other')], blank=True, null=True)
-    unit_rate = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    
 
     landing_page = models.URLField(max_length=256, blank=True, null=True)
     reports_url = models.URLField(max_length=256, blank=True, null=True)
@@ -104,6 +103,13 @@ class Campaign(models.Model):
     views = models.PositiveIntegerField(default=0)
     vtr = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
     
+    
+    bidding_details = models.ManyToManyField(
+        "Bidding_details",
+        blank=True,
+        related_name="Bidding_details",
+    )
+
     proximity_store = models.ManyToManyField(
         "proximity_store",
         blank=True,
@@ -144,7 +150,6 @@ class Campaign(models.Model):
         null=True,
         blank=True,
     )
-
     keywords = models.ManyToManyField(
         "Keyword",
         blank=True,
@@ -184,6 +189,11 @@ class proximity_store(models.Model):
     def __str__(self):
         return f"File {self.id} uploaded at {self.uploaded_at}"
 
+class Bidding_details(models.Model):
+    buy_type = models.CharField(max_length=50, choices=[('CPM', 'CPM'), ('CVC', 'CVC'), ('Other', 'Other')], blank=True, null=True)
+    unit_rate = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    def __str__(self):
+        return f"File {self.id} uploaded at {self.buy_type}"
 
 class proximity(models.Model):
     file = models.FileField(upload_to="proximity/", blank=True, null=True)
