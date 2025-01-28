@@ -97,6 +97,8 @@ class Campaign(models.Model):
     status = models.CharField(max_length=50, choices=[('Created', 'CREATED'), ('Learning', 'LEARNING'), ('Live', 'LIVE'),('Pause Option', 'PAUSE OPTION'),
     ('Completed', 'COMPLETED'),('Other', 'Other')], blank=True, null=True)
 
+    viewability = models.PositiveIntegerField(default=0)
+    brand_safety = models.PositiveIntegerField(default=0)
     impressions = models.PositiveIntegerField(default=0)
     clicks = models.PositiveIntegerField(default=0)
     ctr = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
