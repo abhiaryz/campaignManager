@@ -1,8 +1,6 @@
 from datetime import timedelta
 from pathlib import Path
 import os
-import boto3
-from botocore.client import Config
 from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -90,7 +88,6 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(minutes=60),
 }
 
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -117,11 +114,8 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 ROOT_URLCONF = "dsp.urls"
-# S3 Static and Media Settings
-STATICFILES_STORAGE = "api.storage.StaticStorage"
-DEFAULT_FILE_STORAGE = "api.storage.StaticStorage"
 
-
+# Email Settings
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
@@ -129,6 +123,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = "<your-email>@gmail.com"
 EMAIL_HOST_PASSWORD = "<your-email-password>"
 
+# CORS Settings
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
     "http://127.0.0.1:8000",
@@ -156,27 +151,25 @@ CORS_ALLOW_METHODS = [
     "PUT",
 ]
 
+# AWS S3 Settings
 AWS_ACCESS_KEY_ID = "AKIA2S2Y4I2T2SK4HRX5"
 AWS_SECRET_ACCESS_KEY = "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"
 AWS_STORAGE_BUCKET_NAME = "diginfluancer"
 AWS_S3_REGION_NAME = "ap-south-1"
-AWS_S3_CUSTOM_DOMAIN = "diginfluancer.s3.amazonaws.com"
+AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com"
 AWS_QUERYSTRING_AUTH = False
 
 AWS_S3_OBJECT_PARAMETERS = {
     "CacheControl": "max-age=86400",
 }
 
-
-AWS_LOCATION = "static"
-STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/'
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'
 STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
-
-STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-
-MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
+# Media files
+MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 INSTALLED_APPS += ["rest_framework_simplejwt.token_blacklist"]
-
