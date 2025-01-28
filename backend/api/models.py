@@ -106,10 +106,10 @@ class Campaign(models.Model):
     vtr = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
     
     
-    bidding_details = models.ManyToManyField(
-        "Bidding_details",
+    bidding_detail = models.ManyToManyField(
+        "Bidding_detail",
         blank=True,
-        related_name="Bidding_details",
+        related_name="Bidding_detail",
     )
 
     proximity_store = models.ManyToManyField(
@@ -191,7 +191,7 @@ class proximity_store(models.Model):
     def __str__(self):
         return f"File {self.id} uploaded at {self.uploaded_at}"
 
-class Bidding_details(models.Model):
+class Bidding_detail(models.Model):
     buy_type = models.CharField(max_length=50, choices=[('CPM', 'CPM'), ('CVC', 'CVC'), ('Other', 'Other')], blank=True, null=True)
     unit_rate = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     def __str__(self):
