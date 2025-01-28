@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config("SECRET_KEY", default="unsafe-secret-key")
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
     "abhiaryz.pythonanywhere.com",
@@ -118,8 +118,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 ROOT_URLCONF = "dsp.urls"
 # S3 Static and Media Settings
-STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
-DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+STATICFILES_STORAGE = "api.storage.StaticStorage"
+DEFAULT_FILE_STORAGE = "api.storage.StaticStorage"
 
 
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
@@ -169,13 +169,10 @@ AWS_S3_OBJECT_PARAMETERS = {
 
 
 AWS_LOCATION = "static"
-AWS_DEFAULT_ACL = None
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
-]
+STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/'
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
@@ -183,4 +180,3 @@ MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
 
 INSTALLED_APPS += ["rest_framework_simplejwt.token_blacklist"]
 
-AWS_QUERYSTRING_AUTH = True
