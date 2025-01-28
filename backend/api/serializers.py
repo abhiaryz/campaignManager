@@ -6,7 +6,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import (Campaign, CampaignImage, Keyword, Location, UserType,
-                     proximity, proximity_store, target_type, weather, UserProfile, Bidding_details)
+                     proximity, proximity_store, target_type, weather, UserProfile, Bidding_detail)
 
 
 class CustomTokenObtainPairSerializer(serializers.Serializer):
@@ -109,7 +109,7 @@ class target_typeSerializer(serializers.ModelSerializer):
 
 class BiddingDetailsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Bidding_details
+        model = Bidding_detail
         fields = ["id", "buy_type", "unit_rate"]
 
 

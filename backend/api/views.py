@@ -15,7 +15,7 @@ from .models import (Campaign, CampaignImage, Keyword, Location, proximity,
     Impression,
     DevicePrice,
     Device,
-    DistinctInterest,Bidding_details)
+    DistinctInterest,Bidding_detail)
 from .serializers import (CampaignCreateUpdateSerializer,
                           CampaignImageSerializer, CampaignSerializer,
                           KeywordSerializer, LocationSerializer,
@@ -127,7 +127,7 @@ class CampaignImageViewSet(viewsets.ModelViewSet):
     serializer_class = CampaignImageSerializer
 
 class BiddingDetailsViewSet(viewsets.ModelViewSet):
-    queryset = Bidding_details.objects.all()
+    queryset = Bidding_detail.objects.all()
     serializer_class = BiddingDetailsSerializer
 
 
