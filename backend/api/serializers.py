@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import (Campaign, CampaignImage, Keyword, Location, UserType,
+from .models import (Campaign, CampaignImage, Keyword, Location, UserType, CampaignVideo,
                      proximity, proximity_store, target_type, weather, UserProfile, Bidding_detail)
 
 
@@ -113,11 +113,16 @@ class BiddingDetailsSerializer(serializers.ModelSerializer):
         fields = ["id", "buy_type", "unit_rate"]
 
 
-# Serializers
 class CampaignImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = CampaignImage
         fields = ["id", "image", "created_at"]
+
+
+class CampaignVideoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CampaignVideo
+        fields = ["id", "video", "created_at"]
 
 
 class KeywordSerializer(serializers.ModelSerializer):

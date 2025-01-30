@@ -7,7 +7,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .models import (Campaign, CampaignImage, Keyword, Location, proximity,
+from .models import (Campaign, CampaignImage, Keyword, Location, proximity, CampaignVideo,
                      proximity_store, target_type, weather, UserType, Age, CarrierData,
     Environment,
     Exchange,
@@ -20,7 +20,7 @@ from .serializers import (CampaignCreateUpdateSerializer,
                           CampaignImageSerializer, CampaignSerializer,
                           KeywordSerializer, LocationSerializer,
                           ProximitySerializer, ProximityStoreSerializer,
-                          WeatherSerializer, target_typeSerializer,BiddingDetailsSerializer)
+                          WeatherSerializer, target_typeSerializer,BiddingDetailsSerializer,CampaignVideoSerializer)
 
 logger = logging.getLogger(__name__)
 
@@ -125,6 +125,13 @@ class CampaignViewSet(viewsets.ViewSet):
 class CampaignImageViewSet(viewsets.ModelViewSet):
     queryset = CampaignImage.objects.all()
     serializer_class = CampaignImageSerializer
+
+
+class CampaignVideoViewSet(viewsets.ModelViewSet):
+    queryset = CampaignVideo.objects.all()
+    serializer_class = CampaignVideoSerializer
+
+
 
 class BiddingDetailsViewSet(viewsets.ModelViewSet):
     queryset = Bidding_detail.objects.all()

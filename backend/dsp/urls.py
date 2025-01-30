@@ -10,6 +10,9 @@ router.register(r"campaigns", views.CampaignViewSet, basename="campaign")
 router.register(
     r"campaign-images", views.CampaignImageViewSet, basename="campaign-image"
 )
+router.register(
+    r"campaign-video", views.CampaignVideoViewSet, basename="campaign-video"
+)
 router.register(r"keywords", views.KeywordViewSet, basename="keyword")
 router.register(
     r"proximityStore", views.ProximityStoreViewSet, basename="proximityStore"

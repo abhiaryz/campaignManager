@@ -3,6 +3,7 @@ from django.contrib import admin
 from .models import (
     Campaign,
     CampaignImage,
+    CampaignVideo,
     CityData,
     Keyword,
     Location,
@@ -58,6 +59,8 @@ admin.site.register(Impression)
 admin.site.register(DevicePrice)
 admin.site.register(Device)
 admin.site.register(DistinctInterest)
+admin.site.register(CampaignVideo)
+
 
 
 @admin.register(CityData)

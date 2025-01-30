@@ -69,6 +69,7 @@ class Campaign(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="campaigns", blank=True, null=True
     )
+    objective = models.CharField(max_length=50, choices=[('Banner', 'BANNER'), ('Video', 'VIDEO')], blank=True, null=True)
     name = models.CharField(max_length=255, blank=True, null=True)
     age = models.JSONField(blank=True, null=True)
     day_part = models.CharField(max_length=255, blank=True, null=True)
@@ -86,16 +87,26 @@ class Campaign(models.Model):
 
     total_budget = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     
-
-    landing_page = models.URLField(max_length=256, blank=True, null=True)
+    landing_page = models.CharField(max_length=256, blank=True, null=True)
     reports_url = models.URLField(max_length=256, blank=True, null=True)
-    tag = models.CharField(max_length=255, blank=True, null=True)
-    tracker = models.CharField(max_length=255, blank=True, null=True)
+    tag_tracker = models.CharField(max_length=255, blank=True, null=True)
 
-    start_time = models.CharField(max_length=5, blank=True, null=True)
-    end_time = models.CharField(max_length=5, blank=True, null=True)
-    status = models.CharField(max_length=50, choices=[('Created', 'CREATED'), ('Learning', 'LEARNING'), ('Live', 'LIVE'),('Pause Option', 'PAUSE OPTION'),
-    ('Completed', 'COMPLETED'),('Other', 'Other')], blank=True, null=True)
+    start_time = models.CharField(max_length=256, blank=True, null=True)
+    end_time = models.CharField(max_length=256, blank=True, null=True)
+    status = models.CharField(
+        max_length=50,
+        choices=[
+            ('Created', 'CREATED'),
+            ('Learning', 'LEARNING'),
+            ('Live', 'LIVE'),
+            ('Pause Option', 'PAUSE OPTION'),
+            ('Completed', 'COMPLETED'),
+            ('Other', 'Other')
+        ],
+        blank=True,
+        null=True,
+        default='Created'  # Set the default here
+    )
 
     viewability = models.PositiveIntegerField(default=0)
     brand_safety = models.PositiveIntegerField(default=0)
@@ -143,10 +154,10 @@ class Campaign(models.Model):
         blank=True,
         related_name="campaign_images",
     )
-    video = models.FileField(
-        upload_to="campaigns/videos/",
-        null=True,
+    video = models.ManyToManyField(
+        "CampaignVideo",
         blank=True,
+        related_name ="Campaign_video",
     )
     keywords = models.ManyToManyField(
         "Keyword",
@@ -154,22 +165,15 @@ class Campaign(models.Model):
         related_name="campaign_keywords",
     )
 
-    def clean(self):
-        super().clean()
-        # Validate start_time and end_time format (HH:MM)
-        time_pattern = r"^\d{2}:\d{2}$"
-        if self.start_time and not re.match(time_pattern, self.start_time):
-            raise ValidationError(
-                {"start_time": "Invalid time format. Should be HH:MM."}
-            )
-        if self.end_time and not re.match(time_pattern, self.end_time):
-            raise ValidationError({"end_time": "Invalid time format. Should be HH:MM."})
 
 
 class CampaignImage(models.Model):
-    image = models.ImageField(upload_to="campaigns/images/")
+    image = models.FileField(upload_to="campaigns/images/")
     created_at = models.DateTimeField(auto_now_add=True)
 
+class CampaignVideo(models.Model):
+    video = models.FileField(upload_to="campaigns/video/")
+    created_at = models.DateTimeField(auto_now_add=True)
 
 class Keyword(models.Model):
     file = models.FileField(upload_to="campaign_keywords/", blank=True, null=True)
@@ -217,7 +221,8 @@ class UserProfile(models.Model):
 
 class target_type(models.Model):
     targeting_type = models.CharField(max_length=255)
-    category = models.CharField(max_length=255)
+    category = models.CharField(max_length=255, default='', blank=True, null=True)
+    subcategory = models.CharField(max_length=255, blank=True, null=True, default='')
 
 
 @receiver(post_save, sender=User)
