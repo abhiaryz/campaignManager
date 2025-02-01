@@ -316,7 +316,7 @@ def target_type_view(request):
         query_values = [value.strip() for value in query_param.split(",")]
 
         # Filter the queryset for each value in the query_values list
-        queryset = target_type.objects.filter(targeting_type__in=query_values)
+        queryset = target_type.objects.filter(category__in=query_values)
         if queryset.exists():
             serializer = target_typeSerializer(queryset, many=True)
             return Response(
