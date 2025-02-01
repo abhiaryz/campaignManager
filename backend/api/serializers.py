@@ -189,6 +189,9 @@ class CampaignCreateUpdateSerializer(serializers.ModelSerializer):
     images = serializers.PrimaryKeyRelatedField(
         many=True, queryset=CampaignImage.objects.all(), required=False
     )
+    video = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=CampaignVideo.objects.all(), required=False
+    )
     keywords = serializers.PrimaryKeyRelatedField(
         many=True, queryset=Keyword.objects.all(), required=False
     )
@@ -215,6 +218,7 @@ class CampaignCreateUpdateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         images = validated_data.pop("images", [])
+        video = validated_data.pop("video", [])
         keywords = validated_data.pop("keywords", [])
         location = validated_data.pop("location", [])
         proximity_store = validated_data.pop("proximity_store", [])
@@ -230,6 +234,7 @@ class CampaignCreateUpdateSerializer(serializers.ModelSerializer):
         campaign.proximity.set(proximity)
         campaign.weather.set(weather)
         campaign.target_type.set(target_type)
+        campaign.video.set(video)
         return campaign
 
 
