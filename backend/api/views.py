@@ -323,7 +323,7 @@ class FileGetView(APIView):
             status=status.HTTP_201_CREATED
         )
 
-
+from django.db.models import Q
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def fetch_user_campgain(request):
@@ -334,7 +334,10 @@ def fetch_user_campgain(request):
 
     if query_param:
         query_values = [value.strip() for value in query_param.split(",")]
-        queryset = Campaign.objects.filter(name__in=query_values)
+        query = Q()
+        for value in query_values:
+            query |= Q(name__icontains=value)
+        queryset = Campaign.objects.filter(query)
     elif user_type_pm_values.first() is True:
         queryset = Campaign.objects.all().order_by("-updated_at")
     else:
