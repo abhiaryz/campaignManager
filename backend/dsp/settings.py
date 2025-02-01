@@ -37,6 +37,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'whitenoise.middleware.WhiteNoiseMiddleware'
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -114,7 +115,6 @@ USE_TZ = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-ROOT_URLCONF = "dsp.urls"
 
 # Email Settings
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
@@ -153,6 +153,8 @@ CORS_ALLOW_METHODS = [
     "PUT",
 ]
 
+
+
 # AWS S3 Settings
 AWS_ACCESS_KEY_ID = "AKIA2S2Y4I2T2SK4HRX5"
 AWS_SECRET_ACCESS_KEY = "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"
@@ -175,8 +177,8 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 # Media files
 
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/'
-
+MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media'
+MEDIA_ROOT = "media/"
 INSTALLED_APPS += ["rest_framework_simplejwt.token_blacklist"]
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 5000
