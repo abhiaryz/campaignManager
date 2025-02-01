@@ -41,9 +41,17 @@ def error_response(message, status_code=status.HTTP_400_BAD_REQUEST):
         {"message": message, "success": False, "data": []}, status=status_code
     )
 
-
+@api_view(['POST'])
 def login_page(request):
-    return render(request, "dsp/login.html")
+    payload = request.data
+    audience_list = payload['data'][0]
+    for item in audience_list:
+        category = item.get("category")
+        subcategory = item.get("subcategory")
+        target_type.objects.create(category=category,subcategory=subcategory)
+    return Response({"message": "Target type created successfully"}, status=status.HTTP_200_OK)
+
+
 
 
 def register_page(request):
