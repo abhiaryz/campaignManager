@@ -187,7 +187,7 @@ def brandSafety_api(request):
     age_queryset = BrandSafety.objects.all()
     data = []
     for age in age_queryset:
-        data.append({"id": age.id, "value": age.value , "label" : age.label})
+        data.append({"id": age.id, "value": int(age.value) , "label" : age.label})
     return success_response("Data succcessfully fetched", data)
 
 @api_view(["GET"])
@@ -195,7 +195,7 @@ def Viewability_api(request):
     age_queryset = Viewability.objects.all()
     data = []
     for age in age_queryset:
-        data.append({"id": age.id, "value": age.value , "label" : age.label})
+        data.append({"id": age.id, "value": int(age.value) , "label" : age.label})
     return success_response("Data succcessfully fetched", data)
 
 @api_view(["GET"])
@@ -205,6 +205,7 @@ def BuyType_api(request):
     for age in age_queryset:
         data.append({"id": age.id, "value": age.value , "label" : age.label})
     return success_response("Data succcessfully fetched", data)
+
 
 @api_view(["GET"])
 def DevicePrice_api(request):
