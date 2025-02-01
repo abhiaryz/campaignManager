@@ -27,18 +27,23 @@ from .models import (
 
 
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ("user", "city", "phone_no")
+    list_display = ("id","user", "city", "phone_no")
     search_fields = ("user",)
     list_filter = ("user",)
     ordering = ("user",)
 
 
 class UserTypeAdmin(admin.ModelAdmin):
-    list_display = ("user", "user_type_pm")
+    list_display = ("id", "user", "user_type_pm")
     search_fields = ("user",)
     list_filter = ("user",)
     ordering = ("user",)
 
+class AgeAdmin(admin.ModelAdmin):
+    list_display = ("id","age","label")
+
+class Bidding_detailAdmin(admin.ModelAdmin):
+    list_display = ("id", "buy_type","unit_rate")
 
 class LanguageAdmin(admin.ModelAdmin):
     list_display = ("language", "iso_code", "label")
@@ -86,26 +91,46 @@ class CampaignAdmin(admin.ModelAdmin):
     ordering = ("name", "objective", "status")
 
 
+class CampaignVideoAdmin(admin.ModelAdmin):
+    list_display = ("id", "video", "created_at")
+
+
+class DistinctInterestAdmin(admin.ModelAdmin):
+    list_display = ("id", "interest", "label")
+
+
+class DeviceAdmin(admin.ModelAdmin):
+    list_display=("id", "device", "label")
+
+class DevicePriceAdmin(admin.ModelAdmin):
+    list_display=("id", "price", "label")    
+
+class KeywordAdmin(admin.ModelAdmin):
+    list_display = ("id", "file", "uploaded_at", "keywords")
+
+class CampaignImageAdmin(admin.ModelAdmin):
+    list_display = ("id", "image", "created_at")
+
 admin.site.register(UserType, UserTypeAdmin)
 admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(Campaign,CampaignAdmin)
 admin.site.register(Location, LocationAdmin)
 admin.site.register(target_type, target_typeAdmin)
-admin.site.register(CampaignImage)
-admin.site.register(Keyword)
-admin.site.register(Age)
+admin.site.register(CampaignImage, CampaignImageAdmin)
+admin.site.register(Keyword,KeywordAdmin)
+admin.site.register(Age, AgeAdmin)
 admin.site.register(CarrierData, CarrierDataAdmin)
 admin.site.register(Environment, EnvironmentAdmin)
 admin.site.register(Exchange, ExchangeAdmin)
 admin.site.register(Language, LanguageAdmin)
 admin.site.register(Impression)
-admin.site.register(DevicePrice)
-admin.site.register(Device)
-admin.site.register(DistinctInterest)
-admin.site.register(CampaignVideo)
+admin.site.register(DevicePrice, DevicePriceAdmin)
+admin.site.register(Device, DeviceAdmin)
+admin.site.register(DistinctInterest, DistinctInterestAdmin)
+admin.site.register(CampaignVideo, CampaignVideoAdmin)
 admin.site.register(BrandSafety, BrandSafetyAdmin)
 admin.site.register(BuyType, BuyTypeAdmin)
-admin.site.register(Bidding_detail)
+admin.site.register(Bidding_detail, Bidding_detailAdmin)
 admin.site.register(Viewability, ViewabilityAdmin)
 
 @admin.register(CityData)

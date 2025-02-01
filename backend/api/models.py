@@ -77,8 +77,6 @@ class CityData(models.Model):
     tier = models.CharField(max_length=10, choices=TIER_CHOICES)
     city_population = models.BigIntegerField()
 
-    def __str__(self):
-        return f"{self.city}, {self.state}, {self.country}"
 
 
 class UserType(models.Model):
@@ -202,37 +200,26 @@ class Keyword(models.Model):
     uploaded_at = models.DateTimeField(default=datetime.now, blank=True)
     keywords = models.JSONField(blank=True, null=True)
 
-    def __str__(self):
-        return f"File {self.id} uploaded at {self.uploaded_at}"
-
 
 class proximity_store(models.Model):
     file = models.FileField(upload_to="proximity_store/", blank=True, null=True)
     uploaded_at = models.DateTimeField(default=datetime.now, blank=True)
 
-    def __str__(self):
-        return f"File {self.id} uploaded at {self.uploaded_at}"
-
 class Bidding_detail(models.Model):
     buy_type = models.CharField(max_length=50, choices=[('CPM', 'CPM'), ('CVC', 'CVC'), ('Other', 'Other')], blank=True, null=True)
     unit_rate = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    def __str__(self):
-        return f"File {self.id} uploaded at {self.buy_type}"
+
 
 class proximity(models.Model):
     file = models.FileField(upload_to="proximity/", blank=True, null=True)
     uploaded_at = models.DateTimeField(default=datetime.now, blank=True)
 
-    def __str__(self):
-        return f"File {self.id} uploaded at {self.uploaded_at}"
 
 
 class weather(models.Model):
     file = models.FileField(upload_to="weather/", blank=True, null=True)
     uploaded_at = models.DateTimeField(default=datetime.now, blank=True)
 
-    def __str__(self):
-        return f"File {self.id} uploaded at {self.uploaded_at}"
 
 
 class UserProfile(models.Model):
