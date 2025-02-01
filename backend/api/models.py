@@ -234,6 +234,7 @@ class target_type(models.Model):
     subcategory = models.CharField(max_length=255, blank=True, null=True, default='')
 
 
+
 @receiver(post_save, sender=User)
 def create_or_update_user_profile(sender, instance, created, **kwargs):
     if created:
