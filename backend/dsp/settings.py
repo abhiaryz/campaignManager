@@ -34,10 +34,11 @@ INSTALLED_APPS = [
     "drf_yasg",
     "storages",
     "corsheaders",
+
 ]
 
 MIDDLEWARE = [
-    'whitenoise.middleware.WhiteNoiseMiddleware'
+
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
