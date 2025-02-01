@@ -22,7 +22,8 @@ from .models import (
     BrandSafety,
     BuyType,
     Bidding_detail,
-    Viewability
+    Viewability,
+    weather
 )
 
 
@@ -111,6 +112,8 @@ class KeywordAdmin(admin.ModelAdmin):
 class CampaignImageAdmin(admin.ModelAdmin):
     list_display = ("id", "image", "created_at")
 
+
+admin.site.register(weather)
 admin.site.register(UserType, UserTypeAdmin)
 admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(Campaign,CampaignAdmin)

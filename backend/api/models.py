@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-
+from storages.backends.s3boto3 import S3Boto3Storage
 
 class Location(models.Model):
     country = models.CharField(max_length=254)
@@ -217,7 +217,7 @@ class proximity(models.Model):
 
 
 class weather(models.Model):
-    file = models.FileField(upload_to="weather/", blank=True, null=True)
+    file = models.FileField(upload_to="weather/", storage=S3Boto3Storage(),blank=True, null=True)
     uploaded_at = models.DateTimeField(default=datetime.now, blank=True)
 
 

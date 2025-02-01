@@ -4,7 +4,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
-
+from storages.backends.s3boto3 import S3Boto3Storage
 from .models import (Campaign, CampaignImage, Keyword, Location, UserType, CampaignVideo,
                      proximity, proximity_store, target_type, weather, UserProfile, Bidding_detail,  BrandSafety,
     BuyType,
