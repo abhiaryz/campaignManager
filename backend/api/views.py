@@ -314,7 +314,8 @@ class FileGetView(APIView):
 
         created_count = 0
         for index, row in df.iterrows():
-            Campaign.objects.filter(id=row.get('id')).update(viewability=value,impressions=,clicks=,ctr=,views=,vtr=)
+            print("hello")
+            #Campaign.objects.filter(id=row.get('id')).update(viewability=value,impressions=,clicks=,ctr=,views=,vtr=)
 
 
         return Response(
