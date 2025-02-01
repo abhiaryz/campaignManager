@@ -2,11 +2,12 @@ import boto3
 from botocore.exceptions import ClientError
 
 # AWS credentials and configurations (directly provided here, avoid in production)
-AWS_ACCESS_KEY_ID = "AKIA4MTWN4X3A6OBKQNH"
-AWS_SECRET_ACCESS_KEY = "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"
-AWS_STORAGE_BUCKET_NAME = "test-mmr-dsp"
+AWS_ACCESS_KEY_ID = "AKIA2S2Y4I2T2SK4HRX5"
+AWS_SECRET_ACCESS_KEY = "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"
+AWS_STORAGE_BUCKET_NAME = "diginfluancer"
 AWS_S3_REGION_NAME = "ap-south-1"
-AWS_S3_CUSTOM_DOMAIN = "test-mmr-dsp.s3.amazonaws.com"
+AWS_S3_SIGNATURE_VERSION = 's3v4'
+AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
 
 
 def list_files_in_s3_bucket():
