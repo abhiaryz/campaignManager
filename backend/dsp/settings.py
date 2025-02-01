@@ -17,6 +17,7 @@ ALLOWED_HOSTS = [
     "localhost",
     "ad-campaign.vercel.app",
     "ad-campaign-git-dev-ga7utis-projects.vercel.app",
+    "13.233.13.8"
 ]
 
 INSTALLED_APPS = [
@@ -127,6 +128,7 @@ EMAIL_HOST_PASSWORD = "<your-email-password>"
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8000",
     "http://127.0.0.1:8000",
+    "http://13.233.13.8:8000",
     "http://127.0.0.1:3000",
     "http://localhost:3000",
     "https://ad-campaign.vercel.app",
