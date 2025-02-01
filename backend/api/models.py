@@ -188,21 +188,21 @@ class Campaign(models.Model):
 
 
 class CampaignImage(models.Model):
-    image = models.FileField(upload_to="campaigns/images/")
+    image = models.FileField(upload_to="campaigns/images/", storage=S3Boto3Storage())
     created_at = models.DateTimeField(auto_now_add=True)
 
 class CampaignVideo(models.Model):
-    video = models.FileField(upload_to="campaigns/video/")
+    video = models.FileField(upload_to="campaigns/video/", storage=S3Boto3Storage())
     created_at = models.DateTimeField(auto_now_add=True)
 
 class Keyword(models.Model):
-    file = models.FileField(upload_to="campaign_keywords/", blank=True, null=True)
+    file = models.FileField(upload_to="campaign_keywords/", storage=S3Boto3Storage(), blank=True, null=True)
     uploaded_at = models.DateTimeField(default=datetime.now, blank=True)
     keywords = models.JSONField(blank=True, null=True)
 
 
 class proximity_store(models.Model):
-    file = models.FileField(upload_to="proximity_store/", blank=True, null=True)
+    file = models.FileField(upload_to="proximity_store/", storage=S3Boto3Storage(), blank=True, null=True)
     uploaded_at = models.DateTimeField(default=datetime.now, blank=True)
 
 class Bidding_detail(models.Model):
@@ -211,13 +211,13 @@ class Bidding_detail(models.Model):
 
 
 class proximity(models.Model):
-    file = models.FileField(upload_to="proximity/", blank=True, null=True)
+    file = models.FileField(upload_to="proximity/", storage=S3Boto3Storage() , blank=True, null=True)
     uploaded_at = models.DateTimeField(default=datetime.now, blank=True)
 
 
 
 class weather(models.Model):
-    file = models.FileField(upload_to="weather/", storage=S3Boto3Storage(),blank=True, null=True)
+    file = models.FileField(upload_to="weather/", storage=S3Boto3Storage(), blank=True, null=True)
     uploaded_at = models.DateTimeField(default=datetime.now, blank=True)
 
 
