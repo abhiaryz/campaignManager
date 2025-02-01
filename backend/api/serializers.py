@@ -179,6 +179,7 @@ class CampaignSerializer(serializers.ModelSerializer):
     weather = WeatherSerializer(many=True, read_only=True)
     location = LocationSerializer(many=True, read_only=True)
     target_type = target_typeSerializer(many=True, read_only=True)
+    video = CampaignVideoSerializer(many=True, read_only=True)
 
     class Meta:
         model = Campaign

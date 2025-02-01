@@ -6,6 +6,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+import pandas as pd
+from rest_framework.views import APIView
+from django.http import HttpResponse
 
 from .models import (Campaign, CampaignImage, Keyword, Location, proximity, CampaignVideo,
                      proximity_store, target_type, weather, UserType, Age, CarrierData,
@@ -51,6 +54,17 @@ def login_page(request):
         target_type.objects.create(category=category,subcategory=subcategory)
     return Response({"message": "Target type created successfully"}, status=status.HTTP_200_OK)
 
+
+
+
+def serializer_data_to_csv(serializer_data):
+    """
+    Convert a list of dicts (serializer data) into CSV format using pandas
+    and return the CSV as a string.
+    """
+    df = pd.DataFrame(serializer_data)
+    csv_string = df.to_csv(index=False)
+    return csv_string
 
 
 
@@ -271,6 +285,42 @@ def Impression_api(request):
         data = age.impression
     return Response(data)
 
+class FileGetView(APIView):
+    def get(self, request, *args, **kwargs):
+        queryset = Campaign.objects.all()
+        serializer = CampaignSerializer(queryset, many=True)
+        serializer_data = serializer.data
+        csv_data = serializer_data_to_csv(serializer_data)
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="my_data.csv"'
+        response.write(csv_data)
+        return response
+    
+    def post(self, request, *args, **kwargs):
+        """
+        POST: Upload a CSV file to create/update MyModel records.
+        Expecting a 'file' field in multipart/form-data.
+        """
+        csv_file = request.FILES.get('file')
+        if not csv_file:
+            return Response({'error': 'No file was uploaded.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            df = pd.read_csv(csv_file)
+        except Exception as e:
+            return Response({'error': f'Failed to read CSV file: {str(e)}'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        created_count = 0
+        for index, row in df.iterrows():
+            Campaign.objects.filter(id=row.get('id')).update(viewability=value,impressions=,clicks=,ctr=,views=,vtr=)
+
+
+        return Response(
+            {'message': f'Successfully created {created_count} records.'},
+            status=status.HTTP_201_CREATED
+        )
 
 
 @api_view(["GET"])
