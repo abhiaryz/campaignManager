@@ -18,7 +18,11 @@ from .models import (
     Impression,
     DevicePrice,
     Device,
-    DistinctInterest
+    DistinctInterest,
+    BrandSafety,
+    BuyType,
+    Bidding_detail,
+    Viewability
 )
 
 
@@ -60,8 +64,10 @@ admin.site.register(DevicePrice)
 admin.site.register(Device)
 admin.site.register(DistinctInterest)
 admin.site.register(CampaignVideo)
-
-
+admin.site.register(BrandSafety)
+admin.site.register(BuyType)
+admin.site.register(Bidding_detail)
+admin.site.register(Viewability)
 
 @admin.register(CityData)
 class CityDataAdmin(admin.ModelAdmin):

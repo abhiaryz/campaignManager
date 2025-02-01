@@ -15,33 +15,55 @@ class Location(models.Model):
     tier = models.CharField(max_length=254)
     population = models.CharField(max_length=254)
 
+class BrandSafety(models.Model):
+    value = models.CharField(max_length=254, blank=True, null=True, default="")
+    label = models.CharField(max_length=254, blank=True, null=True, default="")
+
+class BuyType(models.Model):
+    value = models.CharField(max_length=254, blank=True, null=True, default="")
+    label = models.CharField(max_length=254, blank=True, null=True, default="")
+
+class Viewability(models.Model):
+    value = models.CharField(max_length=254, blank=True, null=True, default="")
+    label = models.CharField(max_length=254, blank=True, null=True, default="")
+
+
 class DevicePrice(models.Model):
     price = models.CharField(max_length=254, unique=True)
+    label = models.CharField(max_length=254, blank=True, null=True, default="")
 
 class Device(models.Model):
     device = models.CharField(max_length=254, unique=True)
+    label = models.CharField(max_length=254, blank=True, null=True, default="")
 
 class DistinctInterest(models.Model):
     interest = models.CharField(max_length=254, unique=True)
+    label = models.CharField(max_length=254, blank=True, null=True, default="")
 
 class Age(models.Model):
     age = models.CharField(max_length=254)
+    label = models.CharField(max_length=254, blank=True, null=True, default="")
 
 class CarrierData(models.Model):
     carrier = models.CharField(max_length=254)
+    label = models.CharField(max_length=254, blank=True, null=True, default="")
 
 class Environment(models.Model):
     env = models.CharField(max_length=254)
+    label = models.CharField(max_length=254, blank=True, null=True, default="")
 
 class Exchange(models.Model):
     exchange = models.CharField(max_length=254)
+    label = models.CharField(max_length=254, blank=True, null=True, default="")
 
 class Language(models.Model):
     language = models.CharField(max_length=254)
-    iso_code = models.CharField(max_length=254, blank=True, null=True,default="")
+    iso_code = models.CharField(max_length=254, blank=True, null=True, default="")
+    label = models.CharField(max_length=254, blank=True, null=True,default="")
 
 class Impression(models.Model):
     impression = models.JSONField()
+    label = models.CharField(max_length=254, blank=True, null=True,default="")
 
 class CityData(models.Model):
     TIER_CHOICES = [

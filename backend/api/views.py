@@ -15,7 +15,9 @@ from .models import (Campaign, CampaignImage, Keyword, Location, proximity, Camp
     Impression,
     DevicePrice,
     Device,
-    DistinctInterest,Bidding_detail)
+    DistinctInterest,Bidding_detail, BrandSafety,
+    BuyType,
+    Viewability)
 from .serializers import (CampaignCreateUpdateSerializer,
                           CampaignImageSerializer, CampaignSerializer,
                           KeywordSerializer, LocationSerializer,
@@ -169,7 +171,31 @@ def age_api(request):
     age_queryset = Age.objects.all()
     data = []
     for age in age_queryset:
-        data.append({"id": age.id,"value": age.age})
+        data.append({"id": age.id,"value": age.age , "label" : age.label})
+    return success_response("Data succcessfully fetched", data)
+
+@api_view(["GET"])
+def brandSafety_api(request):
+    age_queryset = BrandSafety.objects.all()
+    data = []
+    for age in age_queryset:
+        data.append({"id": age.id, "value": age.value , "label" : age.label})
+    return success_response("Data succcessfully fetched", data)
+
+@api_view(["GET"])
+def Viewability_api(request):
+    age_queryset = BrandSafety.objects.all()
+    data = []
+    for age in age_queryset:
+        data.append({"id": age.id, "value": age.value , "label" : age.label})
+    return success_response("Data succcessfully fetched", data)
+
+@api_view(["GET"])
+def BuyType_api(request):
+    age_queryset = BrandSafety.objects.all()
+    data = []
+    for age in age_queryset:
+        data.append({"id": age.id, "value": age.value , "label" : age.label})
     return success_response("Data succcessfully fetched", data)
 
 @api_view(["GET"])
@@ -177,7 +203,7 @@ def DevicePrice_api(request):
     age_queryset = DevicePrice.objects.all()
     data = []
     for age in age_queryset:
-        data.append({"id": age.id,"value": age.price})
+        data.append({"id": age.id,"value": age.price, "label" : age.label})
     return success_response("Data succcessfully fetched", data)
 
 @api_view(["GET"])
@@ -185,7 +211,7 @@ def Device_api(request):
     age_queryset = Device.objects.all()
     data = []
     for age in age_queryset:
-        data.append({"id": age.id, "value": age.device})
+        data.append({"id": age.id, "value": age.device,  "label" : age.label})
     return success_response("Data succcessfully fetched", data)
 
 @api_view(["GET"])
@@ -193,7 +219,7 @@ def DistinctInterest_api(request):
     age_queryset = DistinctInterest.objects.all()
     data = []
     for age in age_queryset:
-        data.append({"id": age.id,"value": age.interest})
+        data.append({"id": age.id,"value": age.interest,  "label" : age.label})
     return success_response("Data succcessfully fetched", data)
 
 @api_view(["GET"])
@@ -201,7 +227,7 @@ def CarrierData_api(request):
     age_queryset = CarrierData.objects.all()
     data = []
     for age in age_queryset:
-        data.append({"id": age.id,"value": age.carrier})
+        data.append({"id": age.id,"value": age.carrier,  "label" : age.label})
     return success_response("Data succcessfully fetched", data)
 
 @api_view(["GET"])
@@ -209,7 +235,7 @@ def Environment_api(request):
     age_queryset = Environment.objects.all()
     data = []
     for age in age_queryset:
-        data.append({"id": age.id,"value": age.env})
+        data.append({"id": age.id,"value": age.env, "label" : age.label})
     return success_response("Data succcessfully fetched", data)
 
 @api_view(["GET"])
@@ -217,7 +243,7 @@ def Exchange_api(request):
     age_queryset = Exchange.objects.all()
     data = []
     for age in age_queryset:
-        data.append({"id": age.id,"value": age.exchange})
+        data.append({"id": age.id,"value": age.exchange, "label" : age.label})
     return success_response("Data succcessfully fetched", data)
 
 @api_view(["GET"])
@@ -225,7 +251,7 @@ def Language_api(request):
     age_queryset = Language.objects.all()
     data = []
     for age in age_queryset:
-        data.append({"id": age.id,"value": age.language , "iso_code" : age.iso_code})
+        data.append({"id": age.id,"value": age.language , "iso_code" : age.iso_code ,  "label" : age.label})
     return success_response("Data succcessfully fetched", data)
 
 @api_view(["GET"])
