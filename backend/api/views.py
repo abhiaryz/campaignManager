@@ -192,7 +192,7 @@ def brandSafety_api(request):
 
 @api_view(["GET"])
 def Viewability_api(request):
-    age_queryset = BrandSafety.objects.all()
+    age_queryset = Viewability.objects.all()
     data = []
     for age in age_queryset:
         data.append({"id": age.id, "value": age.value , "label" : age.label})
@@ -200,7 +200,7 @@ def Viewability_api(request):
 
 @api_view(["GET"])
 def BuyType_api(request):
-    age_queryset = BrandSafety.objects.all()
+    age_queryset = BuyType.objects.all()
     data = []
     for age in age_queryset:
         data.append({"id": age.id, "value": age.value , "label" : age.label})
