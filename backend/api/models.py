@@ -109,7 +109,7 @@ class Campaign(models.Model):
     
     landing_page = models.CharField(max_length=256, blank=True, null=True)
     reports_url = models.URLField(max_length=256, blank=True, null=True)
-    tag_tracker = models.CharField(max_length=255, blank=True, null=True)
+    
 
     start_time = models.CharField(max_length=256, blank=True, null=True)
     end_time = models.CharField(max_length=256, blank=True, null=True)
@@ -138,6 +138,12 @@ class Campaign(models.Model):
     
     buy_type = models.CharField(max_length=50, choices=[('CPM', 'CPM'), ('CVC', 'CVC'), ('CPV', 'CPV'), ('OTHER', 'OTHER')], blank=True, null=True)
     unit_rate = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+
+    tag_tracker = models.ManyToManyField(
+        "tag_tracker",
+        blank=True,
+        related_name="tag_tracker",
+    )
 
     proximity_store = models.ManyToManyField(
         "proximity_store",
@@ -200,6 +206,9 @@ class Keyword(models.Model):
     uploaded_at = models.DateTimeField(default=datetime.now, blank=True)
     keywords = models.JSONField(blank=True, null=True)
 
+class tag_tracker(models.Model):
+    file = models.FileField(upload_to="campaigns/tag_tracker/", storage=S3Boto3Storage(), blank=True, null=True)
+    uploaded_at = models.DateTimeField(default=datetime.now, blank=True)
 
 class proximity_store(models.Model):
     file = models.FileField(upload_to="proximity_store/", storage=S3Boto3Storage(), blank=True, null=True)

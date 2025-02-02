@@ -23,7 +23,8 @@ from .models import (
     BuyType,
     Bidding_detail,
     Viewability,
-    weather
+    weather,
+    tag_tracker
 )
 
 
@@ -114,6 +115,7 @@ class CampaignImageAdmin(admin.ModelAdmin):
 
 
 admin.site.register(weather)
+admin.site.register(tag_tracker)
 admin.site.register(UserType, UserTypeAdmin)
 admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.register(Campaign,CampaignAdmin)

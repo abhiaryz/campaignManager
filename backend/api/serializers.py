@@ -8,7 +8,7 @@ from storages.backends.s3boto3 import S3Boto3Storage
 from .models import (Campaign, CampaignImage, Keyword, Location, UserType, CampaignVideo,
                      proximity, proximity_store, target_type, weather, UserProfile, Bidding_detail,  BrandSafety,
     BuyType,
-    Viewability)
+    Viewability,tag_tracker)
 
 
 class CustomTokenObtainPairSerializer(serializers.Serializer):
@@ -170,6 +170,15 @@ class WeatherSerializer(serializers.ModelSerializer):
         super().__init__(*args, **kwargs)
         self.fields["file"].required = True
 
+class tag_trackerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = weather
+        fields = ["id", "file"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["file"].required = True
+
 
 class CampaignSerializer(serializers.ModelSerializer):
     images = CampaignImageSerializer(many=True, read_only=True)
@@ -180,6 +189,7 @@ class CampaignSerializer(serializers.ModelSerializer):
     location = LocationSerializer(many=True, read_only=True)
     target_type = target_typeSerializer(many=True, read_only=True)
     video = CampaignVideoSerializer(many=True, read_only=True)
+    tag_tracker = tag_trackerSerializer(many=True, read_only=True)
 
     class Meta:
         model = Campaign
@@ -212,7 +222,9 @@ class CampaignCreateUpdateSerializer(serializers.ModelSerializer):
     weather = serializers.PrimaryKeyRelatedField(
         many=True, queryset=weather.objects.all(), required=False
     )
-
+    tag_tracker = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=tag_tracker.objects.all(), required=False
+    )
     class Meta:
         model = Campaign
         fields = "__all__"
@@ -226,7 +238,8 @@ class CampaignCreateUpdateSerializer(serializers.ModelSerializer):
         proximity = validated_data.pop("proximity", [])
         weather = validated_data.pop("weather", [])
         target_type = validated_data.pop("target_type", [])
-
+        tag_tracker = validated_data.pop("tag_tracker", [])
+        
         campaign = Campaign.objects.create(**validated_data)
         campaign.location.set(location)
         campaign.images.set(images)
@@ -236,6 +249,7 @@ class CampaignCreateUpdateSerializer(serializers.ModelSerializer):
         campaign.weather.set(weather)
         campaign.target_type.set(target_type)
         campaign.video.set(video)
+        campaign.tag_tracker.set(tag_tracker)
         return campaign
 
 

@@ -20,12 +20,12 @@ from .models import (Campaign, CampaignImage, Keyword, Location, proximity, Camp
     Device,
     DistinctInterest,Bidding_detail, BrandSafety,
     BuyType,
-    Viewability)
+    Viewability,tag_tracker)
 from .serializers import (CampaignCreateUpdateSerializer,
                           CampaignImageSerializer, CampaignSerializer,
                           KeywordSerializer, LocationSerializer,
                           ProximitySerializer, ProximityStoreSerializer,
-                          WeatherSerializer, target_typeSerializer,BiddingDetailsSerializer,CampaignVideoSerializer)
+                          WeatherSerializer, target_typeSerializer,BiddingDetailsSerializer,CampaignVideoSerializer,tag_trackerSerializer)
 
 logger = logging.getLogger(__name__)
 
@@ -176,6 +176,10 @@ class ProximityViewSet(viewsets.ModelViewSet):
 class WeatherViewSet(viewsets.ModelViewSet):
     queryset = weather.objects.all()
     serializer_class = WeatherSerializer
+
+class tag_trackerViewSet(viewsets.ModelViewSet):
+    queryset = tag_tracker.objects.all()
+    serializer_class = tag_trackerSerializer
 
 
 class KeywordViewSet(viewsets.ModelViewSet):
