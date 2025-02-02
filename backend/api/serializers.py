@@ -172,7 +172,7 @@ class WeatherSerializer(serializers.ModelSerializer):
 
 class tag_trackerSerializer(serializers.ModelSerializer):
     class Meta:
-        model = weather
+        model = tag_tracker
         fields = ["id", "file"]
 
     def __init__(self, *args, **kwargs):
