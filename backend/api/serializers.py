@@ -11,6 +11,11 @@ from .models import (Campaign, CampaignImage, Keyword, Location, UserType, Campa
     Viewability,tag_tracker)
 
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'first_name', 'last_name', 'email')
+
 class CustomTokenObtainPairSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
@@ -181,6 +186,7 @@ class tag_trackerSerializer(serializers.ModelSerializer):
 
 
 class CampaignSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
     images = CampaignImageSerializer(many=True, read_only=True)
     keywords = KeywordSerializer(many=True, read_only=True)
     proximity_store = ProximityStoreSerializer(many=True, read_only=True)
