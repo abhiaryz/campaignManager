@@ -347,7 +347,7 @@ def fetch_user_campgain(request):
             Q(user__first_name__icontains=value) |
             Q(user__last_name__icontains=value)
         )
-        queryset = Campaign.objects.filter(query)
+        queryset = Campaign.objects.filter(query).order_by("-updated_at")
     elif user_type_pm_values.first() is True:
         queryset = Campaign.objects.all().order_by("-updated_at")
     else:
