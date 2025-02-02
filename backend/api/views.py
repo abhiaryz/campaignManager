@@ -340,7 +340,13 @@ def fetch_user_campgain(request):
         query_values = [value.strip() for value in query_param.split(",")]
         query = Q()
         for value in query_values:
-            query |= Q(name__icontains=value) | Q(user__username__icontains=value)
+            query |= (
+            Q(name__icontains=value) |
+            Q(user__username__icontains=value) |
+            Q(user__email__icontains=value) |
+            Q(user__first_name__icontains=value) |
+            Q(user__last_name__icontains=value)
+        )
         queryset = Campaign.objects.filter(query)
     elif user_type_pm_values.first() is True:
         queryset = Campaign.objects.all().order_by("-updated_at")
