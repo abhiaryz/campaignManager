@@ -57,14 +57,6 @@ def login_page(request):
 
 
 
-def serializer_data_to_csv(serializer_data):
-    """
-    Convert a list of dicts (serializer data) into CSV format using pandas
-    and return the CSV as a string.
-    """
-    df = pd.DataFrame(serializer_data)
-    csv_string = df.to_csv(index=False)
-    return csv_string
 
 
 
@@ -289,43 +281,93 @@ def Impression_api(request):
         data = age.impression
     return Response(data)
 
+import io
+import pandas as pd
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.http import HttpResponse
+
+from .models import Campaign
+from .serializers import CampaignSerializer
+
+def serializer_data_to_excel(serializer_data):
+    """
+    Convert a list of dicts (serializer data) into Excel format using pandas
+    and return the file content as bytes.
+    """
+    df = pd.DataFrame(serializer_data)
+
+    columns_to_remove = ['images', 'keywords', 'proximity_store', 'proximity', 'weather', 'target_type', 'location', 'video', 'tag_tracker','age','carrier_data','environment','exchange','language','impression','device_price','device','created_at','updated_at','carrier','landing_page','reports_url','start_time','end_time','status']
+
+    # Drop these columns if they exist (ignore if they don't)
+    df.drop(columns=columns_to_remove, inplace=True, errors='ignore')
+    # Use an in-memory buffer to write the Excel file
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Sheet1')
+
+    # Seek to the beginning of the stream
+    output.seek(0)
+    return output.getvalue()
+
 class FileGetView(APIView):
     def get(self, request, *args, **kwargs):
+        # Query all Campaign objects
         queryset = Campaign.objects.all()
         serializer = CampaignSerializer(queryset, many=True)
         serializer_data = serializer.data
-        csv_data = serializer_data_to_csv(serializer_data)
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="my_data.csv"'
-        response.write(csv_data)
+        
+        # Convert to Excel
+        excel_data = serializer_data_to_excel(serializer_data)
+        
+        # Prepare HTTP response for Excel download
+        response = HttpResponse(
+            excel_data,
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+        response['Content-Disposition'] = 'attachment; filename="my_data.xlsx"'
         return response
-    
+
     def post(self, request, *args, **kwargs):
         """
-        POST: Upload a CSV file to create/update MyModel records.
+        POST: Upload an Excel file (.xlsx) to create/update Campaign records.
         Expecting a 'file' field in multipart/form-data.
         """
-        csv_file = request.FILES.get('file')
-        if not csv_file:
+        excel_file = request.FILES.get('file')
+        if not excel_file:
             return Response({'error': 'No file was uploaded.'},
                             status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            df = pd.read_csv(csv_file)
+            df = pd.read_excel(excel_file)
         except Exception as e:
-            return Response({'error': f'Failed to read CSV file: {str(e)}'},
+            return Response({'error': f'Failed to read Excel file: {str(e)}'},
                             status=status.HTTP_400_BAD_REQUEST)
 
         created_count = 0
         for index, row in df.iterrows():
-            print("hello")
-            #Campaign.objects.filter(id=row.get('id')).update(viewability=value,impressions=,clicks=,ctr=,views=,vtr=)
 
+            campaign_id = row.get('id')
+            
+            Campaign.objects.filter(id=campaign_id).update(
+                viewability=row.get('viewability'),
+                impressions=row.get('impressions'),
+                clicks=row.get('clicks'),
+                ctr=row.get('ctr'),
+                views=row.get('views'),
+                vtr=row.get('vtr'),
+            )
+            
+            print("Processing row:", row.to_dict())
+            # If a new record is created:
+            # created_count += 1
 
         return Response(
-            {'message': f'Successfully created {created_count} records.'},
+            {'message': f'Successfully processed Excel rows. Updated/Created {created_count} records.'},
             status=status.HTTP_201_CREATED
         )
+
 
 from django.db.models import Q
 @api_view(["GET"])

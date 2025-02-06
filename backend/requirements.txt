@@ -28,3 +28,4 @@ drf_yasg
 django-storages
 boto3
 django-cors-headers
+openpyxl
