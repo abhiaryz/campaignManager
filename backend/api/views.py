@@ -298,7 +298,7 @@ def serializer_data_to_excel(serializer_data):
     """
     df = pd.DataFrame(serializer_data)
 
-    columns_to_remove = ['images', 'keywords', 'proximity_store', 'proximity', 'weather', 'target_type', 'location', 'video', 'tag_tracker','age','carrier_data','environment','exchange','language','impression','device_price','device','created_at','updated_at','carrier','landing_page','reports_url','start_time','end_time','status']
+    columns_to_remove = ['images', 'keywords', 'proximity_store', 'proximity', 'weather', 'target_type', 'location', 'video', 'tag_tracker','age','carrier_data','environment','exchange','language','impression','device_price','device','created_at','updated_at','carrier','landing_page','reports_url','start_time','end_time','status','day_part','objective','user']
 
     # Drop these columns if they exist (ignore if they don't)
     df.drop(columns=columns_to_remove, inplace=True, errors='ignore')
