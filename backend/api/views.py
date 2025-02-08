@@ -323,7 +323,7 @@ class FileGetView(APIView):
     
     def get(self, request, *args, **kwargs):
         # Query all Campaign objects for the current user
-        campaigns = Campaign.objects.filter(user=request.user)
+        campaigns = Campaign.objects.all()
         
         # Prepare a list to hold the response data
         response_data = []
