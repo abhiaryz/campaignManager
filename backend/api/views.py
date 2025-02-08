@@ -20,12 +20,14 @@ from .models import (Campaign, CampaignImage, Keyword, Location, proximity, Camp
     Device,
     DistinctInterest,Bidding_detail, BrandSafety,
     BuyType,
-    Viewability,tag_tracker)
+    Viewability,tag_tracker,CampaignFile)
 from .serializers import (CampaignCreateUpdateSerializer,
                           CampaignImageSerializer, CampaignSerializer,
                           KeywordSerializer, LocationSerializer,
                           ProximitySerializer, ProximityStoreSerializer,
                           WeatherSerializer, target_typeSerializer,BiddingDetailsSerializer,CampaignVideoSerializer,tag_trackerSerializer)
+import xlsxwriter
+from django.core.files.base import File
 
 logger = logging.getLogger(__name__)
 
@@ -291,43 +293,76 @@ from django.http import HttpResponse
 from .models import Campaign
 from .serializers import CampaignSerializer
 
-def serializer_data_to_excel(serializer_data):
-    """
-    Convert a list of dicts (serializer data) into Excel format using pandas
-    and return the file content as bytes.
-    """
-    df = pd.DataFrame(serializer_data)
+from io import BytesIO
 
+def serializer_data_to_excel(serializer_data):
+    # If serializer_data is a dict (for a single record), wrap it in a list.
+    if isinstance(serializer_data, dict):
+        data = [serializer_data]
+    else:
+        data = serializer_data  # Assuming it's already a list of dicts
+
+    # Create a DataFrame from the data.
+    df = pd.DataFrame(data)
+    
     columns_to_remove = ['images', 'keywords', 'proximity_store', 'proximity', 'weather', 'target_type', 'location', 'video', 'tag_tracker','age','carrier_data','environment','exchange','language','impression','device_price','device','created_at','updated_at','carrier','landing_page','reports_url','start_time','end_time','status','day_part','objective','user']
 
     # Drop these columns if they exist (ignore if they don't)
     df.drop(columns=columns_to_remove, inplace=True, errors='ignore')
-    # Use an in-memory buffer to write the Excel file
-    output = io.BytesIO()
-    with pd.ExcelWriter(output, engine='openpyxl') as writer:
-        df.to_excel(writer, index=False, sheet_name='Sheet1')
-
-    # Seek to the beginning of the stream
+    # Convert DataFrame to an Excel file in memory.
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+        df.to_excel(writer, index=False)
     output.seek(0)
-    return output.getvalue()
+    return output
+
+
 
 class FileGetView(APIView):
+    permission_classes = [IsAuthenticated]
+    
     def get(self, request, *args, **kwargs):
-        # Query all Campaign objects
-        queryset = Campaign.objects.all()
-        serializer = CampaignSerializer(queryset, many=True)
-        serializer_data = serializer.data
+        # Query all Campaign objects for the current user
+        campaigns = Campaign.objects.filter(user=request.user)
         
-        # Convert to Excel
-        excel_data = serializer_data_to_excel(serializer_data)
+        # Prepare a list to hold the response data
+        response_data = []
+
+        # Process each campaign individually.
+        for campaign in campaigns:
+            # Check if a CampaignFile already exists for this campaign.
+            campaign_file_qs = CampaignFile.objects.filter(campaign=campaign)
+            if campaign_file_qs.exists():
+                # If a file exists, get it (you can choose to get the first or handle multiple)
+                campaign_file = campaign_file_qs.first()
+                response_data.append({
+                    'campaign_id': campaign.id,
+                    'file_url': campaign_file.file.url,  # You can return the URL or any file data
+                    'status': 'exists'
+                })
+            else:
+                # If no file exists for the campaign, create one.
+                serializer = CampaignSerializer(campaign)
+                serializer_data = serializer.data
+
+                # Convert the serializer data to Excel data.
+                excel_data = serializer_data_to_excel(serializer_data)
+                excel_data.seek(0)  # Reset the stream pointer to the beginning
+
+                file_name = f"campaign_{campaign.id}.xlsx"
+                django_file = File(excel_data, name=file_name)
+                
+                # Create the CampaignFile record
+                campaign_file = CampaignFile.objects.create(campaign=campaign, file=django_file)
+                
+                response_data.append({
+                    'campaign_id': campaign.id,
+                    'file_url': campaign_file.file.url,
+                    'status': 'created'
+                })
         
-        # Prepare HTTP response for Excel download
-        response = HttpResponse(
-            excel_data,
-            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-        )
-        response['Content-Disposition'] = 'attachment; filename="my_data.xlsx"'
-        return response
+        return Response(response_data, status=status.HTTP_200_OK)
+       
 
     def post(self, request, *args, **kwargs):
         """

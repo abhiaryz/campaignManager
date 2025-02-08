@@ -85,6 +85,7 @@ class UserType(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
+
 class Campaign(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="campaigns", blank=True, null=True
@@ -191,6 +192,11 @@ class Campaign(models.Model):
         related_name="campaign_keywords",
     )
 
+class CampaignFile(models.Model):
+    file = models.FileField(upload_to="campaigns/files/", storage=S3Boto3Storage())
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE, related_name="campaign_files")
 
 
 class CampaignImage(models.Model):

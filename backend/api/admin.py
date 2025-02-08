@@ -24,7 +24,8 @@ from .models import (
     Bidding_detail,
     Viewability,
     weather,
-    tag_tracker
+    tag_tracker,
+    CampaignFile
 )
 
 
@@ -79,6 +80,8 @@ class target_typeAdmin(admin.ModelAdmin):
     list_display = ("category", "subcategory")
 
 
+
+
 class LocationAdmin(admin.ModelAdmin):
     list_display = ("country", "state", "city", "tier", "population")
     search_fields = ("country",)
@@ -114,6 +117,7 @@ class CampaignImageAdmin(admin.ModelAdmin):
     list_display = ("id", "image", "created_at")
 
 
+admin.site.register(CampaignFile)
 admin.site.register(weather)
 admin.site.register(tag_tracker)
 admin.site.register(UserType, UserTypeAdmin)

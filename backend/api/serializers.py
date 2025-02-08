@@ -8,7 +8,7 @@ from storages.backends.s3boto3 import S3Boto3Storage
 from .models import (Campaign, CampaignImage, Keyword, Location, UserType, CampaignVideo,
                      proximity, proximity_store, target_type, weather, UserProfile, Bidding_detail,  BrandSafety,
     BuyType,
-    Viewability,tag_tracker)
+    Viewability,tag_tracker,CampaignFile)
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -132,6 +132,13 @@ class CampaignVideoSerializer(serializers.ModelSerializer):
         fields = ["id", "video", "created_at"]
 
 
+
+class CampaignFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CampaignFile
+        fields = "__all__"
+        
+
 class KeywordSerializer(serializers.ModelSerializer):
     class Meta:
         model = Keyword
@@ -197,6 +204,7 @@ class CampaignSerializer(serializers.ModelSerializer):
     video = CampaignVideoSerializer(many=True, read_only=True)
     tag_tracker = tag_trackerSerializer(many=True, read_only=True)
 
+    campaign_files = CampaignFileSerializer(many=True, read_only=True)
     class Meta:
         model = Campaign
         fields = "__all__"
