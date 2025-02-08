@@ -366,43 +366,87 @@ class FileGetView(APIView):
 
     def post(self, request, *args, **kwargs):
         """
-        POST: Upload an Excel file (.xlsx) to create/update Campaign records.
-        Expecting a 'file' field in multipart/form-data.
+        POST: Upload an Excel file (.xlsx) to update a particular Campaign record.
+        The campaign id should be provided in the URL (e.g. /campaign/<int:campaign_id>/upload/).
+        
+        The Excel file (Sheet1) is expected to contain columns like:
+          id, name, total_budget, viewability, brand_safety, impressions,
+          clicks, ctr, views, vtr, buy_type, unit_rate
+          
+        For the campaign specified, the view aggregates the columns:
+          - viewability, impressions, clicks, ctr, views, and vtr
+        and then updates the Campaign model with these totals.
         """
+        # 1. Get the campaign id from the URL
+        campaign_id = self.kwargs.get('campaign_id')
+        if not campaign_id:
+            return Response({'error': 'Campaign ID not provided in URL.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        
+        # 2. Ensure the campaign exists
+        try:
+            campaign = Campaign.objects.get(id=campaign_id)
+        except Campaign.DoesNotExist:
+            return Response({'error': 'Campaign not found.'},
+                            status=status.HTTP_404_NOT_FOUND)
+        
+        # 3. Get the Excel file from the request
         excel_file = request.FILES.get('file')
         if not excel_file:
             return Response({'error': 'No file was uploaded.'},
                             status=status.HTTP_400_BAD_REQUEST)
-
+        
+        # 4. Read the Excel file (from sheet 1)
         try:
-            df = pd.read_excel(excel_file)
+            df = pd.read_excel(excel_file, sheet_name=0)
         except Exception as e:
             return Response({'error': f'Failed to read Excel file: {str(e)}'},
                             status=status.HTTP_400_BAD_REQUEST)
-
-        created_count = 0
-        for index, row in df.iterrows():
-
-            campaign_id = row.get('id')
-            
-            Campaign.objects.filter(id=campaign_id).update(
-                viewability=row.get('viewability'),
-                impressions=row.get('impressions'),
-                clicks=row.get('clicks'),
-                ctr=row.get('ctr'),
-                views=row.get('views'),
-                vtr=row.get('vtr'),
-            )
-            
-            print("Processing row:", row.to_dict())
-            # If a new record is created:
-            # created_count += 1
-
+        
+        # 5. Verify that the Excel file contains a column for the campaign ID.
+        if 'id' not in df.columns:
+            return Response({'error': 'Excel file must contain a column named "id".'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        
+        # Filter the DataFrame to include only rows for the provided campaign ID.
+        df = df[df['id'] == campaign_id]
+        if df.empty:
+            return Response({'error': 'No rows in Excel file match the provided campaign id.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        
+        # 6. Aggregate (sum) the required columns. (You can adjust which columns to aggregate as needed.)
+        total_viewability = df['viewability'].sum() if 'viewability' in df.columns else 0
+        total_impressions = df['impressions'].sum() if 'impressions' in df.columns else 0
+        total_clicks = df['clicks'].sum() if 'clicks' in df.columns else 0
+        total_ctr = df['ctr'].sum() if 'ctr' in df.columns else 0
+        total_views = df['views'].sum() if 'views' in df.columns else 0
+        total_vtr = df['vtr'].sum() if 'vtr' in df.columns else 0
+        
+        # Optionally, log the aggregated values for debugging.
+        print(f"Aggregated totals for campaign {campaign_id}:")
+        print(f"  Viewability: {total_viewability}")
+        print(f"  Impressions: {total_impressions}")
+        print(f"  Clicks: {total_clicks}")
+        print(f"  CTR: {total_ctr}")
+        print(f"  Views: {total_views}")
+        print(f"  VTR: {total_vtr}")
+        
+        # 7. Update the Campaign record with the aggregated totals.
+        Campaign.objects.filter(id=campaign_id).update(
+            viewability=total_viewability,
+            impressions=total_impressions,
+            clicks=total_clicks,
+            ctr=total_ctr,
+            views=total_views,
+            vtr=total_vtr,
+        )
+        
+        processed_count = len(df)  # Number of rows aggregated
+        
         return Response(
-            {'message': f'Successfully processed Excel rows. Updated/Created {created_count} records.'},
+            {'message': f'Successfully processed {processed_count} Excel rows and updated Campaign {campaign_id}.'},
             status=status.HTTP_201_CREATED
         )
-
 
 from django.db.models import Q
 @api_view(["GET"])

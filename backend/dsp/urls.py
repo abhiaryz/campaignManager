@@ -23,7 +23,7 @@ router.register(r"biddingDetails", views.BiddingDetailsViewSet, basename="biddin
 router.register(r"tag_tacker", views.tag_trackerViewSet, basename="tag_tacker")
 
 urlpatterns = [
-    path('get-csv/', views.FileGetView.as_view(), name='mymodel-csv'),
+    path('get-csv/<int:campaign_id>', views.FileGetView.as_view(), name='mymodel-csv'),
     path("login/", views.login_page, name="login"),
     path("campaigns/", views.campaigns_page, name="campaigns"),
     path("add-campaign/", views.add_campaign_page, name="add_campaign"),
