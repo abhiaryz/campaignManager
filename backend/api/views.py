@@ -107,8 +107,28 @@ class CampaignViewSet(viewsets.ViewSet):
         """Create a new campaign."""
         serializer = CampaignCreateUpdateSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(user=request.user)
-            return success_response("Campaign Successfully created", serializer.data)
+            campaign = serializer.save(user=request.user)
+            try:
+                serializer_data = CampaignSerializer(campaign).data
+                excel_data = serializer_data_to_excel(serializer_data)
+                excel_data.seek(0) 
+                file_name = f"campaign_{campaign.id}.xlsx"
+                django_file = File(excel_data, name=file_name)
+                campaign_file = CampaignFile.objects.create(
+                    campaign=campaign,
+                    file=django_file
+                )
+                response_data = serializer.data
+                response_data['file_url'] = campaign_file.file.url
+                return success_response(
+                    "Campaign Successfully created with file", 
+                    response_data
+                )
+            except Exception as e:
+                logger.error(f"Error creating campaign file: {str(e)}")
+                # Delete the campaign if file creation fails
+                campaign.delete()
+                return error_response("Failed to create campaign file")
         return error_response(serializer.errors)
 
     def update(self, request, pk=None):
@@ -305,7 +325,7 @@ def serializer_data_to_excel(serializer_data):
     # Create a DataFrame from the data.
     df = pd.DataFrame(data)
     
-    columns_to_remove = ['images', 'keywords', 'proximity_store', 'proximity', 'weather', 'target_type', 'location', 'video', 'tag_tracker','age','carrier_data','environment','exchange','language','impression','device_price','device','created_at','updated_at','carrier','landing_page','reports_url','start_time','end_time','status','day_part','objective','user']
+    columns_to_remove = ['images', 'keywords', 'proximity_store', 'proximity', 'weather', 'target_type', 'location', 'video', 'tag_tracker','age','carrier_data','environment','exchange','language','impression','device_price','device','created_at','updated_at','carrier','landing_page','reports_url','start_time','end_time','status','day_part','objective','user','campaign_files','total_budget','viewability','brand_safety','buy_type','unit_rate']
 
     # Drop these columns if they exist (ignore if they don't)
     df.drop(columns=columns_to_remove, inplace=True, errors='ignore')
@@ -341,18 +361,16 @@ class FileGetView(APIView):
                     'status': 'exists'
                 })
             else:
-                # If no file exists for the campaign, create one.
+
                 serializer = CampaignSerializer(campaign)
                 serializer_data = serializer.data
 
-                # Convert the serializer data to Excel data.
                 excel_data = serializer_data_to_excel(serializer_data)
-                excel_data.seek(0)  # Reset the stream pointer to the beginning
+                excel_data.seek(0)
 
                 file_name = f"campaign_{campaign.id}.xlsx"
                 django_file = File(excel_data, name=file_name)
                 
-                # Create the CampaignFile record
                 campaign_file = CampaignFile.objects.create(campaign=campaign, file=django_file)
                 
                 response_data.append({
@@ -415,7 +433,6 @@ class FileGetView(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
         
         # 6. Aggregate (sum) the required columns. (You can adjust which columns to aggregate as needed.)
-        total_viewability = df['viewability'].sum() if 'viewability' in df.columns else 0
         total_impressions = df['impressions'].sum() if 'impressions' in df.columns else 0
         total_clicks = df['clicks'].sum() if 'clicks' in df.columns else 0
         total_ctr = df['ctr'].sum() if 'ctr' in df.columns else 0
@@ -424,7 +441,6 @@ class FileGetView(APIView):
         
         # Optionally, log the aggregated values for debugging.
         print(f"Aggregated totals for campaign {campaign_id}:")
-        print(f"  Viewability: {total_viewability}")
         print(f"  Impressions: {total_impressions}")
         print(f"  Clicks: {total_clicks}")
         print(f"  CTR: {total_ctr}")
@@ -433,7 +449,6 @@ class FileGetView(APIView):
         
         # 7. Update the Campaign record with the aggregated totals.
         Campaign.objects.filter(id=campaign_id).update(
-            viewability=total_viewability,
             impressions=total_impressions,
             clicks=total_clicks,
             ctr=total_ctr,
