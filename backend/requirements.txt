@@ -29,3 +29,5 @@ django-storages
 boto3
 django-cors-headers
 openpyxl
+pandas
+xlsxwriter
