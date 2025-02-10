@@ -138,7 +138,7 @@ class CampaignViewSet(viewsets.ViewSet):
             campaign, data=request.data, partial=False
         )
         if serializer.is_valid():
-            serializer.save(user=request.user)
+            serializer.save()
             return success_response("Campaign Successfully updated", serializer.data)
         return error_response(serializer.errors)
 
@@ -149,7 +149,7 @@ class CampaignViewSet(viewsets.ViewSet):
             campaign, data=request.data, partial=True
         )
         if serializer.is_valid():
-            serializer.save(user=request.user)
+            serializer.save()
             return success_response("Campaign Successfully created", serializer.data)
         return error_response(serializer.errors)
 
