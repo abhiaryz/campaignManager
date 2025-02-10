@@ -483,6 +483,7 @@ def fetch_user_campgain(request):
         for value in query_values:
             query |= (
             Q(name__icontains=value) |
+            Q(status__icontains=value) |
             Q(user__username__icontains=value) |
             Q(user__email__icontains=value) |
             Q(user__first_name__icontains=value) |

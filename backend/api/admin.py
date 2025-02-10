@@ -30,8 +30,8 @@ from .models import (
 
 
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ("id","user", "city", "phone_no")
-    search_fields = ("user",)
+    list_display = ("id","user", "city", "phone_no","company_name","gst")
+    search_fields = ("user","company_name")
     list_filter = ("user",)
     ordering = ("user",)
 
