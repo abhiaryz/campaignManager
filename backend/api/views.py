@@ -448,14 +448,19 @@ class FileGetView(APIView):
         print(f"  VTR: {total_vtr}")
         
         # 7. Update the Campaign record with the aggregated totals.
-        Campaign.objects.filter(id=campaign_id).update(
+        campaign= Campaign.objects.filter(id=campaign_id).update(
             impressions=total_impressions,
             clicks=total_clicks,
             ctr=total_ctr,
             views=total_views,
             vtr=total_vtr,
         )
-        
+        print(campaign)
+        campaign_file, created = CampaignFile.objects.update_or_create(
+            campaign=campaign_id,
+            defaults={'file': excel_file},
+        )
+        print(campaign_file)
         processed_count = len(df)  # Number of rows aggregated
         
         return Response(

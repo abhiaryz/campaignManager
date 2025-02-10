@@ -90,7 +90,7 @@ class LocationAdmin(admin.ModelAdmin):
 
 
 class CampaignAdmin(admin.ModelAdmin):
-    list_display = ("name", "objective", "start_time", "end_time", "status")
+    list_display = ('id', "name", "objective", "start_time", "end_time", "status")
     search_fields = ("name", "objective", "status")
     list_filter = ("name", "objective", "status")
     ordering = ("name", "objective", "status")
@@ -115,9 +115,13 @@ class KeywordAdmin(admin.ModelAdmin):
 
 class CampaignImageAdmin(admin.ModelAdmin):
     list_display = ("id", "image", "created_at")
+    
+
+class CampaignFileAdmin(admin.ModelAdmin):
+    list_display = ("id", "campaign", "created_at","updated_at","file")    
 
 
-admin.site.register(CampaignFile)
+admin.site.register(CampaignFile,CampaignFileAdmin)
 admin.site.register(weather)
 admin.site.register(tag_tracker)
 admin.site.register(UserType, UserTypeAdmin)
