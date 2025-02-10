@@ -1,5 +1,5 @@
 import logging
-
+from decimal import Decimal, ROUND_HALF_UP
 from django.shortcuts import get_object_or_404, render
 from rest_framework import status, viewsets
 from rest_framework.decorators import api_view, permission_classes
@@ -439,13 +439,14 @@ class FileGetView(APIView):
         total_views = df['views'].sum() if 'views' in df.columns else 0
         total_vtr = df['vtr'].sum() if 'vtr' in df.columns else 0
         
-        # Optionally, log the aggregated values for debugging.
-        print(f"Aggregated totals for campaign {campaign_id}:")
-        print(f"  Impressions: {total_impressions}")
-        print(f"  Clicks: {total_clicks}")
-        print(f"  CTR: {total_ctr}")
-        print(f"  Views: {total_views}")
-        print(f"  VTR: {total_vtr}")
+        total_impressions = int(total_impressions)
+        total_clicks = int(total_clicks)
+        total_views = int(total_views)
+
+        # For DecimalField fields (ctr, vtr):
+        total_ctr = Decimal(total_ctr).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        total_vtr = Decimal(total_vtr).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+       
         
         # 7. Update the Campaign record with the aggregated totals.
         campaign= Campaign.objects.filter(id=campaign_id).update(
@@ -455,12 +456,10 @@ class FileGetView(APIView):
             views=total_views,
             vtr=total_vtr,
         )
-        print(campaign)
         campaign_file, created = CampaignFile.objects.update_or_create(
             campaign=campaign_id,
             defaults={'file': excel_file},
         )
-        print(campaign_file)
         processed_count = len(df)  # Number of rows aggregated
         
         return Response(
