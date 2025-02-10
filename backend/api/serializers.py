@@ -65,7 +65,7 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ["city", "phone_no"]
+        fields = ["city", "phone_no", "company_name","gst","logo"]
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -270,10 +270,14 @@ class CampaignCreateUpdateSerializer(serializers.ModelSerializer):
 class UserUpdateSerializer(serializers.ModelSerializer):
     city = serializers.CharField(source="profile.city", required=False)
     phone_no = serializers.CharField(source="profile.phone_no", required=False)
+    company_name = serializers.CharField(source="profile.company_name", required=False)
+    gst = serializers.CharField(source="profile.gst", required=False)
+    logo = serializers.ImageField(source="profile.logo", required=False)
+    
 
     class Meta:
         model = User
-        fields = ["email", "first_name", "last_name", "city", "phone_no"]
+        fields = ["email", "first_name", "last_name", "city", "phone_no","company_name","gst","logo"]
 
     def update(self, instance, validated_data):
         profile_data = validated_data.pop("profile", {})
@@ -285,6 +289,10 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         profile = instance.profile
         profile.city = profile_data.get("city", profile.city)
         profile.phone_no = profile_data.get("phone_no", profile.phone_no)
+        profile.company_name = profile_data.get("company_name", profile.company_name)
+        profile.gst = profile_data.get("gst", profile.gst)
+        profile.logo = profile_data.get("logo", profile.logo)
+
         profile.save()
 
         return instance

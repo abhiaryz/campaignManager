@@ -81,6 +81,8 @@ def profile_api(request):
     if user_profile:
         city = user_profile.city
         phone_no = user_profile.phone_no
+        company_name = user_profile.company_name
+        gst = user_profile.gst
         print(f"City: {city}, Phone No: {phone_no}")
     else:
         city = ""
@@ -94,6 +96,8 @@ def profile_api(request):
         "email": request.user.email,
         "city": city,
         "phone_no": phone_no,
+        "company_name": company_name,
+        "gst": gst,
         "user_type": user_type.user_type_pm
     }
     return success_response("Data succcessfully fetched", data)

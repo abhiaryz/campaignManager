@@ -240,7 +240,10 @@ class weather(models.Model):
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     city = models.CharField(max_length=100, blank=True, null=True)
+    company_name = models.CharField(max_length=254, blank=True, null=True)
     phone_no = models.CharField(max_length=15, blank=True, null=True)
+    gst = models.CharField(max_length=15, blank=True, null=True)
+    logo = models.ImageField(upload_to="profile/logo/", storage=S3Boto3Storage(), blank=True, null=True)
 
 
 class target_type(models.Model):
@@ -248,10 +251,3 @@ class target_type(models.Model):
     category = models.CharField(max_length=255, default='', blank=True, null=True)
     subcategory = models.CharField(max_length=255, blank=True, null=True, default='')
 
-
-
-@receiver(post_save, sender=User)
-def create_or_update_user_profile(sender, instance, created, **kwargs):
-    if created:
-        UserProfile.objects.create(user=instance)
-    instance.profile.save()

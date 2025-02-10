@@ -12,7 +12,7 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 
-from .models import UserType
+from .models import UserType, UserProfile
 from .serializers import (ChangePasswordSerializer,
                           CustomTokenObtainPairSerializer)
 
@@ -40,6 +40,8 @@ class RegisterView(APIView):
         email = request.data.get("email")
         first_name = request.data.get("first_name")
         last_name = request.data.get("last_name")
+        company_name = request.data.get("company_name")
+        gst   = request.data.get("gst")
         username = email
         if not username or not password or not email:
             return error_response("All fields are required.")
@@ -61,6 +63,7 @@ class RegisterView(APIView):
                 last_name=last_name,
             )
             UserType.objects.create(user=user)
+            UserProfile.objects.create(user=user, company_name=company_name, gst=gst)
             return success_response(
                 "User created successfully.", {"id": user.id}, status.HTTP_201_CREATED
             )
