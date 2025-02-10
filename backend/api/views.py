@@ -445,8 +445,8 @@ class FileGetView(APIView):
         total_views = int(total_views)
 
         # For DecimalField fields (ctr, vtr):
-        total_ctr = Decimal(total_ctr).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-        total_vtr = Decimal(total_vtr).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        total_ctr = Decimal(str(total_ctr)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        total_vtr = Decimal(str(total_vtr)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
        
         
         # 7. Update the Campaign record with the aggregated totals.
