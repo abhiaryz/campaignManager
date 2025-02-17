@@ -69,9 +69,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "dsp.wsgi.application"
 
+
 DATABASES = {
-    "default": {"ENGINE": "django.db.backends.sqlite3", "NAME": BASE_DIR / "db.sqlite3"}
-}
+    'default': {
+        'ENGINE': 'mysql.connector.django',
+        'NAME': 'DIGI',
+        'USER': 'admin',
+        'PASSWORD': '9910446048!Ab',
+        'HOST': 'digi.cdqy8u6gyh4r.ap-south-1.rds.amazonaws.com',  # RDS endpoint
+        'PORT': '3306',  # or the port configured for your RDS instance
+        'OPTIONS': {'init_command': "SET sql_mode='STRICT_TRANS_TABLES'","use_pure": True},
+    }
+} 
+
 
 AUTHENTICATION_BACKENDS = (
     "social_core.backends.google.GoogleOAuth2",

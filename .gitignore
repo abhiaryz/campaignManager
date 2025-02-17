@@ -8,7 +8,8 @@ __pycache__/
 # Django migrations (ignore all migrations, including those inside app directories)
 migrations/
 **/migrations/
-
+.terraform/
+.terraform.lock.hcl
 # SQLite database
 
 # Django-specific files

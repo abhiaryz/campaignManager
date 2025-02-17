@@ -16,4 +16,20 @@ variable "application_name" {
   default     = "dsp-backend"
 }
 
+variable "vpc_id" {
+  description = "Name of the VPC"
+  type        = string
+  default     = "vpc-0ef001568d0c7d434"
+}
 
+variable "subnets" {
+  description = "Name of the VPC"
+  type        = list
+  default     = [
+  "subnet-07bf022ab49516c88",  
+  "subnet-05f8794d2289461a4",
+  "subnet-0ef26d920583352d9"
+]
+}
+
+ 
