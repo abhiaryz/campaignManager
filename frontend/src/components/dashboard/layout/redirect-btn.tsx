@@ -13,7 +13,7 @@ interface AddCampaignProps {
 const RedirectBtn: React.FC<AddCampaignProps> = ({ url,redirect }) => {    
 
     const router = useRouter();
-    
+
     const handleClickOrRedirect = () => {
         if (redirect) {
             router.push(url);

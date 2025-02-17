@@ -1,3 +1,4 @@
+/* eslint-disable eslint-comments/require-description -- Disabling this rule because the comment is self-explanatory */
 'use client';
 
 import * as React from 'react';
@@ -13,7 +14,7 @@ import Typography from '@mui/material/Typography';
 import { Controller, useForm } from 'react-hook-form';
 import { z as zod } from 'zod';
 
-import { authClient } from '@/lib/auth/client';
+import { authClient } from '@/lib/auth-client';
 
 const schema = zod.object({ email: zod.string().min(1, { message: 'Email is required' }).email() });
 
@@ -35,18 +36,12 @@ export function ResetPasswordForm(): React.JSX.Element {
     async (values: Values): Promise<void> => {
       setIsPending(true);
 
-      const { error } = await authClient.resetPassword(values);
-
-      if (error) {
-        setError('root', { type: 'server', message: error });
-        setIsPending(false);
-        return;
-      }
-
+      await authClient.resetPassword(values);
       setIsPending(false);
 
       // Redirect to confirm password reset
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [setError]
   );
 

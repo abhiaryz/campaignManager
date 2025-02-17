@@ -1,10 +1,9 @@
-import React from 'react';
-
-import BudgetBidding from '@/components/dashboard/create-campaign/BudgetBidding';
-import CampaignSetting from '@/components/dashboard/create-campaign/CampaignSetting';
+"use client"
+import CreateCampaign from '@/components/dashboard/campaign/create-campaign';
 import BackBtn from '@/components/dashboard/layout/back-btn';
 import { Typography } from '@mui/material';
 import { Box } from '@mui/system';
+import React from 'react';
 
 
 export default function CreateCampaignPage(): React.JSX.Element {
@@ -13,10 +12,9 @@ export default function CreateCampaignPage(): React.JSX.Element {
     <Box>
       <BackBtn/>
       <Box mb={2}>
-        <Typography mb={2} variant="h4">Create Campaign</Typography>
-        <CampaignSetting/>
+      <Typography mb={5} variant="h4">Create Campaign</Typography>
+        <CreateCampaign/>
       </Box>
-      <BudgetBidding/>
     </Box>
   );
 }
