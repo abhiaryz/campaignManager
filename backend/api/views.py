@@ -89,6 +89,7 @@ def dashboard_profile(request):
 def dashboard_data(request):
     return render(request, "dsp/data.html")
 
+from django.contrib.auth.models import User
 
 class CampaignViewSet(viewsets.ViewSet):
     def list(self, request):
@@ -105,9 +106,11 @@ class CampaignViewSet(viewsets.ViewSet):
 
     def create(self, request):
         """Create a new campaign."""
-        serializer = CampaignCreateUpdateSerializer(data=request.data)
+        data=request.data
+        serializer = CampaignCreateUpdateSerializer(data=data)
         if serializer.is_valid():
-            campaign = serializer.save(user=request.user)
+            user = User.objects.get(id=data["user"])
+            campaign = serializer.save(user=user)
             try:
                 serializer_data = CampaignSerializer(campaign).data
                 excel_data = serializer_data_to_excel(serializer_data)

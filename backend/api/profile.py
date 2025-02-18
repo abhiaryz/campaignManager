@@ -83,10 +83,12 @@ def profile_api(request):
         phone_no = user_profile.phone_no
         company_name = user_profile.company_name
         gst = user_profile.gst
+        logo = user_profile.logo if user_profile.logo else None
         print(f"City: {city}, Phone No: {phone_no}")
     else:
         city = ""
         phone_no = ""
+        logo = ""
 
     data = {
         "id": request.user.id,
@@ -98,6 +100,7 @@ def profile_api(request):
         "phone_no": phone_no,
         "company_name": company_name,
         "gst": gst,
+        "logo" : logo,
         "user_type": user_type.user_type_pm
     }
     return success_response("Data succcessfully fetched", data)

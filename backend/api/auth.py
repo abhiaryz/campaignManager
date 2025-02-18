@@ -33,8 +33,9 @@ def error_response(message, status_code=status.HTTP_400_BAD_REQUEST):
         {"message": message, "success": False, "data": []}, status=status_code
     )
 
-
+from rest_framework.parsers import MultiPartParser, FormParser
 class RegisterView(APIView):
+    parser_classes = (MultiPartParser, FormParser)  
     def post(self, request):
         password = request.data.get("password")
         email = request.data.get("email")
@@ -42,6 +43,7 @@ class RegisterView(APIView):
         last_name = request.data.get("last_name")
         company_name = request.data.get("company_name")
         gst   = request.data.get("gst")
+        logo = request.FILES.get("logo")
         username = email
         if not username or not password or not email:
             return error_response("All fields are required.")
@@ -50,10 +52,14 @@ class RegisterView(APIView):
             return error_response(
                 "Invalid email format. Please include '@' in the email address."
             )
-
+    
         if User.objects.filter(username=username).exists():
             return error_response("Username already exists.")
-
+        
+        if logo:
+            # Optional: Add file validation for the logo
+            if not logo.name.endswith(('.png', '.jpg', '.jpeg')):
+                return error_response("Invalid logo format. Only PNG, JPG, JPEG allowed.")
         try:
             user = User.objects.create_user(
                 username=username,
@@ -63,7 +69,10 @@ class RegisterView(APIView):
                 last_name=last_name,
             )
             UserType.objects.create(user=user)
-            UserProfile.objects.create(user=user, company_name=company_name, gst=gst)
+            user_profile = UserProfile.objects.create(user=user, company_name=company_name, gst=gst)
+            if logo:
+                user_profile.logo = logo  # Assuming the 'logo' field is added in the UserProfile model
+                user_profile.save()
             return success_response(
                 "User created successfully.", {"id": user.id}, status.HTTP_201_CREATED
             )
