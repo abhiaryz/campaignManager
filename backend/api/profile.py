@@ -78,17 +78,24 @@ class UserAPIView(APIView):
 def profile_api(request):
     user_profile = UserProfile.objects.filter(user=request.user).first()
     user_type = UserType.objects.filter(user=request.user).first()
+
+    # Initialize default values
+    city = ""
+    phone_no = ""
+    company_name = ""
+    gst = ""
+    logo = ""
+
     if user_profile:
         city = user_profile.city
         phone_no = user_profile.phone_no
         company_name = user_profile.company_name
         gst = user_profile.gst
-        logo = user_profile.logo if user_profile.logo else None
+        # Check if logo exists and return its URL
+        if user_profile.logo:
+            # Build an absolute URL if needed
+            logo = request.build_absolute_uri(user_profile.logo.url)
         print(f"City: {city}, Phone No: {phone_no}")
-    else:
-        city = ""
-        phone_no = ""
-        logo = ""
 
     data = {
         "id": request.user.id,
@@ -100,8 +107,9 @@ def profile_api(request):
         "phone_no": phone_no,
         "company_name": company_name,
         "gst": gst,
-        "logo" : logo,
-        "user_type": user_type.user_type_pm
+        "logo": logo,
+        "user_type": user_type.user_type_pm if user_type else None
     }
-    return success_response("Data succcessfully fetched", data)
+    return success_response("Data successfully fetched", data)
+
 
