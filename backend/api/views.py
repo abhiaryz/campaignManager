@@ -31,6 +31,9 @@ from django.core.files.base import File
 
 logger = logging.getLogger(__name__)
 
+@api_view(["GET"])
+def health_check(request):
+    return Response({"status": "ok"}, status=status.HTTP_200_OK)
 
 # Utility Functions
 def success_response(message, data=None, status_code=status.HTTP_200_OK):

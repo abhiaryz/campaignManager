@@ -23,8 +23,28 @@ resource "aws_security_group" "backenddsp" {
   vpc_id      = var.vpc_id
 
   ingress {
-    from_port   = 8000
-    to_port     = 8000
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    description = "Allow HTTPS traffic"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    description = "Allow backendmmr traffic"
+    from_port   = 587
+    to_port     = 587
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -89,7 +109,7 @@ resource "aws_ecs_task_definition" "backenddsp" {
     memory    = 2048
     essential = true
     portMappings = [{
-      containerPort = 8000
+      containerPort = 80
       protocol      = "tcp"
     }]
     logConfiguration = {
@@ -115,7 +135,7 @@ resource "aws_ecs_service" "backenddsp" {
   load_balancer {
     target_group_arn = aws_lb_target_group.backenddsp.arn
     container_name   = "backenddsp"
-    container_port   = 8000
+    container_port   = 80
   }
   network_configuration {
     subnets         = var.subnets
@@ -141,10 +161,14 @@ resource "aws_lb" "backenddsp" {
 # Define the Load Balancer Target Group
 resource "aws_lb_target_group" "backenddsp" {
   name     = "backenddsp-tg"
-  port     = 8000
+  port     = 80
   protocol = "HTTP"
   vpc_id   = var.vpc_id
   target_type = "ip"
+  health_check {
+    path    = "/health/"
+    matcher = "200"
+  }
 }
 
 # Load Balancer Listener
