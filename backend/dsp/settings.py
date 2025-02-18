@@ -137,19 +137,6 @@ EMAIL_HOST_USER = "<your-email>@gmail.com"
 EMAIL_HOST_PASSWORD = "<your-email-password>"
 
 # CORS Settings
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8000",
-    "http://127.0.0.1:8000",
-    "http://13.233.13.8:8000",
-    "http://127.0.0.1:3000",
-    "http://localhost:3000",
-    "https://ad-campaign.vercel.app",
-    "https://abhiaryz.pythonanywhere.com",
-    "https://ad-campaign-git-dev-ga7utis-projects.vercel.app",
-    "https://campaignmanager-pkdf.onrender.com"
-]
-
-CSRF_TRUSTED_ORIGINS = ["http://localhost:3000"]
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW_ALL = True
