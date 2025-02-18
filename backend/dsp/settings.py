@@ -80,7 +80,6 @@ DATABASES = {
         'PASSWORD': '9910446048!Ab',
         'HOST': 'digi.cdqy8u6gyh4r.ap-south-1.rds.amazonaws.com',  # RDS endpoint
         'PORT': '3306',  # or the port configured for your RDS instance
-        'OPTIONS': {'init_command': "SET sql_mode='STRICT_TRANS_TABLES'","use_pure": True},
     }
 } 
 
