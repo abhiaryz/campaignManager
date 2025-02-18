@@ -5,7 +5,7 @@ resource "null_resource" "docker_build" {
   }
 
   provisioner "local-exec" {
-    command = "DOCKER_DEFAULT_PLATFORM='linux/amd64' docker build -t ${aws_ecr_repository.backenddsp.repository_url}:latest -f ../Dockerfile ."
+    command = "DOCKER_DEFAULT_PLATFORM='linux/amd64' docker build -t ${aws_ecr_repository.backenddsp.repository_url}:latest -f ../backend/Dockerfile ../backend"
   }
 
   provisioner "local-exec" {
@@ -117,6 +117,11 @@ resource "aws_ecs_service" "backenddsp" {
     container_name   = "backenddsp"
     container_port   = 8000
   }
+  network_configuration {
+    subnets         = var.subnets
+    security_groups = [aws_security_group.backenddsp.id]
+    assign_public_ip = true
+  }
 
   lifecycle {
     create_before_destroy = true
@@ -139,6 +144,7 @@ resource "aws_lb_target_group" "backenddsp" {
   port     = 8000
   protocol = "HTTP"
   vpc_id   = var.vpc_id
+  target_type = "ip"
 }
 
 # Load Balancer Listener

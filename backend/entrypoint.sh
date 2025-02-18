@@ -4,8 +4,8 @@
 # Apply database migrations
 python manage.py migrate --noinput
 
-# Collect static files
-python manage.py collectstatic --noinput
+
+
 
 # Then execute the container’s main process (what’s set as CMD in the Dockerfile)
 exec "$@"
