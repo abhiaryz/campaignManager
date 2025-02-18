@@ -10,6 +10,7 @@ SECRET_KEY = "django-insecure-^1%aa_g=x^wdskc*onp$%ic#vg0p+me5b@x3!bcqohnq5vsj-e
 DEBUG = True
 
 ALLOWED_HOSTS = [
+    '*',
     "abhiaryz.pythonanywhere.com",
     "pythonanywhere.com",
     ".now.sh",
@@ -18,6 +19,7 @@ ALLOWED_HOSTS = [
     "ad-campaign.vercel.app",
     "ad-campaign-git-dev-ga7utis-projects.vercel.app",
     "13.233.13.8"
+    "campaignmanager-pkdf.onrender.com"
 ]
 
 INSTALLED_APPS = [
@@ -145,6 +147,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://ad-campaign.vercel.app",
     "https://abhiaryz.pythonanywhere.com",
     "https://ad-campaign-git-dev-ga7utis-projects.vercel.app",
+    "https://campaignmanager-pkdf.onrender.com"
 ]
 
 CSRF_TRUSTED_ORIGINS = ["http://localhost:3000"]
