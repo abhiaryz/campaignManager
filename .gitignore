@@ -20,6 +20,8 @@ media/
 static/
 staticfiles/
 
+terraform.tfstate
+
 # Virtual Environment
 venv/
 env/
