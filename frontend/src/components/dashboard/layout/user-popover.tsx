@@ -9,9 +9,12 @@ import { SignOut as SignOutIcon } from '@phosphor-icons/react/dist/ssr/SignOut';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 
-import { useUser } from '@/hooks/use-user';
-import { authClient } from '@/lib/auth/client';
+import { useAuth } from '@/hooks/use-auth';
+import { accountClient } from '@/lib/account-client';
+import { authClient } from '@/lib/auth-client';
 import { logger } from '@/lib/default-logger';
+import { paths } from '@/paths';
+import { User } from '@/types/auth';
 
 export interface UserPopoverProps {
   anchorEl: Element | null;
@@ -20,29 +23,32 @@ export interface UserPopoverProps {
 }
 
 export function UserPopover({ anchorEl, onClose, open }: UserPopoverProps): React.JSX.Element {
-  const { checkSession } = useUser();
-
+  const { checkSession } = useAuth();
   const router = useRouter();
+  const [user, setUser] = React.useState<User | null>(null);
 
   const handleSignOut = React.useCallback(async (): Promise<void> => {
     try {
-      const { error } = await authClient.signOut();
-
-      if (error) {
-        logger.error('Sign out error', error);
-        return;
-      }
-
-      // Refresh the auth state
+      await authClient.signOut();
       await checkSession?.();
-
-      // UserProvider, for this case, will not refresh the router and we need to do it manually
-      router.refresh();
-      // After refresh, AuthGuard will handle the redirect
+      router.push(paths.auth.signIn); // Replace with your actual login route
     } catch (err) {
       logger.error('Sign out error', err);
     }
   }, [checkSession, router]);
+
+  async function fetchUser() {
+    try {
+      const response = await accountClient.getUser();
+      setUser(response);
+    } catch (error) {
+      console.error('Failed to fetch user:', error);
+    }
+  }  
+
+  React.useEffect(() => {
+    fetchUser();
+  }, []);
 
   return (
     <Popover
@@ -53,10 +59,8 @@ export function UserPopover({ anchorEl, onClose, open }: UserPopoverProps): Reac
       slotProps={{ paper: { sx: { width: '240px' } } }}
     >
       <Box sx={{ p: '16px 20px ' }}>
-        <Typography variant="subtitle1">Sofia Rivers</Typography>
-        <Typography color="text.secondary" variant="body2">
-          sofia.rivers@devias.io
-        </Typography>
+        <Typography variant="subtitle1">{user?.first_name}</Typography>
+        <Typography color="text.secondary" variant="body2">{user?.email}</Typography>
       </Box>
       <Divider />
       <MenuList disablePadding sx={{ p: '8px', '& .MuiMenuItem-root': { borderRadius: 1 } }}>
