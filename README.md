@@ -7,7 +7,7 @@ Template repository for terraform projects including CI/CD and pre-commit setup.
 ### Configure your Aws credentials using the AWS CLI
 
 ```bash
-aws configure --profile bst
+aws configure --profile aws-dsp
 ```
 
 ### Adjust variables & placeholders
@@ -36,6 +36,7 @@ terraform init
 The terraform workspaces are like stages. By creating a new stage, terraform will create a copy of the infrastructure
 for the respective stage. To create a new workspace, run
 
+#### Note: We are using default for now.
 ```bash
 terraform workspace new <your workspace name>
 ```
