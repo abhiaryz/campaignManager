@@ -22,22 +22,40 @@ export function SignUpForm(): React.JSX.Element {
   const router = useRouter();
 
   const { checkSession } = useAuth();
+  const [isPending, setIsPending] = React.useState<boolean>(false);
+  const [isUserCreated,setIsUserCreated] = React.useState<boolean>(false);
+  const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
+  const [fileError, setFileError] = React.useState<string | null>(null);
+  const logo = React.useRef<File | null>(null)
 
-    const [isPending, setIsPending] = React.useState<boolean>(false);
-    const [isUserCreated,setIsUserCreated] = React.useState<boolean>(false);
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = useForm<User>({ resolver: zodResolver(signUpSchema) });
 
-    const {
-      register,
-      handleSubmit,
-      setError,
-      formState: { errors },
-    } = useForm<User>({ resolver: zodResolver(signUpSchema) });
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      logo.current = file
+      setFileError(null);
+    }
+    e.target.value = '';
+  };
 
   const onSubmit = React.useCallback(
     async (values: User): Promise<void> => {
       setIsPending(true);
       try {
-        const result = await authClient.signUp(values);
+        if (!logo || !logo.current) {
+          setFileError('Logo is required');
+          setIsPending(false);
+          return;
+        }
+
+        const result = await authClient.signUp(values,logo.current);
         if (result) {
           setIsUserCreated(true);
           await checkSession?.();
@@ -142,6 +160,49 @@ export function SignUpForm(): React.JSX.Element {
                 error={errors.gst}
             />
             </Box>
+          </Grid>
+
+          <Grid item xs={12} md={6} mb={1}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                border: "2px dashed",
+                borderColor: "primary.main", // Primary color for the dotted border
+                borderRadius: "8px",
+                cursor: "pointer",
+                transition: "border-color 0.3s ease",
+                "&:hover": {
+                  borderColor: "primary.dark", // Change border color on hover
+                },
+              }}
+            >
+              <input
+                className='logo'
+                accept="image/*"
+                style={{ display: 'none' }}
+                id="company-logo-upload"
+                type="file"
+                onChange={handleFileChange}
+              />
+              <Button
+                component="span"
+                fullWidth
+                sx={{
+                textAlign: 'center',
+                justifyContent: 'center',
+                color: fileError ? 'error.main' : 'primary.main'
+                }}
+                onClick={() => (document.querySelector(`input[type="file"].${"logo"}`) as HTMLInputElement).click()}
+              >
+                {selectedFile?.name || 'Select Company Logo'}
+              </Button>
+            </Box>
+            {fileError && (
+              <Typography variant="caption" color="error.main">
+                {fileError}
+              </Typography>
+            )}
           </Grid>
 
           {/** Terms */}

@@ -3,7 +3,7 @@
 import { accountClient } from '@/lib/account-client';
 import { profileSchema } from '@/types/schema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Alert, Box, CircularProgress } from '@mui/material';
+import { Alert, Avatar, Box, CircularProgress } from '@mui/material';
 import Button from '@mui/material/Button';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
@@ -15,6 +15,7 @@ import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import FormField from '../layout/form-field';
 import { User } from '@/types/auth';
+import { Stack } from '@mui/system';
 
 export function AccountDetailsForm(): React.JSX.Element {
 
@@ -83,6 +84,21 @@ export function AccountDetailsForm(): React.JSX.Element {
           </Box>
         :
           <CardContent>
+            <Stack spacing={2} sx={{ alignItems: 'center', marginBottom:"2rem" }}>
+            <div>
+              {user?.logo && (
+                <Avatar
+                  src={user.logo}
+                  sx={{
+                    height: '150px',
+                    width: '150px',
+                    border: '0.5px solid #D3D3D3', 
+                    '& img': { objectFit: 'contain' }
+                  }}
+                />
+              )}
+            </div>
+            </Stack>
             <Grid container spacing={3}>
               {/* First Name */}
               <Grid item xs={12} md={6} mb={1}>

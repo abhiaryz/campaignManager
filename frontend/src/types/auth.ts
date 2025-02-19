@@ -29,6 +29,7 @@ export interface User {
     user_type?: boolean
     company_name:string;
     gst?:string
+    logo?:string
 }
   
 

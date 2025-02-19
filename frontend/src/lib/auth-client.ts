@@ -6,9 +6,17 @@ import { utils } from './common-utils';
 import { accountClient } from './account-client';
 
 class AuthClient {
-  async signUp(user: User): Promise<boolean> {
+  async signUp(user: User,file:File): Promise<boolean> {
     try {
-      await axiosInstance.post(`/api/register/`, user);
+      const formData = new FormData();
+      Object.entries(user).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+      formData.append('logo', file);
+      
+      await axiosInstance.post(`/api/register/`, formData,{
+        headers: { 'Content-Type': 'multipart/form-data;' },
+      });
       return true
     } catch (error: any) {
         throw new Error(utils.handleErrorMessage(error));
