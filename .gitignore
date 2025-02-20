@@ -5,6 +5,15 @@
 *.pyc
 __pycache__/
 
+.env
+.env.*
+!.env.example
+*.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env.staging
 # Django migrations (ignore all migrations, including those inside app directories)
 migrations/
 **/migrations/

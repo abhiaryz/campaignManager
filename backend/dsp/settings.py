@@ -75,13 +75,14 @@ WSGI_APPLICATION = "dsp.wsgi.application"
 DATABASES = {
     'default': {
         'ENGINE': 'mysql.connector.django',
-        'NAME': 'DIGI',
-        'USER': 'admin',
-        'PASSWORD': '9910446048!Ab',
-        'HOST': 'digi.cdqy8u6gyh4r.ap-south-1.rds.amazonaws.com',  # RDS endpoint
-        'PORT': '3306',  # or the port configured for your RDS instance
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT'),
     }
-} 
+}
+
 
 
 AUTHENTICATION_BACKENDS = (
@@ -129,12 +130,12 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 # Email Settings
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = "<your-email>@gmail.com"
-EMAIL_HOST_PASSWORD = "<your-email-password>"
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = config('EMAIL_HOST')
+EMAIL_PORT = config('EMAIL_PORT', cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
 # CORS Settings
 CORS_ALLOW_ALL_ORIGINS = True
@@ -156,11 +157,11 @@ CORS_ALLOW_METHODS = [
 
 
 # AWS S3 Settings
-AWS_ACCESS_KEY_ID = "AKIA2S2Y4I2T2SK4HRX5"
-AWS_SECRET_ACCESS_KEY = "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"
-AWS_STORAGE_BUCKET_NAME = "diginfluancer"
-AWS_S3_REGION_NAME = "ap-south-1"
-AWS_S3_SIGNATURE_VERSION = 's3v4'
+AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_REGION_NAME = config('AWS_S3_REGION_NAME')
+AWS_S3_SIGNATURE_VERSION = config('AWS_S3_SIGNATURE_VERSION')
 AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
 AWS_QUERYSTRING_AUTH = False
 
