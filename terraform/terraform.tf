@@ -14,6 +14,6 @@ terraform {
     key     = "terraform.tfstate"
     region  = "ap-south-1"
     encrypt = true
-    profile = "aws-dsp"
+    profile = "aws-digi"
   }
 }

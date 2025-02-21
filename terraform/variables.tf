@@ -7,7 +7,7 @@ variable "region" {
 variable "aws_profile" {
   description = "Name of your AWS profile"
   type        = string
-  default     = "aws-dsp"
+  default     = "aws-digi"
 }
 
 variable "application_name" {
