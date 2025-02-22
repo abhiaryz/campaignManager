@@ -1,24 +1,5 @@
 
 
-resource "null_resource" "Backend_build" {
-  triggers = {
-    sha1 = join("", [for f in fileset("../backend", "**/*") : filesha1("../backend/${f}")])
-  }
-
-  provisioner "local-exec" {
-    command = "DOCKER_DEFAULT_PLATFORM='linux/amd64' docker build -t ${aws_ecr_repository.backend.repository_url}:latest -f ../backend/Dockerfile ../backend"
-  }
-
-  provisioner "local-exec" {
-    command = "aws ecr get-login-password --region ${var.region} --profile ${var.aws_profile} | docker login --username AWS --password-stdin ${aws_ecr_repository.backend.repository_url}"
-  }
-
-  provisioner "local-exec" {
-    command = "docker push ${aws_ecr_repository.backend.repository_url}:latest"
-  }
-
-}
-
 resource "aws_security_group" "backend" {
   name        = "backend-sg"
   description = "Security group for backend ECS service"
@@ -63,6 +44,25 @@ resource "aws_ecr_repository" "backend" {
   name                 = "backend"
   image_tag_mutability = "MUTABLE"
   force_delete         = true
+}
+
+resource "null_resource" "Backend_build" {
+  triggers = {
+     always_run = timestamp()
+  }
+
+  provisioner "local-exec" {
+    command = "DOCKER_DEFAULT_PLATFORM='linux/amd64' docker build -t ${aws_ecr_repository.backend.repository_url}:latest -f ../backend/Dockerfile ../backend"
+  }
+
+  provisioner "local-exec" {
+    command = "aws ecr get-login-password --region ${var.region} --profile ${var.aws_profile} | docker login --username AWS --password-stdin ${aws_ecr_repository.backend.repository_url}"
+  }
+
+  provisioner "local-exec" {
+    command = "docker push ${aws_ecr_repository.backend.repository_url}:latest"
+  }
+
 }
 
 resource "aws_cloudwatch_log_group" "backend" {
@@ -208,4 +208,24 @@ resource "aws_lb_listener" "http" {
     type             = "forward"
     target_group_arn = aws_lb_target_group.backend.arn
   }
+}
+
+# Create an IAM policy for ECR access
+resource "aws_iam_policy" "ecr_policy" {
+  name = "backend-ecr-access-policy"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ecr:GetAuthorizationToken",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
 }

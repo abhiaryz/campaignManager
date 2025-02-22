@@ -1,4 +1,4 @@
-output "backend_url" {
-  description = "URL to access the deployed container"
-  value       = "http://${aws_lb.backend.dns_name}"
+output "load_balancer_dns" {
+  value = aws_lb.backend.dns_name
+  description = "DNS name of the backend load balancer"
 }

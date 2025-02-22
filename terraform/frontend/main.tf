@@ -1,21 +1,8 @@
-resource "null_resource" "Frontend_build" {
-  triggers = {
-    sha1 = join("", [for f in fileset("../frontend", "**/*") : filesha1("../frontend/${f}")])
-  }
-  provisioner "local-exec" {
-    command = "DOCKER_DEFAULT_PLATFORM='linux/amd64' docker build -t ${aws_ecr_repository.frontend.repository_url}:latest -f ../frontend/Dockerfile ../frontend"
-  }
-
-  provisioner "local-exec" {
-    command = "aws ecr get-login-password --region ${var.region} --profile ${var.aws_profile} | docker login --username AWS --password-stdin ${aws_ecr_repository.frontend.repository_url}"
-  }
-
-  provisioner "local-exec" {
-    command = "docker push ${aws_ecr_repository.frontend.repository_url}:latest"
-  }
+resource "random_string" "target_group_suffix" {
+  length  = 4
+  special = false
+  upper   = false
 }
-
-# Build and push Docker image to ECR
 
 resource "aws_security_group" "frontend" {
   name        = "frontend-sg"
@@ -36,6 +23,12 @@ resource "aws_security_group" "frontend" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   ingress {
+  from_port   = 3000
+  to_port     = 3000
+  protocol    = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]
+}
+  ingress {
     description = "Allow frontend traffic"
     from_port   = 587
     to_port     = 587
@@ -51,7 +44,6 @@ resource "aws_security_group" "frontend" {
   }
 }
 
-# ECR Repository to store the Docker image
 
 resource "aws_ecr_repository" "frontend" {
   name                 = "frontend"
@@ -59,15 +51,60 @@ resource "aws_ecr_repository" "frontend" {
   force_delete         = true
 }
 
-# CloudWatch Log Group
+resource "null_resource" "Frontend_build" {
+  triggers = {
+    always_run = timestamp()
+  }
 
+  provisioner "local-exec" {
+    command = <<-EOT
+      # First, remove existing credentials
+      echo "🔄 Cleaning up existing credentials..."
+      security delete-generic-password -l "docker-credential-desktop" || true
+      docker logout ${aws_ecr_repository.frontend.repository_url} || true
+      
+      # Build the image with build logs
+      echo "🏗️ Building Docker image..."
+      DOCKER_BUILDKIT=1 DOCKER_DEFAULT_PLATFORM='linux/amd64' docker build \
+        --progress=plain \
+        --no-cache \
+        -t ${aws_ecr_repository.frontend.repository_url}:latest \
+        -f ../frontend/Dockerfile ../frontend 2>&1 | tee /tmp/docker-build.log
+      
+      # Check if build was successful
+      if [ $? -ne 0 ]; then
+        echo "❌ Docker build failed. Check the logs above."
+        exit 1
+      fi
+      
+      # Login to ECR with error handling
+      echo "🔑 Logging into ECR..."
+      aws ecr get-login-password --region ${var.region} --profile ${var.aws_profile} | \
+      docker login --username AWS --password-stdin ${aws_ecr_repository.frontend.repository_url} || \
+      (echo "❌ ECR login failed" && exit 1)
+      
+      # Push the image with progress
+      echo "📤 Pushing image to ECR..."
+      docker push ${aws_ecr_repository.frontend.repository_url}:latest 2>&1 | tee /tmp/docker-push.log
+      
+      echo "✅ Build and push completed successfully!"
+    EOT
+  }
+
+  # Add provisioner to show build logs on failure
+  provisioner "local-exec" {
+    when    = destroy
+    command = "rm -f /tmp/docker-build.log /tmp/docker-push.log"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
 
 resource "aws_cloudwatch_log_group" "frontend" {
   name = "frontend"
 }
-
-# ECS Cluster
-
 
 resource "aws_ecs_cluster" "frontend" {
   name = "frontend"
@@ -95,38 +132,11 @@ resource "aws_iam_role" "frontend" {
 
 }
 
-# IAM Role for ECS Task Execution
 
-
-# Create an IAM policy for ECR access
-resource "aws_iam_policy" "ecr_policy" {
-  name = "ecr-access-policy"
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "ecr:GetAuthorizationToken",
-          "ecr:BatchCheckLayerAvailability",
-          "ecr:GetDownloadUrlForLayer",
-          "ecr:BatchGetImage"
-        ]
-        Resource = "*"
-      }
-    ]
-  })
-}
-
-
-
-# Attach the ECR policy to the frontend role
 resource "aws_iam_role_policy_attachment" "frontend_ecr_policy" {
   role       = aws_iam_role.frontend.name
   policy_arn = aws_iam_policy.ecr_policy.arn
 }
-
-# Attach Execution Policy to IAM Roles - using role_policy_attachment instead of policy_attachment
 
 
 resource "aws_iam_role_policy_attachment" "ecs_task_execution_policy_attachment_frontend" {
@@ -138,32 +148,6 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution_policy_attachment_
   ]
 }
 
-
-# Add additional required policies
-resource "aws_iam_role_policy" "frontend_additional" {
-  name = "frontend-additional"
-  role = aws_iam_role.frontend.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "ecs:ListTasks",
-          "ecs:DescribeTasks",
-          "logs:CreateLogStream",
-          "logs:PutLogEvents"
-        ]
-        Resource = "*"
-      }
-    ]
-  })
-
-  depends_on = [
-    aws_iam_role.frontend
-  ]
-}
 
 
 resource "aws_ecs_task_definition" "frontend" {
@@ -183,12 +167,11 @@ resource "aws_ecs_task_definition" "frontend" {
     environment = [
       {
         name  = "NEXT_PUBLIC_API_BASE_URL"
-        value = "http://${aws_lb.backenddsp.dns_name}"
+        value = "http://${var.backend_url}"
       }
     ]
     portMappings = [{
-      containerPort = 80
-      hostPort      = 80
+      containerPort = 3000
       protocol      = "tcp"
     }]
     logConfiguration = {
@@ -203,6 +186,102 @@ resource "aws_ecs_task_definition" "frontend" {
 }
 
 # ECS Service to run the task
+
+resource "aws_ecs_service" "frontend" {
+  name                 = "frontend"
+  cluster              = aws_ecs_cluster.frontend.id
+  task_definition      = aws_ecs_task_definition.frontend.arn
+  desired_count        = 1
+  launch_type          = "FARGATE"
+  force_new_deployment = true
+  
+  load_balancer {
+    target_group_arn = aws_lb_target_group.frontend.arn
+    container_name   = "frontend"
+    container_port   = 3000
+  }
+  network_configuration {
+    subnets          = var.subnets
+    security_groups  = [aws_security_group.frontend.id]
+    assign_public_ip = true
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+
+resource "aws_lb" "frontend" {
+  name                       = "frontend-lb"
+  internal                   = false
+  load_balancer_type         = "application"
+  security_groups            = [aws_security_group.frontend.id]
+  subnets                    = var.subnets
+  enable_deletion_protection = false
+}
+
+
+resource "aws_lb_target_group" "frontend" {
+  name        = "frontend-tg"
+  port        = 3000  # Changed to 3000 to match container port
+  protocol    = "HTTP"
+  vpc_id      = var.vpc_id
+  target_type = "ip"
+
+  health_check {
+    enabled             = true
+    path                = "/api/health"
+    protocol            = "HTTP"
+    port                = "traffic-port"  # Use the same port as target group
+    matcher             = "200-399"
+    interval            = 60
+    timeout             = 30
+    healthy_threshold   = 2
+    unhealthy_threshold = 5
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  tags = {
+    Name        = "frontend-tg"
+    Environment = var.environment
+  }
+}
+
+
+# Load balancer listener remains on port 80
+resource "aws_lb_listener" "frontend" {
+  load_balancer_arn = aws_lb.frontend.arn
+  port              = 80  # External port remains 80
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.frontend.arn
+  }
+}
+
+resource "aws_iam_policy" "ecr_policy" {
+  name = "frontend-ecr-access-policy"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ecr:GetAuthorizationToken",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
 
 
 resource "aws_iam_policy" "terraform_state" {
@@ -235,81 +314,4 @@ resource "aws_iam_policy" "terraform_state" {
       }
     ]
   })
-}
-
-
-resource "aws_ecs_service" "frontend" {
-  name                 = "frontend"
-  cluster              = aws_ecs_cluster.frontend.id
-  task_definition      = aws_ecs_task_definition.frontend.arn
-  desired_count        = 1
-  launch_type          = "FARGATE"
-  force_new_deployment = true
-
-  load_balancer {
-    target_group_arn = aws_lb_target_group.frontend.arn
-    container_name   = "frontend"
-    container_port   = 80
-  }
-  network_configuration {
-    subnets          = var.subnets
-    security_groups  = [aws_security_group.frontend.id]
-    assign_public_ip = true
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-# Define the Load Balancer
-
-
-resource "aws_lb" "frontend" {
-  name                       = "frontend-lb"
-  internal                   = false
-  load_balancer_type         = "application"
-  security_groups            = [aws_security_group.frontend.id]
-  subnets                    = var.subnets
-  enable_deletion_protection = false
-}
-
-# Define the Load Balancer Target Group
-
-
-resource "aws_lb_target_group" "frontend" {
-  name        = "frontend-tg"
-  port        = 80
-  protocol    = "HTTP"
-  vpc_id      = var.vpc_id
-  target_type = "ip"
-
-  health_check {
-    enabled             = true
-    path                = "/api/health"  # Create this endpoint in your Next.js app
-    protocol            = "HTTP"
-    matcher             = "200-399"      # Allow more status codes
-    interval            = 60             # Check every 60 seconds
-    timeout             = 30             # Wait up to 30 seconds
-    healthy_threshold   = 2              # Number of consecutive successes
-    unhealthy_threshold = 5              # Number of consecutive failures
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-# Load Balancer Listener
-
-
-resource "aws_lb_listener" "frontend" {
-  load_balancer_arn = aws_lb.frontend.arn
-  port              = 80
-  protocol          = "HTTP"
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.frontend.arn
-  }
 }

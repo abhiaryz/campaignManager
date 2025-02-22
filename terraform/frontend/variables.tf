@@ -37,4 +37,7 @@ variable "subnets" {
 ]
 }
 
- 
+variable "backend_url" {
+  description = "Backend API URL"
+  type        = string
+}
