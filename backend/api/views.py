@@ -10,7 +10,7 @@ import pandas as pd
 from rest_framework.views import APIView
 from django.http import HttpResponse
 
-from .models import (Campaign, CampaignImage, Keyword, Location, proximity, CampaignVideo,
+from .models import (Campaign, Keyword, Location, proximity, CampaignVideo,
                      proximity_store, target_type, weather, UserType, Age, CarrierData,
     Environment,
     Exchange,
@@ -20,7 +20,7 @@ from .models import (Campaign, CampaignImage, Keyword, Location, proximity, Camp
     Device,
     DistinctInterest,Bidding_detail, BrandSafety,
     BuyType,
-    Viewability,tag_tracker,CampaignFile)
+    Viewability,tag_tracker,CampaignFile, CampaignImage)
 from .serializers import (CampaignCreateUpdateSerializer,
                           CampaignImageSerializer, CampaignSerializer,
                           KeywordSerializer, LocationSerializer,
@@ -112,7 +112,10 @@ class CampaignViewSet(viewsets.ViewSet):
         data=request.data
         serializer = CampaignCreateUpdateSerializer(data=data)
         if serializer.is_valid():
-            user = User.objects.get(id=data["user"])
+            if data["user"] is int:
+                user = User.objects.get(id=data["user"])
+            else:
+                user = request.user
             campaign = serializer.save(user=user)
             try:
                 serializer_data = CampaignSerializer(campaign).data
