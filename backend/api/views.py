@@ -117,10 +117,16 @@ class CampaignViewSet(viewsets.ViewSet):
         data=request.data
         serializer = CampaignCreateUpdateSerializer(data=data)
         if serializer.is_valid():
-            if data["user"] is int:
-                user = User.objects.get(id=data["user"])
-            else:
-                user = request.user
+            user = request.user  # Default to the request user
+            if "user" in data:
+                if isinstance(data["user"], int):
+                    try:
+                        user = User.objects.get(id=data["user"])
+                    except User.DoesNotExist:
+                        return error_response("User does not exist")
+                else:
+                    user = request.user
+
             campaign = serializer.save(user=user)
             try:
                 serializer_data = CampaignSerializer(campaign).data
