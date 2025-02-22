@@ -28,6 +28,11 @@ from .serializers import (CampaignCreateUpdateSerializer,
                           WeatherSerializer, target_typeSerializer,BiddingDetailsSerializer,CampaignVideoSerializer,tag_trackerSerializer)
 import xlsxwriter
 from django.core.files.base import File
+from rest_framework import viewsets, status
+from rest_framework.parsers import MultiPartParser, FormParser
+from .models import Creative
+from .serializers import CreativeSerializer
+
 
 logger = logging.getLogger(__name__)
 
@@ -563,3 +568,50 @@ def target_type_view(request):
         return Response(
             {"message": "Data successfully fetched", "data": serializer.data}
         )
+
+
+
+class CreativeViewSet(viewsets.ModelViewSet):
+    serializer_class = CreativeSerializer
+    permission_classes = [IsAuthenticated]
+    parser_classes = (MultiPartParser, FormParser)
+    
+    def get_queryset(self):
+        return Creative.objects.filter(user=self.request.user)
+    
+    def create(self, request, *args, **kwargs):
+        try:
+            # Add required fields to request data
+            data = {
+                'name': request.data.get('name', ''),
+                'creative_type': request.data.get('creative_type', 'image'),
+                'file': request.FILES.get('file'),
+            }
+
+            # Validate required fields
+            if not data['name']:
+                return error_response("Creative name is required", status.HTTP_400_BAD_REQUEST)
+            
+            if not data['file']:
+                return error_response("File is required", status.HTTP_400_BAD_REQUEST)
+
+            serializer = self.get_serializer(data=data)
+            if serializer.is_valid():
+                creative = serializer.save(user=request.user)
+                # Process the creative synchronously for now
+                return success_response(
+                    "Creative uploaded successfully", 
+                    serializer.data, 
+                    status.HTTP_201_CREATED
+                )
+            return error_response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return error_response(str(e), status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def list(self, request):
+        try:
+            creatives = self.get_queryset()
+            serializer = self.get_serializer(creatives, many=True)
+            return success_response("Creatives fetched successfully", serializer.data)
+        except Exception as e:
+            return error_response(str(e))

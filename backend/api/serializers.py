@@ -209,6 +209,15 @@ class CampaignSerializer(serializers.ModelSerializer):
         model = Campaign
         fields = "__all__"
 
+from rest_framework import serializers
+from .models import Creative
+
+class CreativeSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Creative
+        fields = ['id', 'name', 'creative_type', 'file']
+        
 
 class CampaignCreateUpdateSerializer(serializers.ModelSerializer):
     images = serializers.PrimaryKeyRelatedField(

@@ -21,8 +21,9 @@ router.register(r"proximity", views.ProximityViewSet, basename="proximity")
 router.register(r"weather", views.WeatherViewSet, basename="weather")
 router.register(r"biddingDetails", views.BiddingDetailsViewSet, basename="biddingDetails")
 router.register(r"tag_tacker", views.tag_trackerViewSet, basename="tag_tacker")
-
+router.register(r'creatives', views.CreativeViewSet, basename='creative')
 urlpatterns = [
+    
     path("health/", views.health_check),
     path('get-csv/<int:campaign_id>', views.FileGetView.as_view(), name='mymodel-csv'),
     path("login/", views.login_page, name="login"),

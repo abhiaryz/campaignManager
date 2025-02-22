@@ -23,7 +23,7 @@ sqlparse==0.5.3
 tzdata==2024.2
 urllib3==2.3.0
 whitenoise==6.8.2
-pillow
+pillow>=9.0.0
 drf_yasg
 django-storages
 boto3

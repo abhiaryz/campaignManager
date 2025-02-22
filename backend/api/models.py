@@ -7,6 +7,8 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from storages.backends.s3boto3 import S3Boto3Storage
+from django.core.validators import FileExtensionValidator
+
 
 class Location(models.Model):
     country = models.CharField(max_length=254)
@@ -176,6 +178,12 @@ class Campaign(models.Model):
         related_name="target_type",
     )
 
+    Creative = models.ManyToManyField(
+        "Creative",
+        blank=True,
+        related_name="campaigns",
+    )
+    
     images = models.ManyToManyField(
         "CampaignImage",
         blank=True,
@@ -250,4 +258,50 @@ class target_type(models.Model):
     targeting_type = models.CharField(max_length=255)
     category = models.CharField(max_length=255, default='', blank=True, null=True)
     subcategory = models.CharField(max_length=255, blank=True, null=True, default='')
+
+class CreativeManager(models.Manager):
+    def get_pending_creatives(self):
+        return self.filter(status=Creative.Status.PENDING)
+
+    def get_user_creatives(self, user):
+        return self.filter(user=user)
+
+    def get_by_type(self, creative_type):
+        return self.filter(creative_type=creative_type)
+
+class Creative(models.Model):
+    class CreativeType(models.TextChoices):
+        IMAGE = 'image', 'Image'
+        VIDEO = 'video', 'Video'
+        HTML = 'html', 'HTML'
+
+
+    user = models.ForeignKey(
+        User, 
+        on_delete=models.CASCADE, 
+        related_name='creatives',
+        help_text="User who created this creative"
+    )
+    name = models.CharField(
+        max_length=255,
+        help_text="Name of the creative"
+    )
+    creative_type = models.CharField(
+        max_length=10,
+        choices=CreativeType.choices,
+        help_text="Type of creative content"
+    )
+    file = models.FileField(
+        storage=S3Boto3Storage(),
+        upload_to='creatives/%Y/%m/%d/',
+        validators=[FileExtensionValidator(
+            allowed_extensions=['jpg', 'jpeg', 'png', 'gif', 'mp4', 'html']
+        )],
+        help_text="Creative file (supported: jpg, jpeg, png, gif, mp4, html)"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+
+    
 

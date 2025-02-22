@@ -25,7 +25,8 @@ from .models import (
     Viewability,
     weather,
     tag_tracker,
-    CampaignFile
+    CampaignFile,
+    Creative
 )
 
 
@@ -145,6 +146,15 @@ admin.site.register(BrandSafety, BrandSafetyAdmin)
 admin.site.register(BuyType, BuyTypeAdmin)
 admin.site.register(Bidding_detail, Bidding_detailAdmin)
 admin.site.register(Viewability, ViewabilityAdmin)
+
+@admin.register(Creative)
+class CreativeAdmin(admin.ModelAdmin):
+    list_display = ('name', 'user', 'creative_type')
+    list_filter = ('creative_type', 'created_at')
+    search_fields = ('name', 'user__username')
+    readonly_fields = ('created_at', 'updated_at')
+
+    
 
 @admin.register(CityData)
 class CityDataAdmin(admin.ModelAdmin):
