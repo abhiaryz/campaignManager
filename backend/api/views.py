@@ -574,6 +574,18 @@ def target_type_view(request):
         )
 
 
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def creative_list_all(request):
+    query_param = request.query_params.get("query", None)
+    queryset = Creative.objects.filter(user=request.user)
+    if query_param:
+        queryset = queryset.filter(
+                Q(name__icontains=query_param) |
+                Q(creative_type__icontains=query_param) 
+        )
+    serializer = CreativeSerializer(queryset, many=True)
+    return success_response("All creatives fetched successfully", serializer.data)
 
 class CreativeViewSet(viewsets.ModelViewSet):
     serializer_class = CreativeSerializer
@@ -634,3 +646,5 @@ class CreativeViewSet(viewsets.ModelViewSet):
                 "success": True,
             }
         )
+
+    
