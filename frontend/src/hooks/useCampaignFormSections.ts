@@ -33,7 +33,7 @@ const validationRules: Record<string, ValidationRule> = {
   }
 };
 
-export const useFormSections = () => {
+export const useCampaignFormSections = () => {
   const [activeSection, setActiveSection] = useState(0);
   
   const validateField = (

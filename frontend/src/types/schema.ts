@@ -1,6 +1,7 @@
 import { z, ZodType } from "zod";
 import { SignInParams, User } from "./auth";
 import { CampaignFormData } from "./campaign";
+import { CreativeFormData } from "./creative";
 
 export const CampaignFormSchema: ZodType<CampaignFormData> = z.object({
     name: z.string().min(4, { message: "Name is required" }),
@@ -88,3 +89,11 @@ export const CampaignFormSchema: ZodType<CampaignFormData> = z.object({
       message: "Passwords don't match",
       path: ['confirm_new_password'],
   });
+
+  export const CreativeFormSchema: ZodType<CreativeFormData> = z.object({
+    name: z.string({ message: "Name is required" }),
+    creative_type: z.string({ message: "Creative Type is required" }),
+    file: z.any(),
+    description: z.any(),
+  });
+

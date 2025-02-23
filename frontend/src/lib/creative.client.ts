@@ -1,6 +1,6 @@
 
 
-import { Creative } from '@/types/creative';
+import { Creative, CreativeFormData } from '@/types/creative';
 import axiosInstance from './axios-instance';
 import { utils } from './common-utils';
 
@@ -14,10 +14,19 @@ class CreativeClient {
         const response = await axiosInstance.get(uri, {
           headers: { 'Content-Type': 'application/json' },
         });
-        return {count: response.data.count,data:response.data.data};
+        return {count: response.data.count,data:response.data.results.data};
       } catch (error: any) {
         throw new Error(utils.handleErrorMessage(error));
       }
+    }
+
+    async createCreative(data: CreativeFormData): Promise<Boolean> {
+        try {
+            await axiosInstance.post('/api/creatives/', data);
+            return true
+        } catch (error: any) {
+            throw new Error(utils.handleErrorMessage(error));
+        }
     }
 }
 

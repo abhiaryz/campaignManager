@@ -1,0 +1,222 @@
+"use client"
+import { creativeClient } from '@/lib/creative.client';
+import { paths } from '@/paths';
+import { CreativeFormData } from '@/types/creative';
+import { CreativeFormSchema } from '@/types/schema';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Alert, Box, Button, CircularProgress, Grid, Typography } from '@mui/material';
+import { useRouter } from 'next/navigation';
+import * as React from 'react';
+import { FieldError, useForm } from 'react-hook-form';
+import FormField from '../layout/form-field';
+import { DetailGrid, SectionContainer } from '../layout/section-container';
+import { TypeSelector } from '../layout/type-selector';
+import { Image, Tag, Video, FileDoc } from '@phosphor-icons/react';
+import { useCreativeFormSections } from '@/hooks/useCreativeFormSections';
+const campaignTypes = [
+  { id: 'Banner', label: 'Banner', icon: Image },
+  { id: 'Video', label: 'Video', icon: Video },
+  { id: 'Tag&Tracker', label: 'Tag&Tracker', icon: Tag },
+  { id: 'Keyword', label: 'Keyword', icon: FileDoc },
+];
+
+export default function CreateCreative(): React.JSX.Element {
+    const router = useRouter();
+    const [isPending, setIsPending] = React.useState(false);
+    const [isCreativeCreated, setIsCreativeCreated] = React.useState(false);
+		const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
+		const [fileError, setFileError] = React.useState<string | null>(null);
+		const creativeFile = React.useRef<File | null>(null)
+	  const [creativeType, setCreativeType] = React.useState<string>('');
+		const { activeSection, nextSection, prevSection } = useCreativeFormSections();
+		const mandatoryFieldsBySection: Record<number, string[]> = {
+      0: ["creative_type"], 
+      1: ["name","description","creative_file"], 
+    };
+
+    const {
+      register,
+      setValue,
+      setError,
+      clearErrors,
+      handleSubmit,
+      getValues,
+      formState: { errors },
+    } = useForm<CreativeFormData>({ resolver: zodResolver(CreativeFormSchema) });
+  
+		const handleNextSection = () => {
+      const mandatoryFields = mandatoryFieldsBySection[activeSection];
+      nextSection(getValues, setError, clearErrors, mandatoryFields);
+    };
+
+		const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+			const file = e.target.files?.[0];
+			if (file) {
+				setSelectedFile(file);
+				creativeFile.current = file	
+				setFileError(null);
+			}
+			e.target.value = '';
+		};
+
+    const onSubmit = async (data: CreativeFormData) => {
+      clearErrors();
+      if(!data) 
+        return;
+      setIsPending(true);
+      try {
+        const result = await creativeClient.createCreative(data);
+        if (result) {
+					setIsCreativeCreated(true);
+					router.push(paths.dashboard.creative);
+        }
+      } catch (error:any) {
+        setError('root', { type: 'server', message: error.message});
+      } finally {
+        setIsPending(false);
+      }
+    };
+  
+    return (
+      <Box
+        sx={{
+          margin: "0 auto",
+          maxWidth: "md",
+          p: { xs: 1, sm: 2, md: 3 },
+        }}
+      >
+				<form onSubmit={handleSubmit(onSubmit)}>
+					<Box sx={{ display: "flex", 
+							flexDirection: "column",
+							gap: 3 ,
+							border: 1,
+							padding:2 ,
+							borderColor: "grey.300",
+					}}>
+
+						{activeSection === 0 && (
+							<SectionContainer title="Creative Type">
+								<DetailGrid>
+									<Grid item xs={12}>
+										<TypeSelector
+											name="creative_type"
+											selectedType={creativeType}
+											setSelectedType={setCreativeType}
+											setValue={setValue}
+											options={campaignTypes}
+										/>
+									</Grid>
+								</DetailGrid>
+							</SectionContainer>
+						)}
+
+						{activeSection === 1 && (
+							<SectionContainer title="Creative Details">
+								<DetailGrid>
+									{/* Name Field - Full Width */}
+									<Grid item xs={12}>
+											<FormField
+											type="text"
+											placeholder="Name"
+											name="name"
+											getValues={getValues}
+											setValue={setValue}
+											register={register}
+											error={errors.name as FieldError}
+											/>
+									</Grid>
+
+									{/* Description Field - Full Width */}
+									<Grid item xs={12}>
+											<FormField
+												type="textarea"
+												placeholder="Description"
+												name="description"
+												getValues={getValues}
+												setValue={setValue}
+												register={register}
+												error={errors.description as FieldError}
+											/>
+									</Grid>
+
+									{/* Creative Type Field - Full Width */}
+									<Grid item xs={12}>
+										<Box
+											sx={{
+												display: "flex",
+												alignItems: "center",
+												border: "2px dashed",
+												borderColor: "primary.main",
+												borderRadius: "8px",
+												cursor: "pointer",
+												transition: "border-color 0.3s ease",
+												"&:hover": {
+													borderColor: "primary.dark",
+												},
+											}}
+										>
+											<input
+												className='logo'
+												accept="image/*"
+												style={{ display: 'none' }}
+												id="creative-file-upload"
+												type="file"
+												onChange={handleFileChange}
+											/>
+											<Button
+												component="span"
+												fullWidth
+												sx={{
+												textAlign: 'center',
+												justifyContent: 'center',
+												color: fileError ? 'error.main' : 'primary.main'
+												}}
+												onClick={() => (document.querySelector(`input[type="file"].${"logo"}`) as HTMLInputElement).click()}
+											>
+												{selectedFile?.name || 'Select Creative File'}
+											</Button>
+										</Box>
+										{fileError && (
+											<Typography variant="caption" color="error.main">
+												{fileError}
+											</Typography>
+										)}
+									</Grid>
+								</DetailGrid>
+							</SectionContainer>
+						)}
+						
+						<Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
+                <Button variant="outlined" onClick={prevSection} disabled={activeSection === 0}>
+                  Previous
+                </Button>
+                {activeSection < 1 && (
+                  <Button variant="contained" color="primary" onClick={handleNextSection}>
+                    Next
+                  </Button>
+                )}
+              </Box>
+              {activeSection === 1 && (
+                <Box sx={{ textAlign: "center", mt: 3 }}>
+                  {!isPending ? (
+                    <Button sx={{borderRadius:0.75}} variant="contained" color="primary" type="submit">
+											Create Creative
+										</Button>
+                  ) : (
+                    <Box sx={{ marginLeft: 2 }}>
+                      <CircularProgress />
+                    </Box>
+                  )}
+                </Box>
+              )}
+              <Box sx={{ mt: 2 }}>
+                {errors.root ? <Alert color="error">{errors.root.message}</Alert> : null}
+                {isCreativeCreated ? <Alert sx={{margin:2}} color="success">Creative created successfully!</Alert> : null}
+              </Box>
+					</Box>
+				</form>
+      </Box>
+    );
+  }
+
+  

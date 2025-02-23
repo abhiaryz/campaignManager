@@ -19,6 +19,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { Eye as EyeIcon } from '@phosphor-icons/react/dist/ssr/Eye';
 import { EyeSlash as EyeSlashIcon } from '@phosphor-icons/react/dist/ssr/EyeSlash';
 import dayjs from 'dayjs';
+import { truncate } from 'fs/promises';
 import Link from 'next/link';
 import React from 'react';
 import { FieldError, UseFormGetValues, UseFormRegister, UseFormSetValue } from "react-hook-form";
@@ -85,8 +86,6 @@ const FormField: React.FC<FormFieldProps<any>> = ({
     <TextField
       type={type === 'password' && showPassword ? 'text' : type}
       fullWidth
-      multiline = {type === 'textarea' ? true : false}
-      maxRows={4}
       disabled={disabled}
       {...register(name, { valueAsNumber })}
       label={placeholder}
@@ -105,6 +104,20 @@ const FormField: React.FC<FormFieldProps<any>> = ({
       }
     />
   );
+
+  const renderMultipleLineTextField = () => (
+    <TextField
+      type={type}
+      fullWidth
+      multiline
+      rows={8}
+      maxRows={10}
+      disabled={disabled}
+      {...register(name, { valueAsNumber })}
+      label={placeholder}
+    />
+  );
+
 
   // Handle Select Types
   const renderSelect = () => {
@@ -188,8 +201,9 @@ const FormField: React.FC<FormFieldProps<any>> = ({
       case 'password':
       case 'number':
       case 'email':
-      case 'textarea':
         return renderTextField();
+      case 'textarea':
+        return renderMultipleLineTextField();
       case 'select':
         return renderSelect();
       case 'datepicker':

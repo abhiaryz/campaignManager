@@ -1,7 +1,7 @@
 "use client"
 import { useAuth } from '@/hooks/use-auth';
 import { useDataSources } from '@/hooks/useDataSources';
-import { useFormSections } from '@/hooks/useFormSections';
+import { useCampaignFormSections } from '@/hooks/useCampaignFormSections';
 import { campaignClient } from '@/lib/campaign-client';
 import { utils } from '@/lib/common-utils';
 import { paths } from '@/paths';
@@ -28,7 +28,7 @@ export default function CreateCampaign(): React.JSX.Element {
     const router = useRouter();
     const {auth} = useAuth();
     const { dataSources, impressionData, totalPopulation, fetchData } = useDataSources(auth);
-    const { activeSection, nextSection, prevSection } = useFormSections();
+    const { activeSection, nextSection, prevSection } = useCampaignFormSections();
     const [isCampaignCreated,setIsCampaignCreated] = React.useState<boolean>(false);
     const [targetPopulation, setTargetPopulation] = React.useState<number>(0);
     const [campaignType, setCampaignType] = React.useState<'Banner' | 'Video'>('Banner');

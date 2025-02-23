@@ -1,5 +1,6 @@
 'use client';
 
+import { utils } from '@/lib/common-utils';
 import { Creative } from '@/types/creative';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
@@ -38,7 +39,7 @@ export function CreativeTable({
 
   const handleDownloadClick =(id:number)=>{
     const selectedCreative = rows.find((creative) => creative.id === id);
-    if(selectedCreative){
+    if(selectedCreative && selectedCreative.file){
       const fileUrl = selectedCreative.file;
       const link = document.createElement('a');
       link.href = fileUrl;
@@ -64,12 +65,14 @@ export function CreativeTable({
             {rows.map((row) => (
               <TableRow hover key={row.id}>
                 <TableCell sx={tableCellStyles}>{row.id}</TableCell>
-                <TableCell sx={tableCellStyles}>{row.name}</TableCell>
-                <TableCell sx={tableCellStyles}>{row.creative_type}</TableCell>
+                <TableCell sx={tableCellStyles}>{utils.formatProperCase(row.name)}</TableCell>
+                <TableCell sx={tableCellStyles}>{utils.formatProperCase(row.creative_type)}</TableCell>
                 <TableCell sx={tableCellStyles}>{row.description}</TableCell>
-                <TableCell sx={tableCellStyles}>
-                    <Download onClick={() => handleDownloadClick(row.id)} fontSize="var(--icon-fontSize-md)" />
-                </TableCell>
+                {row.file && 
+                  <TableCell sx={tableCellStyles}>
+                      <Download onClick={() => handleDownloadClick(row.id)} fontSize="var(--icon-fontSize-md)" />
+                  </TableCell>
+                }
               </TableRow>
             ))}
           </TableBody>
