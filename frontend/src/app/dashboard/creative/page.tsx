@@ -15,7 +15,7 @@ import { CircularProgress } from '@mui/material';
 import { useState } from 'react';
 
 export default function Page(): React.JSX.Element {
-  const searchPlaceholder = "Search by Creative Name"
+  const searchPlaceholder = "Search by Creative Name & Type"
   const [creatives, setCreatives] = React.useState<Creative[]>([]);
   const [count, setCount] = React.useState<number>();
   const [loading, setLoading] = useState<boolean>(false);

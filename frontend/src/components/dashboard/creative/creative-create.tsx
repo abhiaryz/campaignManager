@@ -18,7 +18,7 @@ import { useFormSections } from '@/hooks/useFormSections';
 const campaignTypes = [
   { id: 'banner', label: 'Banner', icon: Image },
   { id: 'video', label: 'Video', icon: Video },
-  { id: 'tagtracker', label: 'Tag&Tracker', icon: Tag },
+  { id: 'TagTracker', label: 'Tag&Tracker', icon: Tag },
   { id: 'keyword', label: 'Keyword', icon: FileDoc },
 ];
 
@@ -71,7 +71,7 @@ export default function CreateCreative(): React.JSX.Element {
       switch (type) {
         case 'banner':
             return 'image/*';
-        case 'vide':
+        case 'video':
             return 'video/*';
         case 'tagtracker':
         case 'keyword':
