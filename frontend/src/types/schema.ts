@@ -1,5 +1,5 @@
 import { z, ZodType } from "zod";
-import { ProfileFormData, SignInParams, SignUpFormData } from "./auth";
+import { ProfileFormData, SignInFormData, SignUpFormData } from "./auth";
 import { CampaignFormData } from "./campaign";
 import { CreativeFormData } from "./creative";
 
@@ -34,10 +34,10 @@ export const CampaignFormSchema: ZodType<CampaignFormData> = z.object({
     phone_no: z.string().regex(/^\d{10}$/, { message: 'Phone number must be exactly 10 digits' }),
     email: z.string().email({ message: 'Email is required' }),
     company_name: z.string().min(1, { message: 'Company Name is required' }),
-    gst: z.string().min(1, { message: 'GST is required' }),
+    gst: z.string().regex(/^\d{15}$/, { message: 'GST number must be exactly 15 digits' }),
   });
 
-  export const signInSchema: ZodType<SignInParams> = z.object({
+  export const signInSchema: ZodType<SignInFormData> = z.object({
     username: z.string().min(1, { message: 'Email is required' }).email(),
     password: z.string().min(1, { message: 'Password is required' }),
   });
@@ -96,7 +96,7 @@ export const CampaignFormSchema: ZodType<CampaignFormData> = z.object({
   export const CreativeFormSchema: ZodType<CreativeFormData> = z.object({
     name: z.string({ message: "Name is required" }),
     creative_type: z.string({ message: "Creative Type is required" }),
-    file: z.any(),
+    file: z.instanceof(File, { message: "File is required" }),
     description: z.any(),
   });
 

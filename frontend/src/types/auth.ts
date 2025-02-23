@@ -3,7 +3,7 @@ export interface Auth {
     usertype: string;
 }
 
-export interface SignInParams {
+export interface SignInFormData {
     username: string;
     password: string;
 }

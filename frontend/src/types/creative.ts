@@ -9,7 +9,7 @@ export interface Creative {
 export interface CreativeFormData {
     name: string;
     creative_type: string;
-    file?: File;
+    file: File;
     description?: string;
 }
 

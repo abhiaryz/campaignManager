@@ -1,6 +1,6 @@
 'use client';
 
-import { Auth, Customer, ResetPasswordParams, SignInParams, SignUpFormData } from '@/types/auth';
+import { Auth, Customer, ResetPasswordParams, SignInFormData, SignUpFormData } from '@/types/auth';
 import { accountClient } from './account-client';
 import axiosInstance from './axios-instance';
 import { utils } from './common-utils';
@@ -21,7 +21,7 @@ class AuthClient {
     }
   }
 
-  async signIn(params: SignInParams): Promise<boolean> {
+  async signIn(params: SignInFormData): Promise<boolean> {
     try {
 
       const response = await axiosInstance.post('/api/token/', params, {

@@ -1,5 +1,4 @@
 import { User } from "./auth";
-import { UseFormRegister, UseFormSetValue, UseFormGetValues, FieldErrors } from "react-hook-form";
 import { Creative } from "./creative";
 
 export interface Location {
