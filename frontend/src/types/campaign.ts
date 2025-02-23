@@ -1,4 +1,5 @@
 import { User } from "./auth";
+import { UseFormRegister, UseFormSetValue, UseFormGetValues, FieldErrors } from "react-hook-form";
 
 export interface Location {
     id:number
@@ -117,5 +118,31 @@ export interface ImpressionData{
     device?: CommonImpressionDetails[],
     environment?: CommonImpressionDetails[],
     carrier?:CommonImpressionDetails[],
+}
+
+export interface DataSources {
+  ages: CommonSelectResponse[];
+  devices: CommonSelectResponse[];
+  environment: CommonSelectResponse[];
+  location: Location[];
+  exchange: CommonSelectResponse[];
+  language: CommonSelectResponse[];
+  carrier: CommonSelectResponse[];
+  device_price: CommonSelectResponse[];
+  interest_category: CommonSelectResponse[];
+  interest: Interest[];
+  selectedInterest: Interest[];
+  buy_type: CommonSelectResponse[];
+  brand_safety: CommonSelectResponse[];
+  viewability: CommonSelectResponse[];
+  users: User[];
+}
+
+export interface SectionProps {
+  register: UseFormRegister<CampaignFormData>;
+  setValue: UseFormSetValue<CampaignFormData>;
+  getValues: UseFormGetValues<CampaignFormData>;
+  errors: FieldErrors<CampaignFormData>;
+  dataSources: DataSources;
 }
   

@@ -26,11 +26,8 @@ export interface MobileNavProps {
   items?: NavItemConfig[];
 }
 
-// Add type safety for pathname
 export function MobileNav({ open, onClose }: MobileNavProps): React.JSX.Element {
-  const pathFromRouter = usePathname();
-  
-  const pathname = typeof pathFromRouter === 'string' ? pathFromRouter : '/';
+  const pathname = usePathname();
 
   return (
     <Drawer
@@ -108,13 +105,7 @@ export function MobileNav({ open, onClose }: MobileNavProps): React.JSX.Element 
   );
 }
 
-// Update the renderNavItems interface
-interface RenderNavItemsProps {
-  items?: NavItemConfig[];
-  pathname: string;  // Now we know pathname will always be a string
-}
-
-function renderNavItems({ items = [], pathname }: RenderNavItemsProps): React.JSX.Element {
+function renderNavItems({ items = [], pathname }: { items?: NavItemConfig[]; pathname: string }): React.JSX.Element {
   const children = items.reduce((acc: React.ReactNode[], curr: NavItemConfig): React.ReactNode[] => {
     const { key, ...item } = curr;
 

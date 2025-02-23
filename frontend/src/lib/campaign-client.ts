@@ -271,7 +271,6 @@ class CampaignClient {
           const response = await axiosInstance.get('/api/users', {
             headers: { 'Content-Type': 'application/json' },
           });
-          console.log(response)
           return response.data.results;
         } catch (error: any) {
           throw new Error(utils.handleErrorMessage(error));
