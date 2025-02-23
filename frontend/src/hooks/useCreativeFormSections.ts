@@ -20,7 +20,7 @@ const validationRules: Record<string, ValidationRule> = {
   },
   file: {
     validate: (value) => (value as FileList)?.length > 0,
-    message: "File is required"
+    message: "is required"
   },
 };
 
@@ -33,7 +33,7 @@ export const useCreativeFormSections = () => {
     getValues: UseFormGetValues<CreativeFormData>
   ): { isValid: boolean; message?: string } => {
     let rule = validationRules.default;
-    if (["images", "video", "tag_tracker"].includes(field as string)) {
+    if (["file"].includes(field as string)) {
       rule = validationRules.file;
     }
     const isValid = rule.validate(value, getValues);

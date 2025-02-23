@@ -9,10 +9,11 @@ import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import { FieldError, useForm } from 'react-hook-form';
 import FormField from '../layout/form-field';
-import { DetailGrid, SectionContainer } from '../layout/section-container';
+import { DetailGrid, DetailRow, SectionContainer } from '../layout/section-container';
 import { TypeSelector } from '../layout/type-selector';
 import { Image, Tag, Video, FileDoc } from '@phosphor-icons/react';
 import { useCreativeFormSections } from '@/hooks/useCreativeFormSections';
+import { utils } from '@/lib/common-utils';
 const campaignTypes = [
   { id: 'Banner', label: 'Banner', icon: Image },
   { id: 'Video', label: 'Video', icon: Video },
@@ -22,18 +23,23 @@ const campaignTypes = [
 
 export default function CreateCreative(): React.JSX.Element {
     const router = useRouter();
+    const fields = [
+      { label: 'Creative Type', name: 'creative_type' },
+      { label: 'Name', name: 'name' },
+      { label: 'Description', name: 'description' },
+      { label: 'File', name: 'file' }
+    ];
     const [isPending, setIsPending] = React.useState(false);
     const [isCreativeCreated, setIsCreativeCreated] = React.useState(false);
-		const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
-		const [fileError, setFileError] = React.useState<string | null>(null);
-		const creativeFile = React.useRef<File | null>(null)
-	  const [creativeType, setCreativeType] = React.useState<string>('');
-		const { activeSection, nextSection, prevSection } = useCreativeFormSections();
-		const mandatoryFieldsBySection: Record<number, string[]> = {
-      0: ["creative_type"], 
-      1: ["name","description","creative_file"], 
+    const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
+    const [creativeType, setCreativeType] = React.useState<string>('');
+    const { activeSection, nextSection, prevSection } = useCreativeFormSections();
+    const mandatoryFieldsBySection: Record<number, string[]> = {
+        0: ["creative_type"], 
+        1: ["name","file"],
+        2: [],
     };
-
+    
     const {
       register,
       setValue,
@@ -43,26 +49,37 @@ export default function CreateCreative(): React.JSX.Element {
       getValues,
       formState: { errors },
     } = useForm<CreativeFormData>({ resolver: zodResolver(CreativeFormSchema) });
-  
-		const handleNextSection = () => {
-      const mandatoryFields = mandatoryFieldsBySection[activeSection];
-      nextSection(getValues, setError, clearErrors, mandatoryFields);
+    
+    const handleNextSection = () => {
+        const mandatoryFields = mandatoryFieldsBySection[activeSection];
+        nextSection(getValues, setError, clearErrors, mandatoryFields);
     };
 
-		const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-			const file = e.target.files?.[0];
-			if (file) {
-				setSelectedFile(file);
-				creativeFile.current = file	
-				setFileError(null);
-			}
-			e.target.value = '';
-		};
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        setSelectedFile(file);
+        setValue('file',file);
+      }
+      e.target.value = '';
+    };
+
+    const getAcceptTypes = (type: string): string => {
+      switch (type) {
+        case 'Banner':
+            return 'image/*';
+        case 'Video':
+            return 'video/*';
+        case 'Tag&Tracker':
+        case 'Keyword':
+            return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+        default:
+            return '';
+      }
+    };
 
     const onSubmit = async (data: CreativeFormData) => {
       clearErrors();
-      if(!data) 
-        return;
       setIsPending(true);
       try {
         const result = await creativeClient.createCreative(data);
@@ -105,6 +122,9 @@ export default function CreateCreative(): React.JSX.Element {
 											setValue={setValue}
 											options={campaignTypes}
 										/>
+                    <Typography variant="caption" color="error.main">
+                      {errors.creative_type?.message}
+                    </Typography>
 									</Grid>
 								</DetailGrid>
 							</SectionContainer>
@@ -157,7 +177,7 @@ export default function CreateCreative(): React.JSX.Element {
 										>
 											<input
 												className='logo'
-												accept="image/*"
+												accept={getAcceptTypes(creativeType)}
 												style={{ display: 'none' }}
 												id="creative-file-upload"
 												type="file"
@@ -169,50 +189,64 @@ export default function CreateCreative(): React.JSX.Element {
 												sx={{
 												textAlign: 'center',
 												justifyContent: 'center',
-												color: fileError ? 'error.main' : 'primary.main'
+												color: errors.file ? 'error.main' : 'primary.main'
 												}}
 												onClick={() => (document.querySelector(`input[type="file"].${"logo"}`) as HTMLInputElement).click()}
 											>
-												{selectedFile?.name || 'Select Creative File'}
+												{selectedFile?.name || `Select ${creativeType} File`}
 											</Button>
 										</Box>
-										{fileError && (
+										{errors.file && (
 											<Typography variant="caption" color="error.main">
-												{fileError}
+												{errors.file?.message}
 											</Typography>
 										)}
 									</Grid>
 								</DetailGrid>
 							</SectionContainer>
 						)}
-						
+
+						{activeSection === 2 && (
+							 <SectionContainer title="Review">
+                <DetailGrid>
+                  {fields.map((field) => (
+                    <DetailRow   
+                          key={field.label}
+                          label={field.label}
+                          value={utils.formatAndGetReviewCreativeData(field.name,getValues)}
+                      />
+                  ))}
+                </DetailGrid>
+             </SectionContainer>
+						)}
+
 						<Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
-                <Button variant="outlined" onClick={prevSection} disabled={activeSection === 0}>
-                  Previous
-                </Button>
-                {activeSection < 1 && (
-                  <Button variant="contained" color="primary" onClick={handleNextSection}>
-                    Next
-                  </Button>
-                )}
-              </Box>
-              {activeSection === 1 && (
-                <Box sx={{ textAlign: "center", mt: 3 }}>
-                  {!isPending ? (
-                    <Button sx={{borderRadius:0.75}} variant="contained" color="primary" type="submit">
-											Create Creative
-										</Button>
-                  ) : (
-                    <Box sx={{ marginLeft: 2 }}>
-                      <CircularProgress />
-                    </Box>
-                  )}
-                </Box>
-              )}
-              <Box sx={{ mt: 2 }}>
-                {errors.root ? <Alert color="error">{errors.root.message}</Alert> : null}
-                {isCreativeCreated ? <Alert sx={{margin:2}} color="success">Creative created successfully!</Alert> : null}
-              </Box>
+							<Button variant="outlined" onClick={prevSection} disabled={activeSection === 0}>
+								Previous
+							</Button>
+							{activeSection < 2 && (
+								<Button variant="contained" color="primary" onClick={handleNextSection}>
+									Next
+								</Button>
+							)}
+						</Box>
+						{activeSection === 2 && (
+							<Box sx={{ textAlign: "center", mt: 3 }}>
+								{!isPending ? (
+									<Button sx={{borderRadius:0.75}} variant="contained" color="primary" type="submit">
+										Create Creative
+									</Button>
+								) : (
+									<Box sx={{ marginLeft: 2 }}>
+										<CircularProgress />
+									</Box>
+								)}
+							</Box>
+						)}
+						<Box sx={{ mt: 2 }}>
+							{errors.root ? <Alert color="error">{errors.root.message}</Alert> : null}
+							{isCreativeCreated ? <Alert sx={{margin:2}} color="success">Creative created successfully!</Alert> : null}
+						</Box>
 					</Box>
 				</form>
       </Box>

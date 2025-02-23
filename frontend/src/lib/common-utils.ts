@@ -1,4 +1,5 @@
 import { Campaign, CampaignFormData, ImpressionData, Interest, Location } from "@/types/campaign";
+import { CreativeFormData } from "@/types/creative";
 import { SelectChangeEvent } from "@mui/material";
 import { AxiosError } from "axios";
 import dayjs from "dayjs";
@@ -143,6 +144,17 @@ class Utils {
                 default:
                     return value as string;
             }
+        }
+        return "Not provided";
+    };
+
+    formatAndGetReviewCreativeData = (name: string,getValues:UseFormGetValues<CreativeFormData>): string => {
+        const value = getValues(name as keyof CreativeFormData);
+        if (value) {
+            if(name==="file"){
+                return (value as unknown as FileList).length !== 0 ? "File selected" : "Not Provided";
+            }
+            return value as string;
         }
         return "Not provided";
     };

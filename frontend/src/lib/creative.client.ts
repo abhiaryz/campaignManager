@@ -20,13 +20,19 @@ class CreativeClient {
       }
     }
 
-    async createCreative(data: CreativeFormData): Promise<Boolean> {
-        try {
-            await axiosInstance.post('/api/creatives/', data);
-            return true
-        } catch (error: any) {
-            throw new Error(utils.handleErrorMessage(error));
-        }
+    async createCreative(data: CreativeFormData): Promise<boolean> {
+      try {
+        const formData = new FormData();
+        Object.entries(data).forEach(([key, value]) => {
+          formData.append(key, value);
+        });        
+        await axiosInstance.post(`/api/creatives/`, formData,{
+          headers: { 'Content-Type': 'multipart/form-data;' },
+        });
+        return true
+      } catch (error: any) {
+          throw new Error(utils.handleErrorMessage(error));
+      }
     }
 }
 
