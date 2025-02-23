@@ -19,7 +19,28 @@ export interface ResetPasswordParams {
 }
 
 export interface User {
-    id?:number;
+    id:number;
+    email: string;
+    first_name: string;
+    last_name: string;
+    phone_no?: string;
+    password?:string;
+    user_type?: boolean
+    company_name:string;
+    gst?:string
+    logo?:string
+}
+
+export interface ProfileFormData {
+    email: string;
+    first_name: string;
+    last_name: string;
+    phone_no: string;
+    company_name:string;
+    gst:string
+}
+
+export interface SignUpFormData {
     email: string;
     first_name: string;
     last_name: string;
@@ -29,7 +50,7 @@ export interface User {
     user_type?: boolean
     company_name:string;
     gst?:string
-    logo?:string
+    logo:File
 }
   
 

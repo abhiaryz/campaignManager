@@ -14,7 +14,7 @@ import Grid from '@mui/material/Grid';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import FormField from '../layout/form-field';
-import { User } from '@/types/auth';
+import { ProfileFormData, User } from '@/types/auth';
 import { Stack } from '@mui/system';
 
 export function AccountDetailsForm(): React.JSX.Element {
@@ -30,7 +30,7 @@ export function AccountDetailsForm(): React.JSX.Element {
     register,
     reset,
     formState: { errors },
-  } = useForm<User>({resolver: zodResolver(profileSchema)});
+  } = useForm<ProfileFormData>({resolver: zodResolver(profileSchema)});
 
   async function fetchUser() {
     setIsLoading(true);
@@ -46,7 +46,7 @@ export function AccountDetailsForm(): React.JSX.Element {
   }  
   
   const onSubmit = React.useCallback(
-    async (updateUser: User): Promise<void> => {
+    async (updateUser: ProfileFormData): Promise<void> => {
       setIsPending(true);
       try {
         await accountClient.updateUser(updateUser);

@@ -23,18 +23,6 @@ export interface Interest{
     category: string
 }
 
-export interface Images {
-    id: number;
-    image: string;
-    created_at: string;
-}
-
-export interface Video {
-    id: number;
-    video: string;
-    created_at: string;
-}
-
 export interface FileUpload{
     id: number;
     file: string;
@@ -82,21 +70,17 @@ export interface CampaignFormData  {
     device: string[];
     environment: string[];
     location: number[];
-    images?: number[];
-    keywords?: number[];
     target_type: number[];
     exchange: string[];
     language: string[];
     carrier: string[];
     device_price: string[];
     landing_page?: string;
-    tag_tracker?: number[];
     total_budget: number;
     buy_type: string;
     unit_rate: number;  
     viewability: number;
     brand_safety: number;
-    video?:number[];
     start_time?: string;
     end_time?: string;
     user?:string
@@ -133,12 +117,3 @@ export interface DataSources {
   users: User[];
   creatives: Creative[];
 }
-
-export interface SectionProps {
-  register: UseFormRegister<CampaignFormData>;
-  setValue: UseFormSetValue<CampaignFormData>;
-  getValues: UseFormGetValues<CampaignFormData>;
-  errors: FieldErrors<CampaignFormData>;
-  dataSources: DataSources;
-}
-  

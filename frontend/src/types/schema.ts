@@ -1,5 +1,5 @@
 import { z, ZodType } from "zod";
-import { SignInParams, User } from "./auth";
+import { ProfileFormData, SignInParams, SignUpFormData } from "./auth";
 import { CampaignFormData } from "./campaign";
 import { CreativeFormData } from "./creative";
 
@@ -28,13 +28,13 @@ export const CampaignFormSchema: ZodType<CampaignFormData> = z.object({
   });
 
 
-  export const profileSchema: ZodType<User> = z.object({
+  export const profileSchema: ZodType<ProfileFormData> = z.object({
     first_name: z.string().min(5, { message: 'First name  is required & must be at least 5 characters long' }),
     last_name: z.string().min(5, { message: 'Last name  is required & must be at least 5 characters long' }),
     phone_no: z.string().regex(/^\d{10}$/, { message: 'Phone number must be exactly 10 digits' }),
     email: z.string().email({ message: 'Email is required' }),
     company_name: z.string().min(1, { message: 'Company Name is required' }),
-    gst: z.any()
+    gst: z.string().min(1, { message: 'GST is required' }),
   });
 
   export const signInSchema: ZodType<SignInParams> = z.object({
@@ -43,7 +43,7 @@ export const CampaignFormSchema: ZodType<CampaignFormData> = z.object({
   });
   
 
-  export const signUpSchema: ZodType<User> = z.object({
+  export const signUpSchema: ZodType<SignUpFormData> = z.object({
     first_name: z.string().min(5, { message: 'First name must be at least 5 characters long' }),
     last_name: z.string().min(5, { message: 'Last name must be at least 5 characters long' }),
     email: z.string().min(1, { message: 'Email is required' }).email(),
@@ -56,7 +56,13 @@ export const CampaignFormSchema: ZodType<CampaignFormData> = z.object({
       ),
     terms: z.boolean().refine((value) => value, 'You must accept the terms and conditions'),
     company_name: z.string().min(1, { message: 'Company Name is required' }),
-    gst: z.any()
+    gst: z.any(),
+    logo: z.instanceof(File, { message: "File is required" })
+      .refine((file) => file.size <= 5000000, { message: "File size must be less than 5MB" })
+      .refine(
+        (file) => ['image/jpeg', 'image/png'].includes(file.type),
+        { message: "File must be an image (JPEG, PNG)" }
+      ),
   });
 
 
