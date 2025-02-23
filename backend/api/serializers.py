@@ -192,6 +192,11 @@ class tag_trackerSerializer(serializers.ModelSerializer):
         super().__init__(*args, **kwargs)
         self.fields["file"].required = True
 
+class CreativeSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Creative
+        fields = ['id', 'name', 'creative_type', 'file', 'description']
 
 class CampaignSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
@@ -204,19 +209,16 @@ class CampaignSerializer(serializers.ModelSerializer):
     target_type = target_typeSerializer(many=True, read_only=True)
     video = CampaignVideoSerializer(many=True, read_only=True)
     tag_tracker = tag_trackerSerializer(many=True, read_only=True)
-
+    creative = CreativeSerializer(many=True, read_only=True)
     campaign_files = CampaignFileSerializer(many=True, read_only=True)
+    
     class Meta:
         model = Campaign
         fields = "__all__"
 
 
 
-class CreativeSerializer(serializers.ModelSerializer):
-    
-    class Meta:
-        model = Creative
-        fields = ['id', 'name', 'creative_type', 'file', 'description']
+
         
 
 class CampaignCreateUpdateSerializer(serializers.ModelSerializer):

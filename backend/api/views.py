@@ -609,6 +609,7 @@ class CreativeViewSet(viewsets.ModelViewSet):
             data = {
                 'name': request.data.get('name', ''),
                 'creative_type': request.data.get('creative_type', 'image'),
+                'description': request.data.get('description', 'description'),
                 'file': request.FILES.get('file'),
             }
 
