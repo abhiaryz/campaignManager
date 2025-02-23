@@ -6,63 +6,25 @@ import Typography from '@mui/material/Typography';
 
 import * as React from 'react';
 
-import { CampaignDetailsPopOver } from '@/components/dashboard/campaign/campaign-details';
-import { CampaignTable } from '@/components/dashboard/campaign/campaign-table';
+import { CreativeTable } from '@/components/dashboard/creative/creative-table';
 import RedirectBtn from '@/components/dashboard/layout/redirect-btn';
 import { Search } from '@/components/dashboard/layout/search';
-import { usePopover } from '@/hooks/use-popover';
-import { campaignClient } from '@/lib/campaign-client';
-import { Campaign } from '@/types/campaign';
+import { creativeClient } from '@/lib/creative.client';
+import { Creative } from '@/types/creative';
 import { CircularProgress } from '@mui/material';
 import { useState } from 'react';
-import { useAuth } from '@/hooks/use-auth';
-
-
 
 export default function Page(): React.JSX.Element {
-  const {auth} = useAuth();
-  const searchPlaceholder = auth?.usertype === "admin" ?
-    "Search by Campaign Name & Advertiser Name & Status" :
-    "Search by Campaign Name & Status"
-  const [campaigns, setCampaigns] = React.useState<Campaign[]>([]);
-  const [campaign, setCampaign] = React.useState<Campaign>();
+  const searchPlaceholder = "Search by Creative Name"
+  const [creatives, setCreatives] = React.useState<Creative[]>([]);
   const [count, setCount] = React.useState<number>();
   const [loading, setLoading] = useState<boolean>(false);
   const [page, setPage] = React.useState(1);
-  const campaignPopOver = usePopover<HTMLDivElement>();
   const [searchQuery,setSearchQuery] = React.useState<string>("")
 
-  const handleViewCampaign = (id: number) => {
-    const selectedCampaign = campaigns.find((campaign) => campaign.id === id);
-      if (selectedCampaign) {
-      setCampaign(selectedCampaign);
-      campaignPopOver.handleOpen();
-    }
-  };
-  
-  const handleUpdateStatus = async(campaignId:number,status:string) =>{
-    try {
-      const result = await campaignClient.patchCampaign("status",status,campaignId);
-      if (result) {
-        fetchCampaigns(1,searchQuery);
-      }
-    } catch (error:any) {
-      throw new Error(error);
-    }
-  }
-
-  const handleUploadReport = async(selectedFile: File, campaignId: number) =>{
-    try {
-      await campaignClient.uploadFile(selectedFile, "report-upload", campaignId);
-      setTimeout(() => {fetchCampaigns(1,searchQuery)}, 5000);
-    } catch (error:any) {
-      throw new Error(error);
-    }
-  }
-  
   const handlPageChange = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     setPage(newPage+1)
-    fetchCampaigns(newPage+1,searchQuery);
+    fetchCreatives(newPage+1,searchQuery);
   };
 
   const onSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,19 +32,19 @@ export default function Page(): React.JSX.Element {
   };
 
 
-  async function fetchCampaigns(pageNo:number,query:string) {
+  async function fetchCreatives(pageNo:number,query:string) {
     setLoading(true)
     try {
-      const {count,data} = await campaignClient.getCampaigns(pageNo,query);
+      const {count,data} = await creativeClient.getCreatives(pageNo,query);
       setCount(count);
       if (Array.isArray(data)) {
-        setCampaigns(data);
+        setCreatives(data);
       } else {
-        setCampaigns([]);
+        setCreatives([]);
       }
     } catch (error) {
-      console.error('Error fetching campaigns:', error);
-      setCampaigns([]);
+      console.error('Error fetching creatives:', error);
+      setCreatives([]);
     } finally {
       setLoading(false);
     }
@@ -91,11 +53,11 @@ export default function Page(): React.JSX.Element {
   React.useEffect(() => {
     if(searchQuery!==""){
       const getData = setTimeout(() => {
-        fetchCampaigns(1,searchQuery);
+        fetchCreatives(1,searchQuery);
       },2000);
       return () => clearTimeout(getData)
     }
-    fetchCampaigns(1,searchQuery);
+    fetchCreatives(1,searchQuery);
   }, [searchQuery]);
 
 
@@ -120,17 +82,13 @@ export default function Page(): React.JSX.Element {
             <CircularProgress />
           </Box>
         :
-        <CampaignTable 
+        <CreativeTable 
           count={count} 
-          rows={campaigns} 
+          rows={creatives} 
           page={page} 
           handlePageChange={handlPageChange} 
-          handleViewCampaign={handleViewCampaign}
-          handleUpdateStatus = {handleUpdateStatus}
-          handleUploadReport ={handleUploadReport}
         />
         }
-        <CampaignDetailsPopOver onClose={campaignPopOver.handleClose} open={campaignPopOver.open}  data={campaign}/>
     </Stack>
   );
 }
