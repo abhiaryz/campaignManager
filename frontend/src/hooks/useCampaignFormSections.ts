@@ -44,8 +44,6 @@ export const useCampaignFormSections = () => {
     let rule = validationRules.default;
     if (field === "total_budget" || field === "unit_rate") {
       rule = validationRules.numeric;
-    } else if (["images", "video", "tag_tracker"].includes(field as string)) {
-      rule = validationRules.file;
     } else if (field === "end_time") {
       rule = validationRules.endDate;
     }

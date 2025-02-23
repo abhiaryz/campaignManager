@@ -6,18 +6,35 @@ import TargetType from '../../layout/target-type';
 
 interface ReviewSectionProps {
   title: string;
-  fields: Array<{
-    label: string;
-    name: string;
-  }>;
   targetType: string;
   dataSources: any;
   getValues: any;
 }
 
+const reviewFields = [
+  { label: "CampaignName", name: "name" },
+  { label: "CampaignType", name: "objective" },
+  { label: "Start Time", name: "start_time" },
+  { label: "End Time", name: "end_time" },
+  { label: "Locations", name: "location" },
+  { label: "AgeRange", name: "age" },
+  { label: "Exchange", name: "exchange" },
+  { label: "Language", name: "language" },
+  { label: "Viewability", name: "viewability" },
+  { label: "BrandSafety", name: "brand_safety" },
+  { label: "Devices", name: "device" },
+  { label: "Environments", name: "environment" },
+  { label: "Carrier", name: "carrier" },
+  { label: "DevicePrice", name: "device_price" },
+  { label: "TotalBudget", name: "total_budget" },
+  { label: "BuyType", name: "buy_type" },
+  { label: "UnitRate", name: "unit_rate" },
+  { label: "LandingPage", name: "landing_page" },
+  { label: "Creatives", name: "creative" },
+];
+
 export const CampaignReview = ({
   title,
-  fields,
   targetType,
   dataSources,
   getValues
@@ -26,11 +43,11 @@ export const CampaignReview = ({
     <>
     <SectionContainer title={title}>
       <DetailGrid>
-        {fields.map((field) => (
+        {reviewFields.map((field) => (
           <DetailRow
                 key={field.label}
                 label={field.label}
-                value={utils.formatAndGetReviewData(field.name, dataSources, getValues)}
+                value={utils.formatAndGetReviewCampaignData(field.name, dataSources, getValues)}
             />
         ))}
       </DetailGrid>

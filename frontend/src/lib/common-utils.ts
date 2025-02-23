@@ -1,5 +1,5 @@
 import { Campaign, CampaignFormData, ImpressionData, Interest, Location } from "@/types/campaign";
-import { CreativeFormData } from "@/types/creative";
+import { Creative, CreativeFormData } from "@/types/creative";
 import { SelectChangeEvent } from "@mui/material";
 import { AxiosError } from "axios";
 import dayjs from "dayjs";
@@ -8,31 +8,6 @@ import { string } from "zod";
 
 
 class Utils {
-    
-    reviewFields = [
-        { label: "CampaignName", name: "name" },
-        { label: "CampaignType", name: "objective" },
-        { label: "Start Time", name: "start_time" },
-        { label: "End Time", name: "end_time" },
-        { label: "Locations", name: "location" },
-        { label: "AgeRange", name: "age" },
-        { label: "Exchange", name: "exchange" },
-        { label: "Language", name: "language" },
-        { label: "Viewability", name: "viewability" },
-        { label: "BrandSafety", name: "brand_safety" },
-        { label: "Devices", name: "device" },
-        { label: "Environments", name: "environment" },
-        { label: "Carrier", name: "carrier" },
-        { label: "DevicePrice", name: "device_price" },
-        { label: "TotalBudget", name: "total_budget" },
-        { label: "BuyType", name: "buy_type" },
-        { label: "UnitRate", name: "unit_rate" },
-        { label: "LandingPage", name: "landing_page" },
-        { label: "Tag&Tracker", name: "tag_tracker" },
-        { label: "Image", name: "images" },
-        { label: "Video", name: "video" },
-        { label: "Keywords", name: "keywords" },
-    ];
 
     isErrorResponse(data: unknown): data is { message: Record<string, string[]> } {
         return (
@@ -108,6 +83,7 @@ class Utils {
         }
         return value.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase());
     }
+    
     formatTargetIdToSubCategory(values:number[],targetTypeList:Interest[]){
         return values.map((interest) => { 
                 const temp = targetTypeList.find((i) => i.id === interest);
@@ -122,14 +98,21 @@ class Utils {
         }).join(", ");
     }
 
-    formatAndGetReviewData = (name: string,dataSources:any,getValues:UseFormGetValues<CampaignFormData>): string => {
+    formatCreativeIdToName(values: number[], creatives: Creative[]): string {
+        return values.map((creativeId) => {
+            const creative = creatives.find((creative) => creative.id === creativeId);
+            return creative ? creative.name : "Unknown";
+        }).join(", ");
+    }
+
+    formatAndGetReviewCampaignData = (name: string,dataSources:any,getValues:UseFormGetValues<CampaignFormData>): string => {
         const value = getValues(name as keyof CampaignFormData);
         if (value) {
             switch (name) {
                 case "location":
-                    return utils.formatLocationIdToCity(value as number[], dataSources.location as Location[]);
+                    return utils.formatLocationIdToCity(value as number[], dataSources.location);
                 case "target_type":
-                    return utils.formatTargetIdToSubCategory(value as number[], dataSources.interest as Interest[]);
+                    return utils.formatTargetIdToSubCategory(value as number[], dataSources.interest);
                 case "start_time":
                 case "end_time":
                     return dayjs(value as number).format("YYYY-MM-DD");
@@ -141,6 +124,8 @@ class Utils {
                 case "total_budget":
                 case "unit_rate":
                     return `₹${value}`
+                case "creative":
+                    return utils.formatCreativeIdToName(value as number[], dataSources.creatives);
                 default:
                     return value as string;
             }

@@ -240,7 +240,6 @@ export default function CreateCampaign(): React.JSX.Element {
               {activeSection === 5 && (
                 <CampaignReview 
                   title="Campaign Review"
-                  fields={utils.reviewFields}
                   targetType={targetType}
                   dataSources={dataSources}
                   getValues={getValues}
