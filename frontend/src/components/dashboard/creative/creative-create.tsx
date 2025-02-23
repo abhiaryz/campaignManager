@@ -1,19 +1,19 @@
 "use client"
+import { utils } from '@/lib/common-utils';
 import { creativeClient } from '@/lib/creative.client';
 import { paths } from '@/paths';
 import { CreativeFormData } from '@/types/creative';
 import { CreativeFormSchema } from '@/types/schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Alert, Box, Button, CircularProgress, Grid, Typography } from '@mui/material';
+import { FileDoc, Image, Tag, Video } from '@phosphor-icons/react';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import { FieldError, useForm } from 'react-hook-form';
 import FormField from '../layout/form-field';
 import { DetailGrid, DetailRow, SectionContainer } from '../layout/section-container';
 import { TypeSelector } from '../layout/type-selector';
-import { Image, Tag, Video, FileDoc } from '@phosphor-icons/react';
-import { useCreativeFormSections } from '@/hooks/useCreativeFormSections';
-import { utils } from '@/lib/common-utils';
+import { useFormSections } from '@/hooks/useFormSections';
 
 const campaignTypes = [
   { id: 'banner', label: 'Banner', icon: Image },
@@ -35,8 +35,8 @@ export default function CreateCreative(): React.JSX.Element {
     const [isCreativeCreated, setIsCreativeCreated] = React.useState(false);
     const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
     const [creativeType, setCreativeType] = React.useState<string>('');
-    const { activeSection, nextSection, prevSection } = useCreativeFormSections();
-    const mandatoryFieldsBySection: Record<number, string[]> = {
+	const { activeSection, nextSection, prevSection } = useFormSections(2);
+	const mandatoryFieldsBySection: Record<number, string[]> = {
         0: ["creative_type"], 
         1: ["name","file"],
         2: [],
@@ -196,7 +196,7 @@ export default function CreateCreative(): React.JSX.Element {
 												}}
 												onClick={() => (document.querySelector(`input[type="file"].${"logo"}`) as HTMLInputElement).click()}
 											>
-												{selectedFile?.name || `Select ${creativeType} File`}
+												{selectedFile?.name || `Select ${creativeType} file`}
 											</Button>
 										</Box>
 										{errors.file && (

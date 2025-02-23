@@ -1,11 +1,10 @@
-import { useState } from 'react';
-import { UseFormGetValues, UseFormSetError, UseFormClearErrors } from 'react-hook-form';
-import { CampaignFormData } from '../types/campaign';
-import dayjs from 'dayjs';
 import { utils } from '@/lib/common-utils';
+import { useState } from 'react';
+import { UseFormClearErrors, UseFormGetValues, UseFormSetError } from 'react-hook-form';
+import dayjs from 'dayjs';
 
 type ValidationRule = {
-  validate: (value: any, getValues?: UseFormGetValues<CampaignFormData>) => boolean;
+  validate: (value: any, getValues?: UseFormGetValues<any>) => boolean;
   message: string;
 };
 
@@ -13,15 +12,15 @@ const validationRules: Record<string, ValidationRule> = {
   default: {
     validate: (value) => value !== undefined && value !== null && value !== "" && 
       (!Array.isArray(value) || value.length > 0),
-    message: "Field is required"
+    message: "field is required"
   },
   numeric: {
     validate: (value) => !isNaN(Number(value)) && Number(value) > 0,
-    message: "Must be a positive number"
+    message: "must be a positive number"
   },
   file: {
-    validate: (value) => (value as FileList)?.length > 0,
-    message: "File is required"
+    validate: (value) => value instanceof File && value.size > 0,
+    message: "is required"
   },
   endDate: {
     validate: (value, getValues) => {
@@ -29,23 +28,33 @@ const validationRules: Record<string, ValidationRule> = {
       if (!startDate || !value) return false;
       return dayjs(value).isAfter(dayjs(startDate));
     },
-    message: "End date should be after start date"
+    message: "should be after start date"
   }
 };
 
-export const useCampaignFormSections = () => {
+export const useFormSections = (maxSections: number) => {
   const [activeSection, setActiveSection] = useState(0);
   
   const validateField = (
-    field: keyof CampaignFormData,
+    field: string,
     value: any,
-    getValues: UseFormGetValues<CampaignFormData>
+    getValues: UseFormGetValues<any>,
+    rules?: Record<string, ValidationRule>
   ): { isValid: boolean; message?: string } => {
     let rule = validationRules.default;
-    if (field === "total_budget" || field === "unit_rate") {
+
+    // Common validations
+    if (["total_budget", "unit_rate"].includes(field)) {
       rule = validationRules.numeric;
     } else if (field === "end_time") {
       rule = validationRules.endDate;
+    } else if (field === "file") {
+      rule = validationRules.file;
+    }
+
+    // Allow custom rules to override defaults
+    if (rules?.[field]) {
+      rule = rules[field];
     }
 
     const isValid = rule.validate(value, getValues);
@@ -56,20 +65,21 @@ export const useCampaignFormSections = () => {
   };
 
   const nextSection = (
-    getValues: UseFormGetValues<CampaignFormData>,
-    setError: UseFormSetError<CampaignFormData>,
-    clearErrors: UseFormClearErrors<CampaignFormData>,
-    mandatoryFields: string[]
+    getValues: UseFormGetValues<any>,
+    setError: UseFormSetError<any>,
+    clearErrors: UseFormClearErrors<any>,
+    mandatoryFields: string[],
+    customRules?: Record<string, ValidationRule>
   ): boolean => {
     let isValid = true;
 
     mandatoryFields.forEach((field) => {
-      const value = getValues(field as keyof CampaignFormData);
-      const validation = validateField(field as keyof CampaignFormData, value, getValues);
+      const value = getValues(field);
+      const validation = validateField(field, value, getValues, customRules);
       
       if (!validation.isValid) {
         isValid = false;
-        setError(field as keyof CampaignFormData, {
+        setError(field, {
           type: "validation",
           message: validation.message
         });
@@ -81,7 +91,7 @@ export const useCampaignFormSections = () => {
     }
 
     clearErrors();
-    if (activeSection < 7) {
+    if (activeSection < maxSections) {
       setActiveSection(activeSection + 1);
       window.scrollTo(0, 0);
       return true;
