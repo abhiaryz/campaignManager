@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Auth, User } from '../types/auth';
 import { CommonSelectResponse, DataSources, Interest, Location } from '../types/campaign';
 import { campaignClient } from '@/lib/campaign-client';
+import { Creative } from '@/types/creative';
+import { creativeClient } from '@/lib/creative.client';
 
 export const useDataSources = (auth: Auth | null) => {
     const [dataSources, setDataSources] = React.useState<DataSources>({
@@ -19,7 +21,8 @@ export const useDataSources = (auth: Auth | null) => {
         buy_type: [] as CommonSelectResponse[],
         brand_safety: [] as CommonSelectResponse[],
         viewability: [] as CommonSelectResponse[],
-        users: [] as User[]
+        users: [] as User[],
+        creatives: [] as Creative[]
       });
       const [impressionData, setImpressionData] = useState<any>(null);
       const [totalPopulation, setTotalPopulation] = useState<number>(0);
@@ -28,7 +31,7 @@ export const useDataSources = (auth: Auth | null) => {
         try {
             const [ageRes, deviceRes, envRes, locRes,exchangeRes,langRes,
                 carrierRes,devicePriceRes, categoryInterestRes,interestRes, impressionRes,buyTypeRes,
-                viewabilityRes,brandSafetyRes,userRes] = await Promise.all([
+                viewabilityRes,brandSafetyRes,userRes,creativeRes] = await Promise.all([
                 campaignClient.getAge(),
                 campaignClient.getDevice(),
                 campaignClient.getEnv(),
@@ -43,7 +46,8 @@ export const useDataSources = (auth: Auth | null) => {
                 campaignClient.getBuyType(),
                 campaignClient.getViewability(),
                 campaignClient.getBrandSafety(),
-                campaignClient.getUsers(auth?.usertype === 'admin')
+                campaignClient.getUsers(auth?.usertype === 'admin'),
+                creativeClient.getAllCreatives()
             ]);
             setDataSources({
                 ages: ageRes,
@@ -60,7 +64,8 @@ export const useDataSources = (auth: Auth | null) => {
                 buy_type:buyTypeRes,
                 viewability:viewabilityRes,
                 brand_safety:brandSafetyRes,
-                users:userRes
+                users:userRes,
+                creatives:creativeRes
             });
             setImpressionData(impressionRes);
             setTotalPopulation(impressionRes.totalPopulation);

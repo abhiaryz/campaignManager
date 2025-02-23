@@ -1,5 +1,6 @@
 import { User } from "./auth";
 import { UseFormRegister, UseFormSetValue, UseFormGetValues, FieldErrors } from "react-hook-form";
+import { Creative } from "./creative";
 
 export interface Location {
     id:number
@@ -106,6 +107,7 @@ export interface CampaignFormData  {
     start_time?: string;
     end_time?: string;
     user?:string
+    creative?:number[];
 };
 
 export interface CommonImpressionDetails{
@@ -136,6 +138,7 @@ export interface DataSources {
   brand_safety: CommonSelectResponse[];
   viewability: CommonSelectResponse[];
   users: User[];
+  creatives: Creative[];
 }
 
 export interface SectionProps {

@@ -20,6 +20,17 @@ class CreativeClient {
       }
     }
 
+    async getAllCreatives(): Promise<Creative[]> {
+      try {
+        const response = await axiosInstance.get("/creative_list/", {
+          headers: { 'Content-Type': 'application/json' },
+        });
+        return response.data.data;
+      } catch (error: any) {
+        throw new Error(utils.handleErrorMessage(error));
+      }
+    }
+
     async createCreative(data: CreativeFormData): Promise<boolean> {
       try {
         const formData = new FormData();

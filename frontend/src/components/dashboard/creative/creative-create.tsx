@@ -14,21 +14,23 @@ import { TypeSelector } from '../layout/type-selector';
 import { Image, Tag, Video, FileDoc } from '@phosphor-icons/react';
 import { useCreativeFormSections } from '@/hooks/useCreativeFormSections';
 import { utils } from '@/lib/common-utils';
+
 const campaignTypes = [
-  { id: 'Banner', label: 'Banner', icon: Image },
-  { id: 'Video', label: 'Video', icon: Video },
-  { id: 'Tag&Tracker', label: 'Tag&Tracker', icon: Tag },
-  { id: 'Keyword', label: 'Keyword', icon: FileDoc },
+  { id: 'banner', label: 'Banner', icon: Image },
+  { id: 'video', label: 'Video', icon: Video },
+  { id: 'tagtracker', label: 'Tag&Tracker', icon: Tag },
+  { id: 'keyword', label: 'Keyword', icon: FileDoc },
+];
+
+const fields = [
+	{ label: 'Creative Type', name: 'creative_type' },
+	{ label: 'Name', name: 'name' },
+	{ label: 'Description', name: 'description' },
+	{ label: 'File', name: 'file' }
 ];
 
 export default function CreateCreative(): React.JSX.Element {
     const router = useRouter();
-    const fields = [
-      { label: 'Creative Type', name: 'creative_type' },
-      { label: 'Name', name: 'name' },
-      { label: 'Description', name: 'description' },
-      { label: 'File', name: 'file' }
-    ];
     const [isPending, setIsPending] = React.useState(false);
     const [isCreativeCreated, setIsCreativeCreated] = React.useState(false);
     const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
@@ -57,6 +59,7 @@ export default function CreateCreative(): React.JSX.Element {
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
+			console.log(file);
       if (file) {
         setSelectedFile(file);
         setValue('file',file);
@@ -66,12 +69,12 @@ export default function CreateCreative(): React.JSX.Element {
 
     const getAcceptTypes = (type: string): string => {
       switch (type) {
-        case 'Banner':
+        case 'banner':
             return 'image/*';
-        case 'Video':
+        case 'vide':
             return 'video/*';
-        case 'Tag&Tracker':
-        case 'Keyword':
+        case 'tagtracker':
+        case 'keyword':
             return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
         default:
             return '';

@@ -19,7 +19,7 @@ const validationRules: Record<string, ValidationRule> = {
     message: "Must be a positive number"
   },
   file: {
-    validate: (value) => (value as FileList)?.length > 0,
+    validate: (value) => value instanceof File && value.size > 0,
     message: "is required"
   },
 };

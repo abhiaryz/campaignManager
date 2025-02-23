@@ -38,10 +38,14 @@ export default function CreateCampaign(): React.JSX.Element {
     const [isPending, setIsPending] = React.useState<boolean>(false);
     const mandatoryFieldsBySection: Record<number, string[]> = {
       0: ["objective"], 
+      // 1: [],
+      // 2: [],
+      // 3: [],
+      // 4: [],
       1: ["name","start_time","end_time"], 
       2: ["location", "age", "exchange", "language", "viewability", "brand_safety","device", "environment", "carrier", "device_price"],
       3: ["target_type"],
-      4: campaignType === "Banner" ? ["tag_tracker","total_budget", "buy_type", "unit_rate"] : ["video","tag_tracker","total_budget", "buy_type", "unit_rate"],
+      4: ["creative","total_budget", "buy_type", "unit_rate"]
     };
     
     const {
@@ -164,7 +168,8 @@ export default function CreateCampaign(): React.JSX.Element {
                     campaignType={campaignType} 
                     setCampaignType={setCampaignType} 
                     setValue={setValue} 
-                    isEditable ={isEditable} />
+                    errors={errors}
+                  />
                )}
 
               {activeSection === 1 && (
@@ -226,8 +231,8 @@ export default function CreateCampaign(): React.JSX.Element {
                     register={register}
                     getValues={getValues}
                     setValue={setValue}
+                    dataSources={dataSources}
                     errors={errors}
-                    campaignType={campaignType}
                   />         
                 </>
               )}

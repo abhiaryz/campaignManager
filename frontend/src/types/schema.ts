@@ -22,12 +22,9 @@ export const CampaignFormSchema: ZodType<CampaignFormData> = z.object({
     viewability: z.number({ message: "Viewability is required" }),
     start_time: z.any(),
     end_time: z.any(),
-    images: z.any(),
-    video: z.any(),
-    keywords: z.any(),
     landing_page: z.any(),
-    tag_tracker: z.any(),
     user: z.any(),
+    creative: z.any(),
   });
 
 

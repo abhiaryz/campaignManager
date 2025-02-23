@@ -1,6 +1,7 @@
 import { utils } from '@/lib/common-utils';
 import { User } from '@/types/auth';
 import { CommonSelectResponse, Interest, Location } from '@/types/campaign';
+import { Creative } from '@/types/creative';
 import {
   Checkbox,
   FormControl,
@@ -111,7 +112,6 @@ const FormField: React.FC<FormFieldProps<any>> = ({
       fullWidth
       multiline
       rows={8}
-      maxRows={10}
       disabled={disabled}
       {...register(name, { valueAsNumber })}
       label={placeholder}
@@ -140,7 +140,13 @@ const FormField: React.FC<FormFieldProps<any>> = ({
             {utils.formatProperCase(val.first_name)} {utils.formatProperCase(val.last_name)}({val.email})
           </MenuItem>
         )); 
-      } else {
+      } else if (name.startsWith('creative')) {
+        return data?.map((val: Creative) => (
+          <MenuItem key={val.id} value={val.id}>
+            {utils.formatProperCase(val.name)}({val.creative_type})
+        </MenuItem>
+      )); 
+    } else {
         return data?.map((val: CommonSelectResponse) => (
           <MenuItem key={val.id} value={val.value}>
         {val.label}
