@@ -8,15 +8,15 @@ import * as React from 'react';
 
 import { CampaignDetailsPopOver } from '@/components/dashboard/campaign/campaign-details';
 import { CampaignTable } from '@/components/dashboard/campaign/campaign-table';
+import { FieldSelector } from '@/components/dashboard/layout/field-selector';
 import RedirectBtn from '@/components/dashboard/layout/redirect-btn';
 import { Search } from '@/components/dashboard/layout/search';
+import { useAuth } from '@/hooks/use-auth';
 import { usePopover } from '@/hooks/use-popover';
 import { campaignClient } from '@/lib/campaign-client';
 import { Campaign } from '@/types/campaign';
 import { CircularProgress } from '@mui/material';
 import { useState } from 'react';
-import { useAuth } from '@/hooks/use-auth';
-import { FieldSelector } from '@/components/dashboard/layout/field-selector';
 
 const AVAILABLE_FIELDS = [
   'Campaign Id',
@@ -133,7 +133,11 @@ export default function Page(): React.JSX.Element {
           display: 'flex',
           alignItems: 'center',
           gap: 2,
-          width: '100%'
+          width: '100%',
+          p: 2, 
+          border: '1px solid #e0e0e0',
+          borderRadius: 0,
+          color: 'white'
         }}
       >
         <Box sx={{ flex: 1 }}>

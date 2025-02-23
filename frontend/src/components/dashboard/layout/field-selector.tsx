@@ -1,6 +1,6 @@
-import * as React from 'react';
-import { IconButton, Menu, MenuItem, Checkbox, ListItemText } from '@mui/material';
+import { Box, Checkbox, IconButton, ListItemText, Menu, MenuItem } from '@mui/material';
 import { Funnel } from '@phosphor-icons/react';
+import * as React from 'react';
 
 interface FieldSelectorProps {
   onFieldsChange: (fields: string[]) => void;
@@ -49,13 +49,13 @@ export const FieldSelector: React.FC<FieldSelectorProps> = ({ onFieldsChange, se
   };
 
   return (
-    <>
+    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', marginRight: '5rem' }}>
       <IconButton
         aria-label="show columns"
         onClick={handleClick}
         size="small"
       >
-        <Funnel weight="bold" />
+        <Funnel size={24} weight="bold" />
       </IconButton>
       <Menu
         anchorEl={anchorEl}
@@ -84,6 +84,6 @@ export const FieldSelector: React.FC<FieldSelectorProps> = ({ onFieldsChange, se
           </MenuItem>
         ))}
       </Menu>
-    </>
+    </Box>
   );
 }; 
