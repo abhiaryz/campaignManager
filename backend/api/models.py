@@ -178,10 +178,10 @@ class Campaign(models.Model):
         related_name="target_type",
     )
 
-    Creative = models.ManyToManyField(
+    creative = models.ManyToManyField(
         "Creative",
         blank=True,
-        related_name="campaigns",
+        related_name="Creative",
     )
     
     images = models.ManyToManyField(
@@ -271,9 +271,10 @@ class CreativeManager(models.Manager):
 
 class Creative(models.Model):
     class CreativeType(models.TextChoices):
-        IMAGE = 'image', 'Image'
+        BANNER = 'banner', 'Banner'
         VIDEO = 'video', 'Video'
-        HTML = 'html', 'HTML'
+        TagTracker = 'TagTracker', 'TagTracker'
+        Keyword = 'keyword', 'Keyword'
 
 
     user = models.ForeignKey(
@@ -294,10 +295,6 @@ class Creative(models.Model):
     file = models.FileField(
         storage=S3Boto3Storage(),
         upload_to='creatives/%Y/%m/%d/',
-        validators=[FileExtensionValidator(
-            allowed_extensions=['jpg', 'jpeg', 'png', 'gif', 'mp4', 'html']
-        )],
-        help_text="Creative file (supported: jpg, jpeg, png, gif, mp4, html)"
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -248,6 +248,9 @@ class CampaignCreateUpdateSerializer(serializers.ModelSerializer):
     tag_tracker = serializers.PrimaryKeyRelatedField(
         many=True, queryset=tag_tracker.objects.all(), required=False
     )
+    creative = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Creative.objects.all(), required=False
+    )
     class Meta:
         model = Campaign
         fields = "__all__"
@@ -262,6 +265,7 @@ class CampaignCreateUpdateSerializer(serializers.ModelSerializer):
         weather = validated_data.pop("weather", [])
         target_type = validated_data.pop("target_type", [])
         tag_tracker = validated_data.pop("tag_tracker", [])
+        creative = validated_data.pop("creative", [])
         
         campaign = Campaign.objects.create(**validated_data)
         campaign.location.set(location)
@@ -273,6 +277,8 @@ class CampaignCreateUpdateSerializer(serializers.ModelSerializer):
         campaign.target_type.set(target_type)
         campaign.video.set(video)
         campaign.tag_tracker.set(tag_tracker)
+        campaign.creative.set(creative)
+        
         return campaign
 
 
