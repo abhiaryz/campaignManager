@@ -18,6 +18,14 @@ export interface ResetPasswordParams {
     email: string;
 }
 
+export interface Profile{
+    phone_no:string;
+    city:string;
+    company_name: string;
+    gst: string;
+    logo: string | null;
+}
+
 export interface User {
     id:number;
     email: string;
@@ -29,6 +37,8 @@ export interface User {
     company_name:string;
     gst?:string
     logo?:string
+    profile?:Profile
+
 }
 
 export interface ProfileFormData {

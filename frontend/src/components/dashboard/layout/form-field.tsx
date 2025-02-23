@@ -137,7 +137,7 @@ const FormField: React.FC<FormFieldProps<any>> = ({
       } else if (name.startsWith('user')) {
         return data?.map((val: User) => (
           <MenuItem key={val.id} value={val.id}>
-            {utils.formatProperCase(val.first_name)} {utils.formatProperCase(val.last_name)}({val.email})
+            {utils.formatProperCase(val.first_name)} {utils.formatProperCase(val.last_name)}({val.email}) - {val.profile?.company_name}
           </MenuItem>
         )); 
       } else if (name.startsWith('creative')) {
