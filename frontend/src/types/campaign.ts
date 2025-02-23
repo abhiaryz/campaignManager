@@ -42,11 +42,8 @@ export interface FileUpload{
 
 export interface Campaign {
     id: number;
-    images: Images[];
-    keywords: FileUpload[]; 
     name: string;
     age: string[]; 
-    day_part: string;
     device: string[]; 
     environment: string[]; 
     exchange: string[];
@@ -56,16 +53,12 @@ export interface Campaign {
     language: string[];
     carrier: string[]; 
     device_price: string[];  
-    proximity_store: FileUpload[]; 
-    proximity: FileUpload[];
-    weather: FileUpload[]; 
     location: Location[];
     clicks:string;
     pay_rate:string;
     impressions:string;
     objective:string;
     landing_page: string;
-    tag_tracker: FileUpload[];
     total_budget: number;
     buy_type: string;
     unit_rate: number;
@@ -75,11 +68,11 @@ export interface Campaign {
     status:string;
     start_time:string;
     end_time:string;
-    video: Video[];
     viewability: number;
     brand_safety: number;
     user:User,
-    campaign_files:FileUpload[]
+    campaign_files:FileUpload[],
+    creative:Creative[]
 }
 
 export interface CampaignFormData  {
