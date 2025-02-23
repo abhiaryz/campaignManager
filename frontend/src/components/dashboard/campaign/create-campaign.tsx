@@ -38,10 +38,6 @@ export default function CreateCampaign(): React.JSX.Element {
     const [isPending, setIsPending] = React.useState<boolean>(false);
     const mandatoryFieldsBySection: Record<number, string[]> = {
       0: ["objective"], 
-      // 1: [],
-      // 2: [],
-      // 3: [],
-      // 4: [],
       1: ["name","start_time","end_time"], 
       2: ["location", "age", "exchange", "language", "viewability", "brand_safety","device", "environment", "carrier", "device_price"],
       3: ["target_type"],

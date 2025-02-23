@@ -5,7 +5,7 @@ import type { Metadata } from 'next';
 import * as React from 'react';
 
 import { AccountDetailsForm } from '@/components/dashboard/account/account-details-form';
-import { UpdatePasswordForm } from '@/components/dashboard/settings/update-password-form';
+import { UpdatePasswordForm } from '@/components/dashboard/account/update-password-form';
 import { config } from '@/config';
 
 export const metadata = { title: `Account | Dashboard | ${config.site.name}` } satisfies Metadata;
