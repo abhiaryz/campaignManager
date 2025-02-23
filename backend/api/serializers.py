@@ -5,10 +5,11 @@ from django.core.exceptions import ValidationError
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 from storages.backends.s3boto3 import S3Boto3Storage
-from .models import (Campaign, CampaignImage, Keyword, Location, UserType, CampaignVideo,
+from .models import (Campaign, CampaignImage, Keyword, Location, UserType, CampaignVideo, Creative,
                      proximity, proximity_store, target_type, weather, UserProfile, Bidding_detail,  BrandSafety,
     BuyType,
     Viewability,tag_tracker,CampaignFile)
+
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -209,14 +210,13 @@ class CampaignSerializer(serializers.ModelSerializer):
         model = Campaign
         fields = "__all__"
 
-from rest_framework import serializers
-from .models import Creative
+
 
 class CreativeSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Creative
-        fields = ['id', 'name', 'creative_type', 'file']
+        fields = ['id', 'name', 'creative_type', 'file', 'description']
         
 
 class CampaignCreateUpdateSerializer(serializers.ModelSerializer):

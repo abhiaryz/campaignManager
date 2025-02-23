@@ -301,6 +301,7 @@ class Creative(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    description = models.TextField(blank=True, null=True)
     
 
     

@@ -64,35 +64,23 @@ def login_page(request):
         target_type.objects.create(category=category,subcategory=subcategory)
     return Response({"message": "Target type created successfully"}, status=status.HTTP_200_OK)
 
-
-
-
-
-
-
 def register_page(request):
     return render(request, "dsp/register.html")
-
 
 def forgot_password_page(request):
     return render(request, "dsp/forgot_password.html")
 
-
 def home(request):
     return render(request, "dsp/index.html")
-
 
 def campaigns_page(request):
     return render(request, "dsp/campaigns.html")
 
-
 def add_campaign_page(request):
     return render(request, "dsp/add_campaigns.html")
 
-
 def dashboard_profile(request):
     return render(request, "dsp/profile.html")
-
 
 def dashboard_data(request):
     return render(request, "dsp/data.html")
@@ -179,33 +167,25 @@ class CampaignViewSet(viewsets.ViewSet):
         campaign.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-
 class CampaignImageViewSet(viewsets.ModelViewSet):
     queryset = CampaignImage.objects.all()
     serializer_class = CampaignImageSerializer
-
 
 class CampaignVideoViewSet(viewsets.ModelViewSet):
     queryset = CampaignVideo.objects.all()
     serializer_class = CampaignVideoSerializer
 
-
-
 class BiddingDetailsViewSet(viewsets.ModelViewSet):
     queryset = Bidding_detail.objects.all()
     serializer_class = BiddingDetailsSerializer
-
-
 
 class ProximityStoreViewSet(viewsets.ModelViewSet):
     queryset = proximity_store.objects.all()
     serializer_class = ProximityStoreSerializer
 
-
 class ProximityViewSet(viewsets.ModelViewSet):
     queryset = proximity.objects.all()
     serializer_class = ProximitySerializer
-
 
 class WeatherViewSet(viewsets.ModelViewSet):
     queryset = weather.objects.all()
@@ -215,11 +195,9 @@ class tag_trackerViewSet(viewsets.ModelViewSet):
     queryset = tag_tracker.objects.all()
     serializer_class = tag_trackerSerializer
 
-
 class KeywordViewSet(viewsets.ModelViewSet):
     queryset = Keyword.objects.all()
     serializer_class = KeywordSerializer
-
 
 class CampaignPagination(PageNumberPagination):
     page_size = 10  # Set default page size
@@ -257,7 +235,6 @@ def BuyType_api(request):
     for age in age_queryset:
         data.append({"id": age.id, "value": age.value , "label" : age.label})
     return success_response("Data succcessfully fetched", data)
-
 
 @api_view(["GET"])
 def DevicePrice_api(request):
@@ -357,8 +334,6 @@ def serializer_data_to_excel(serializer_data):
     output.seek(0)
     return output
 
-
-
 class FileGetView(APIView):
     permission_classes = [IsAuthenticated]
     
@@ -382,7 +357,6 @@ class FileGetView(APIView):
                     'status': 'exists'
                 })
             else:
-
                 serializer = CampaignSerializer(campaign)
                 serializer_data = serializer.data
 
@@ -402,7 +376,6 @@ class FileGetView(APIView):
         
         return Response(response_data, status=status.HTTP_200_OK)
        
-
     def post(self, request, *args, **kwargs):
         """
         POST: Upload an Excel file (.xlsx) to update a particular Campaign record.
@@ -420,6 +393,31 @@ class FileGetView(APIView):
         campaign_id = self.kwargs.get('campaign_id')
         if not campaign_id:
             return Response({'error': 'Campaign ID not provided in URL.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        
+        # 2. Ensure the campaign exists
+        try:
+            campaign = Campaign.objects.get(id=campaign_id)
+        except Campaign.DoesNotExist:
+            return Response({'error': 'Campaign not found.'},
+                            status=status.HTTP_404_NOT_FOUND)
+        
+        # 3. Get the Excel file from the request
+        excel_file = request.FILES.get('file')
+        if not excel_file:
+            return Response({'error': 'No file was uploaded.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        
+        # 4. Read the Excel file (from sheet 1)
+        try:
+            df = pd.read_excel(excel_file, sheet_name=0)
+        except Exception as e:
+            return Response({'error': f'Failed to read Excel file: {str(e)}'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        
+        # 5. Verify that the Excel file contains a column for the campaign ID.
+        if 'id' not in df.columns:
+            return Response({'error': 'Excel file must contain a column named "id".'},
                             status=status.HTTP_400_BAD_REQUEST)
         
         # 2. Ensure the campaign exists
@@ -583,7 +581,15 @@ class CreativeViewSet(viewsets.ModelViewSet):
     parser_classes = (MultiPartParser, FormParser)
     
     def get_queryset(self):
-        return Creative.objects.filter(user=self.request.user)
+        query_param = self.request.query_params.get("query", None)
+        queryset = Creative.objects.filter(user=self.request.user)
+
+        if query_param:
+            queryset = queryset.filter(
+                Q(name__icontains=query_param) |
+                Q(creative_type__icontains=query_param) 
+            )
+        return queryset
     
     def create(self, request, *args, **kwargs):
         try:
@@ -615,9 +621,16 @@ class CreativeViewSet(viewsets.ModelViewSet):
             return error_response(str(e), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def list(self, request):
-        try:
-            creatives = self.get_queryset()
-            serializer = self.get_serializer(creatives, many=True)
-            return success_response("Creatives fetched successfully", serializer.data)
-        except Exception as e:
-            return error_response(str(e))
+        """List all creatives with pagination."""
+        
+        queryset = self.get_queryset()
+        paginator = CampaignPagination()
+        paginated_queryset = paginator.paginate_queryset(queryset, request)
+        serializer = self.get_serializer(paginated_queryset, many=True)
+        return paginator.get_paginated_response(
+            {
+                "message": "Creatives fetched successfully",
+                "data": serializer.data,
+                "success": True,
+            }
+        )
