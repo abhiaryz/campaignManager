@@ -578,7 +578,7 @@ def target_type_view(request):
 @permission_classes([IsAuthenticated])
 def creative_list_all(request):
     query_param = request.query_params.get("query", None)
-    queryset = Creative.objects.filter(user=request.user)
+    queryset = Creative.objects.filter(user=request.user).order_by("-created_at")
     if query_param:
         queryset = queryset.filter(
                 Q(name__icontains=query_param) |
@@ -594,7 +594,7 @@ class CreativeViewSet(viewsets.ModelViewSet):
     
     def get_queryset(self):
         query_param = self.request.query_params.get("query", None)
-        queryset = Creative.objects.filter(user=self.request.user)
+        queryset = Creative.objects.filter(user=self.request.user).order_by("-created_at")
 
         if query_param:
             queryset = queryset.filter(
