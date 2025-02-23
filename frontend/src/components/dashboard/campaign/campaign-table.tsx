@@ -29,6 +29,7 @@ interface TableProps<T> {
   handleViewCampaign?: (id: number) => void;
   handleUpdateStatus?: (id: number,status:string) => Promise<void>;
   handleUploadReport?: (selectedFile: File, campaignId: number) => Promise<void>;
+  selectedFields?: string[];
 }
 
 const tableCellStyles = {
@@ -48,6 +49,22 @@ const uploadCellStyles = {
 
 const statusOptions = ["Created", "Learning","Live", "Pause Option", "Completed","Other"]; 
 
+const COLUMN_MAPPING = {
+  'Campaign Id': 'id',
+  'Advertiser Name': 'advertiser',
+  'Campaign Name': 'name',
+  'Objective': 'objective',
+  'Buy Type': 'buy_type',
+  'Unit Rate': 'unit_rate',
+  'Budget': 'budget',
+  'Impression': 'impressions',
+  'Click': 'clicks',
+  'CTR': 'ctr',
+  'Views': 'views',
+  'VTR': 'vtr',
+  'Status': 'status'
+};
+
 export function CampaignTable({
   count = 0,
   rows = [],
@@ -57,6 +74,7 @@ export function CampaignTable({
   handleViewCampaign,
   handleUpdateStatus,
   handleUploadReport,
+  selectedFields = Object.keys(COLUMN_MAPPING),
 }: TableProps<Campaign[]>): React.JSX.Element {
   const {auth} = useAuth();
   const router = useRouter();
@@ -64,6 +82,11 @@ export function CampaignTable({
   const [editingRow, setEditingRow] = React.useState<number | null>(null);
   const [uploadStatus, setUploadStatus] = React.useState<Record<number, { loading: boolean; error?: string; success?: boolean }>>({});
   const [updateStatus, setUpdateStatus] = React.useState<Record<number, { loading: boolean; error?: string; success?: boolean }>>({});
+
+  const shouldShowColumn = (columnName: string) => {
+    if (!selectedFields || selectedFields.length === 0) return true;
+    return selectedFields.includes(columnName);
+  };
 
   const handleStatusEdit = (rowId: number) => {
     setEditingRow(prev => prev === rowId ? null : rowId);
@@ -111,7 +134,6 @@ export function CampaignTable({
     }
   }
 
-  
   const handleFileUpload =(e: React.ChangeEvent<HTMLInputElement>, campaignId:number)=>{
     if (!e.target.files) return;
     const selectedFile = e.target.files[0];
@@ -154,19 +176,20 @@ export function CampaignTable({
         <Table sx={{ minWidth: '800px' }}>
           <TableHead>
             <TableRow>
-              <TableCell sx={tableCellStyles}>Campaign Id</TableCell>
-              {auth?.usertype==='admin'?<TableCell sx={tableCellStyles}>Advertiser Name</TableCell>:null}
-              <TableCell sx={tableCellStyles}>Campaign Name</TableCell>
-              <TableCell sx={tableCellStyles}>Objective</TableCell>
-              <TableCell sx={tableCellStyles}>Buy Type</TableCell>
-              <TableCell sx={tableCellStyles}>Unit Rate</TableCell>
-              <TableCell sx={tableCellStyles}>Budget</TableCell>
-              <TableCell sx={tableCellStyles}>Impression</TableCell>
-              <TableCell sx={tableCellStyles}>Click</TableCell>
-              <TableCell sx={tableCellStyles}>CTR</TableCell>
-              <TableCell sx={tableCellStyles}>Views</TableCell>
-              <TableCell sx={tableCellStyles}>VTR</TableCell>
-              <TableCell sx={tableCellStyles}>Status</TableCell>
+              {shouldShowColumn('Campaign Id') && <TableCell sx={tableCellStyles}>Campaign Id</TableCell>}
+              {auth?.usertype === 'admin' && shouldShowColumn('Advertiser Name') && 
+                <TableCell sx={tableCellStyles}>Advertiser Name</TableCell>}
+              {shouldShowColumn('Campaign Name') && <TableCell sx={tableCellStyles}>Campaign Name</TableCell>}
+              {shouldShowColumn('Objective') && <TableCell sx={tableCellStyles}>Objective</TableCell>}
+              {shouldShowColumn('Buy Type') && <TableCell sx={tableCellStyles}>Buy Type</TableCell>}
+              {shouldShowColumn('Unit Rate') && <TableCell sx={tableCellStyles}>Unit Rate</TableCell>}
+              {shouldShowColumn('Budget') && <TableCell sx={tableCellStyles}>Budget</TableCell>}
+              {shouldShowColumn('Impression') && <TableCell sx={tableCellStyles}>Impression</TableCell>}
+              {shouldShowColumn('Click') && <TableCell sx={tableCellStyles}>Click</TableCell>}
+              {shouldShowColumn('CTR') && <TableCell sx={tableCellStyles}>CTR</TableCell>}
+              {shouldShowColumn('Views') && <TableCell sx={tableCellStyles}>Views</TableCell>}
+              {shouldShowColumn('VTR') && <TableCell sx={tableCellStyles}>VTR</TableCell>}
+              {shouldShowColumn('Status') && <TableCell sx={tableCellStyles}>Status</TableCell>}
               <TableCell sx={tableCellStyles}>View</TableCell>
               {auth?.usertype === 'user' && (<TableCell sx={tableCellStyles}>Edit</TableCell>)}
               {auth?.usertype==='admin'?<TableCell sx={tableCellStyles}>Upload</TableCell>:
@@ -176,68 +199,71 @@ export function CampaignTable({
           <TableBody>
             {rows.map((row) => (
               <TableRow hover key={row.id}>
-                <TableCell sx={tableCellStyles}>{row.id}</TableCell>
-                {auth?.usertype==='admin'?
-                  <TableCell 
-                    sx={tableCellStyles}>{utils.formatProperCase(row.user.first_name)} { utils.formatProperCase(row.user.last_name)}
-                  </TableCell>:null
+                {shouldShowColumn('Campaign Id') && <TableCell sx={tableCellStyles}>{row.id}</TableCell>}
+                {auth?.usertype === 'admin' && shouldShowColumn('Advertiser Name') && 
+                  <TableCell sx={tableCellStyles}>
+                    {utils.formatProperCase(row.user.first_name)} {utils.formatProperCase(row.user.last_name)}
+                  </TableCell>
                 }
-                <TableCell sx={tableCellStyles}>{row.name}</TableCell>
-                <TableCell sx={tableCellStyles}>{row.objective}</TableCell>
-                <TableCell sx={tableCellStyles}>{row.buy_type}</TableCell>
-                <TableCell sx={tableCellStyles}><span className="WebRupee">&#x20B9;</span>{row.unit_rate}</TableCell>
-                <TableCell sx={tableCellStyles}><span className="WebRupee">&#x20B9;</span>{row.total_budget}</TableCell>
-                <TableCell sx={tableCellStyles}>{row.impressions}</TableCell>
-                <TableCell sx={tableCellStyles}>{row.clicks}</TableCell>
-                <TableCell sx={tableCellStyles}>{row.ctr}</TableCell>
-                <TableCell sx={tableCellStyles}>{row.views}</TableCell>
-                <TableCell sx={tableCellStyles}>{row.vtr}</TableCell>
-                <TableCell sx={tableCellStyles}>
-                  {editingRow === row.id ? (
-                    <>
-                      <Select
-                        value={editedStatus[row.id] || row.status}
-                        onChange={handleStatusChange(row.id)}
-                        size="small"
-                        sx={{ 
-                          width: 120,
-                          '& .MuiSelect-select': { py: 0.5 }
-                        }}
-                        onBlur={() => setEditingRow(null)}
-                      >
-                        {statusOptions.map((status) => (
-                          <MenuItem key={status} value={status} sx={{ fontSize: '0.875rem' }}>
-                            {status}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                      {updateStatus[row.id]?.error && (
-                        <Typography variant="caption" color="error.main" sx={{ ml: 1, fontSize: "0.75rem", wordBreak: "break-word" }}>
-                          {updateStatus[row.id]?.error}
-                        </Typography>
-                      )}
-                    </>
-
-                  ) : (
-                    <Box sx={{ 
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      cursor: 'pointer'
-                    }}>
-                      <span>{row.status}</span>
-                      {auth?.usertype === 'admin' && (
-                        <IconButton 
+                {shouldShowColumn('Campaign Name') && <TableCell sx={tableCellStyles}>{row.name}</TableCell>}
+                {shouldShowColumn('Objective') && <TableCell sx={tableCellStyles}>{row.objective}</TableCell>}
+                {shouldShowColumn('Buy Type') && <TableCell sx={tableCellStyles}>{row.buy_type}</TableCell>}
+                {shouldShowColumn('Unit Rate') && 
+                  <TableCell sx={tableCellStyles}><span className="WebRupee">&#x20B9;</span>{row.unit_rate}</TableCell>}
+                {shouldShowColumn('Budget') && 
+                  <TableCell sx={tableCellStyles}><span className="WebRupee">&#x20B9;</span>{row.total_budget}</TableCell>}
+                {shouldShowColumn('Impression') && <TableCell sx={tableCellStyles}>{row.impressions}</TableCell>}
+                {shouldShowColumn('Click') && <TableCell sx={tableCellStyles}>{row.clicks}</TableCell>}
+                {shouldShowColumn('CTR') && <TableCell sx={tableCellStyles}>{row.ctr}</TableCell>}
+                {shouldShowColumn('Views') && <TableCell sx={tableCellStyles}>{row.views}</TableCell>}
+                {shouldShowColumn('VTR') && <TableCell sx={tableCellStyles}>{row.vtr}</TableCell>}
+                {shouldShowColumn('Status') && 
+                  <TableCell sx={tableCellStyles}>
+                    {editingRow === row.id ? (
+                      <>
+                        <Select
+                          value={editedStatus[row.id] || row.status}
+                          onChange={handleStatusChange(row.id)}
                           size="small"
-                          onClick={() => handleStatusEdit(row.id)}
-                          sx={{ p: 0, ml: 1 }}
+                          sx={{ 
+                            width: 120,
+                            '& .MuiSelect-select': { py: 0.5 }
+                          }}
+                          onBlur={() => setEditingRow(null)}
                         >
-                          <Pencil fontSize="small" />
-                        </IconButton>
-                      )}
-                    </Box>
-                  )}
-                </TableCell>
+                          {statusOptions.map((status) => (
+                            <MenuItem key={status} value={status} sx={{ fontSize: '0.875rem' }}>
+                              {status}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                        {updateStatus[row.id]?.error && (
+                          <Typography variant="caption" color="error.main" sx={{ ml: 1, fontSize: "0.75rem", wordBreak: "break-word" }}>
+                            {updateStatus[row.id]?.error}
+                          </Typography>
+                        )}
+                      </>
+                    ) : (
+                      <Box sx={{ 
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        cursor: 'pointer'
+                      }}>
+                        <span>{row.status}</span>
+                        {auth?.usertype === 'admin' && (
+                          <IconButton 
+                            size="small"
+                            onClick={() => handleStatusEdit(row.id)}
+                            sx={{ p: 0, ml: 1 }}
+                          >
+                            <Pencil fontSize="small" />
+                          </IconButton>
+                        )}
+                      </Box>
+                    )}
+                  </TableCell>
+                }
                 <TableCell sx={tableCellStyles}><Eye onClick={() => handleViewCampaignClick(row.id)} fontSize="var(--icon-fontSize-md)" /></TableCell>
                 {auth?.usertype==='admin'?
                   <>  
@@ -303,7 +329,7 @@ export function CampaignTable({
               </TableRow>
             ))}
           </TableBody>
-      </Table>
+        </Table>
       </Box>
       <Divider />
       <TablePagination
