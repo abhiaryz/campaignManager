@@ -1,6 +1,7 @@
 import { utils } from '@/lib/common-utils';
 import { User } from '@/types/auth';
 import { CommonSelectResponse, Interest, Location } from '@/types/campaign';
+import { Creative } from '@/types/creative';
 import {
   Checkbox,
   FormControl,
@@ -19,6 +20,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { Eye as EyeIcon } from '@phosphor-icons/react/dist/ssr/Eye';
 import { EyeSlash as EyeSlashIcon } from '@phosphor-icons/react/dist/ssr/EyeSlash';
 import dayjs from 'dayjs';
+import { truncate } from 'fs/promises';
 import Link from 'next/link';
 import React from 'react';
 import { FieldError, UseFormGetValues, UseFormRegister, UseFormSetValue } from "react-hook-form";
@@ -85,8 +87,6 @@ const FormField: React.FC<FormFieldProps<any>> = ({
     <TextField
       type={type === 'password' && showPassword ? 'text' : type}
       fullWidth
-      multiline = {type === 'textarea' ? true : false}
-      maxRows={4}
       disabled={disabled}
       {...register(name, { valueAsNumber })}
       label={placeholder}
@@ -106,6 +106,19 @@ const FormField: React.FC<FormFieldProps<any>> = ({
     />
   );
 
+  const renderMultipleLineTextField = () => (
+    <TextField
+      type={type}
+      fullWidth
+      multiline
+      rows={8}
+      disabled={disabled}
+      {...register(name, { valueAsNumber })}
+      label={placeholder}
+    />
+  );
+
+
   // Handle Select Types
   const renderSelect = () => {
     const renderMenuItems = () => {
@@ -124,10 +137,16 @@ const FormField: React.FC<FormFieldProps<any>> = ({
       } else if (name.startsWith('user')) {
         return data?.map((val: User) => (
           <MenuItem key={val.id} value={val.id}>
-            {utils.formatProperCase(val.first_name)} {utils.formatProperCase(val.last_name)}({val.email})
+            {utils.formatProperCase(val.first_name)} {utils.formatProperCase(val.last_name)}({val.email}) - {val.profile?.company_name}
           </MenuItem>
         )); 
-      } else {
+      } else if (name.startsWith('creative')) {
+        return data?.map((val: Creative) => (
+          <MenuItem key={val.id} value={val.id}>
+            {utils.formatProperCase(val.name)}({val.creative_type})
+        </MenuItem>
+      )); 
+    } else {
         return data?.map((val: CommonSelectResponse) => (
           <MenuItem key={val.id} value={val.value}>
         {val.label}
@@ -188,8 +207,9 @@ const FormField: React.FC<FormFieldProps<any>> = ({
       case 'password':
       case 'number':
       case 'email':
-      case 'textarea':
         return renderTextField();
+      case 'textarea':
+        return renderMultipleLineTextField();
       case 'select':
         return renderSelect();
       case 'datepicker':

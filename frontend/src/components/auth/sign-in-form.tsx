@@ -3,7 +3,7 @@
 import { useAuth } from '@/hooks/use-auth';
 import { authClient } from '@/lib/auth-client';
 import { paths } from '@/paths';
-import { SignInParams } from '@/types/auth';
+import { SignInFormData } from '@/types/auth';
 import { signInSchema } from '@/types/schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Box, CircularProgress, Grid } from '@mui/material';
@@ -30,10 +30,10 @@ export function SignInForm(): React.JSX.Element {
     setError,
     register,
     formState: { errors },
-  } = useForm<SignInParams>({ resolver: zodResolver(signInSchema) });
+  } = useForm<SignInFormData>({ resolver: zodResolver(signInSchema) });
 
   const onSubmit = React.useCallback(
-    async (values: SignInParams): Promise<void> => {
+    async (values: SignInFormData): Promise<void> => {
       try{
         setIsPending(true);
         const data = {

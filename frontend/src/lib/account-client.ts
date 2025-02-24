@@ -1,6 +1,6 @@
 'use client';
 
-import { UpdatePasswordParams, User } from '@/types/auth';
+import { ProfileFormData, UpdatePasswordParams, User } from '@/types/auth';
 import axiosInstance from './axios-instance';
 import { utils } from './common-utils';
 
@@ -17,7 +17,7 @@ class AccountClient {
       }
     }
 
-    async updateUser(user: User): Promise<User> {
+    async updateUser(user: ProfileFormData): Promise<User> {
       try {
         const response = await axiosInstance.put('/api/user/update/', user, {
           headers: { 'Content-Type': 'application/json' },

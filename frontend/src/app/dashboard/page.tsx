@@ -8,16 +8,31 @@ import * as React from 'react';
 
 import { CampaignDetailsPopOver } from '@/components/dashboard/campaign/campaign-details';
 import { CampaignTable } from '@/components/dashboard/campaign/campaign-table';
+import { FieldSelector } from '@/components/dashboard/layout/field-selector';
 import RedirectBtn from '@/components/dashboard/layout/redirect-btn';
 import { Search } from '@/components/dashboard/layout/search';
+import { useAuth } from '@/hooks/use-auth';
 import { usePopover } from '@/hooks/use-popover';
 import { campaignClient } from '@/lib/campaign-client';
 import { Campaign } from '@/types/campaign';
 import { CircularProgress } from '@mui/material';
 import { useState } from 'react';
-import { useAuth } from '@/hooks/use-auth';
 
-
+const AVAILABLE_FIELDS = [
+  'Campaign Id',
+  'Campaign Name',
+  'Advertiser Name',
+  'Objective',
+  'Buy Type',
+  'Unit Rate',
+  'Budget',
+  'Impression',
+  'Click',
+  'CTR',
+  'Views',
+  'VTR',
+  'Status'
+];
 
 export default function Page(): React.JSX.Element {
   const {auth} = useAuth();
@@ -30,7 +45,8 @@ export default function Page(): React.JSX.Element {
   const [loading, setLoading] = useState<boolean>(false);
   const [page, setPage] = React.useState(1);
   const campaignPopOver = usePopover<HTMLDivElement>();
-  const [searchQuery,setSearchQuery] = React.useState<string>("")
+  const [searchQuery, setSearchQuery] = React.useState<string>("")
+  const [selectedFields, setSelectedFields] = React.useState<string[]>(AVAILABLE_FIELDS);
 
   const handleViewCampaign = (id: number) => {
     const selectedCampaign = campaigns.find((campaign) => campaign.id === id);
@@ -69,6 +85,9 @@ export default function Page(): React.JSX.Element {
     setSearchQuery(event.target.value);
   };
 
+  const handleFieldSelection = (fields: string[]) => {
+    setSelectedFields(fields);
+  };
 
   async function fetchCampaigns(pageNo:number,query:string) {
     setLoading(true)
@@ -109,7 +128,31 @@ export default function Page(): React.JSX.Element {
           <RedirectBtn url={paths.dashboard.createCampaign} redirect={true}/>
         </div>
       </Stack>
-      <Search placeholder={searchPlaceholder} onSearch={onSearchChange} />
+      <Box 
+        sx={{ 
+          display: 'flex',
+          alignItems: 'center',
+          gap: 2,
+          width: '100%',
+          p: 2, 
+          border: '1px solid #e0e0e0',
+          borderRadius: 0,
+          color: 'white'
+        }}
+      >
+        <Box sx={{ flex: 1 }}>
+          <Search 
+            placeholder={searchPlaceholder} 
+            onSearch={onSearchChange} 
+          />
+        </Box>
+        <Box sx={{ flex: 1 }}>
+          <FieldSelector 
+            onFieldsChange={handleFieldSelection} 
+            selectedFields={selectedFields} 
+          />
+        </Box>
+      </Box>
       {loading ? 
           <Box  
             sx={{
@@ -128,6 +171,7 @@ export default function Page(): React.JSX.Element {
           handleViewCampaign={handleViewCampaign}
           handleUpdateStatus = {handleUpdateStatus}
           handleUploadReport ={handleUploadReport}
+          selectedFields={selectedFields}
         />
         }
         <CampaignDetailsPopOver onClose={campaignPopOver.handleClose} open={campaignPopOver.open}  data={campaign}/>

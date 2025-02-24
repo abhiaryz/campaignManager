@@ -3,7 +3,7 @@ export interface Auth {
     usertype: string;
 }
 
-export interface SignInParams {
+export interface SignInFormData {
     username: string;
     password: string;
 }
@@ -18,8 +18,39 @@ export interface ResetPasswordParams {
     email: string;
 }
 
+export interface Profile{
+    phone_no:string;
+    city:string;
+    company_name: string;
+    gst: string;
+    logo: string | null;
+}
+
 export interface User {
-    id?:number;
+    id:number;
+    email: string;
+    first_name: string;
+    last_name: string;
+    phone_no?: string;
+    password?:string;
+    user_type?: boolean
+    company_name:string;
+    gst?:string
+    logo?:string
+    profile?:Profile
+
+}
+
+export interface ProfileFormData {
+    email: string;
+    first_name: string;
+    last_name: string;
+    phone_no: string;
+    company_name:string;
+    gst:string
+}
+
+export interface SignUpFormData {
     email: string;
     first_name: string;
     last_name: string;
@@ -29,7 +60,7 @@ export interface User {
     user_type?: boolean
     company_name:string;
     gst?:string
-    logo?:string
+    logo:File
 }
   
 

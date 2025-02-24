@@ -59,14 +59,13 @@ export function SideNav(): React.JSX.Element {
       </Stack>
       <Divider sx={{ borderColor: 'var(--mui-palette-neutral-700)' }} />
       <Box component="nav" sx={{ flex: '1 1 auto', p: '12px' }}>
-      {renderNavItems({ pathname: pathname ?? '', items: filteredNavItems })}
-
+        {renderNavItems({ pathname, items: filteredNavItems })}
       </Box>
     </Box>
   );
 }
 
-function renderNavItems({ items = [], pathname }: { items?: NavItemConfig[]; pathname: string }): React.JSX.Element {
+function renderNavItems({ items = [], pathname }: { items?: NavItemConfig[]; pathname: string | null }): React.JSX.Element {
   const children = items.reduce((acc: React.ReactNode[], curr: NavItemConfig): React.ReactNode[] => {
     const { key, ...item } = curr;
 
@@ -83,11 +82,11 @@ function renderNavItems({ items = [], pathname }: { items?: NavItemConfig[]; pat
 }
 
 interface NavItemProps extends Omit<NavItemConfig, 'items'> {
-  pathname: string;
+  pathname: string | null;
 }
 
 function NavItem({ disabled, external, href, icon, matcher, pathname, title }: NavItemProps): React.JSX.Element {
-  const active = isNavItemActive({ disabled, external, href, matcher, pathname });
+  const active = isNavItemActive({ disabled, external, href, matcher, pathname: pathname ?? '' });
   const Icon = icon ? navIcons[icon] : null;
 
   return (

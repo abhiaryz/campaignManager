@@ -1,19 +1,17 @@
 'use client';
 
-import { Auth, Customer, ResetPasswordParams, SignInParams, User } from '@/types/auth';
+import { Auth, Customer, ResetPasswordParams, SignInFormData, SignUpFormData } from '@/types/auth';
+import { accountClient } from './account-client';
 import axiosInstance from './axios-instance';
 import { utils } from './common-utils';
-import { accountClient } from './account-client';
 
 class AuthClient {
-  async signUp(user: User,file:File): Promise<boolean> {
+  async signUp(user: SignUpFormData): Promise<boolean> {
     try {
       const formData = new FormData();
       Object.entries(user).forEach(([key, value]) => {
         formData.append(key, value);
-      });
-      formData.append('logo', file);
-      
+      });      
       await axiosInstance.post(`/api/register/`, formData,{
         headers: { 'Content-Type': 'multipart/form-data;' },
       });
@@ -23,7 +21,7 @@ class AuthClient {
     }
   }
 
-  async signIn(params: SignInParams): Promise<boolean> {
+  async signIn(params: SignInFormData): Promise<boolean> {
     try {
 
       const response = await axiosInstance.post('/api/token/', params, {

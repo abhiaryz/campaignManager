@@ -12,6 +12,8 @@ import * as React from 'react';
 import { DetailGrid, DetailRow, FileDownloadItem, SectionContainer } from '../layout/section-container';
 import TargetType from '../layout/target-type';
 import { Campaign } from '@/types/campaign';
+import { utils } from '@/lib/common-utils';
+import { useAuth } from '@/hooks/use-auth';
 
 interface CampaignDetailsPopOverProps {
   data?:Campaign;
@@ -25,8 +27,9 @@ export function CampaignDetailsPopOver({onClose, open, data }: CampaignDetailsPo
     const copyToClipboard = (text: string) => {
       navigator.clipboard.writeText(text);
     };
-
-    const downloadFile = (fileUrl: string) => {
+    const {auth} = useAuth();
+    const downloadFile = (fileUrl?: string) => {
+      if(!fileUrl) return;
       const link = document.createElement('a');
       link.href = fileUrl;
       link.target = '_blank';
@@ -167,38 +170,26 @@ export function CampaignDetailsPopOver({onClose, open, data }: CampaignDetailsPo
             {/* Attachments Section */}
             <SectionContainer title="Attachments">
               <Grid container spacing={2}>
-                {/* Images */}
-                {data && data.images?.map((image, index) => (
+                {data && data.creative?.map((creative, index) => (
                   <FileDownloadItem
-                    key={`image-${index}`}
-                    label={`Image`}
-                    onDownload={() => downloadFile(image.image)}
+                    key={creative.id}
+                    label={utils.formatProperCase(creative.name)}
+                    onDownload={() => downloadFile(creative.file)}
                   />
                 ))}
 
-                {/* Videos */}
-                {data && data.video?.map((video, index) => (
-                  <FileDownloadItem
-                    key={`video-${index}`}
-                    label={`Video`}
-                    onDownload={() => downloadFile(video.video)}
-                  />
-                ))}
-
-                {/* Other Files */}
-                {[
-                  { label: 'Keywords', files: data?.keywords },
-                  { label: 'Tag & Tracker', files: data?.tag_tracker },
-                  { label: 'Campaign Report', files: data?.campaign_files },
-                ].map(({ label, files }) =>
-                  files?.map((file, index) => (
-                    <FileDownloadItem
-                      key={`${label}-${index}`}
-                      label={`${label}`}
-                      onDownload={() => downloadFile(file.file)}
-                    />
-                  ))
-                )}
+                {(auth?.usertype === 'admin' || 
+                  (data?.status && !['Created', 'Learning'].includes(data.status))) && 
+                  [{ label: 'Campaign Report', files: data?.campaign_files }].map(
+                    ({ label, files }) =>
+                      files?.map((file, index) => (
+                        <FileDownloadItem
+                          key={`${label}-${index}`}
+                          label={`${label}`}
+                          onDownload={() => downloadFile(file.file)}
+                        />
+                      ))
+                  )}
               </Grid>
             </SectionContainer>
           </Box>

@@ -1,4 +1,5 @@
 import { User } from "./auth";
+import { Creative } from "./creative";
 
 export interface Location {
     id:number
@@ -21,18 +22,6 @@ export interface Interest{
     category: string
 }
 
-export interface Images {
-    id: number;
-    image: string;
-    created_at: string;
-}
-
-export interface Video {
-    id: number;
-    video: string;
-    created_at: string;
-}
-
 export interface FileUpload{
     id: number;
     file: string;
@@ -40,11 +29,8 @@ export interface FileUpload{
 
 export interface Campaign {
     id: number;
-    images: Images[];
-    keywords: FileUpload[]; 
     name: string;
     age: string[]; 
-    day_part: string;
     device: string[]; 
     environment: string[]; 
     exchange: string[];
@@ -54,16 +40,12 @@ export interface Campaign {
     language: string[];
     carrier: string[]; 
     device_price: string[];  
-    proximity_store: FileUpload[]; 
-    proximity: FileUpload[];
-    weather: FileUpload[]; 
     location: Location[];
     clicks:string;
     pay_rate:string;
     impressions:string;
     objective:string;
     landing_page: string;
-    tag_tracker: FileUpload[];
     total_budget: number;
     buy_type: string;
     unit_rate: number;
@@ -73,11 +55,11 @@ export interface Campaign {
     status:string;
     start_time:string;
     end_time:string;
-    video: Video[];
     viewability: number;
     brand_safety: number;
     user:User,
-    campaign_files:FileUpload[]
+    campaign_files:FileUpload[],
+    creative:Creative[]
 }
 
 export interface CampaignFormData  {
@@ -87,24 +69,21 @@ export interface CampaignFormData  {
     device: string[];
     environment: string[];
     location: number[];
-    images?: number[];
-    keywords?: number[];
     target_type: number[];
     exchange: string[];
     language: string[];
     carrier: string[];
     device_price: string[];
     landing_page?: string;
-    tag_tracker?: number[];
     total_budget: number;
     buy_type: string;
     unit_rate: number;  
     viewability: number;
     brand_safety: number;
-    video?:number[];
     start_time?: string;
     end_time?: string;
     user?:string
+    creative?:number[];
 };
 
 export interface CommonImpressionDetails{
@@ -118,4 +97,22 @@ export interface ImpressionData{
     environment?: CommonImpressionDetails[],
     carrier?:CommonImpressionDetails[],
 }
-  
+
+export interface DataSources {
+  ages: CommonSelectResponse[];
+  devices: CommonSelectResponse[];
+  environment: CommonSelectResponse[];
+  location: Location[];
+  exchange: CommonSelectResponse[];
+  language: CommonSelectResponse[];
+  carrier: CommonSelectResponse[];
+  device_price: CommonSelectResponse[];
+  interest_category: CommonSelectResponse[];
+  interest: Interest[];
+  selectedInterest: Interest[];
+  buy_type: CommonSelectResponse[];
+  brand_safety: CommonSelectResponse[];
+  viewability: CommonSelectResponse[];
+  users: User[];
+  creatives: Creative[];
+}

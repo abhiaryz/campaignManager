@@ -6,11 +6,11 @@ import React from 'react';
 
 
 interface AddCampaignProps {
-    url: string;
+    url: string;  
     redirect: boolean;
 }
 
-const RedirectBtn: React.FC<AddCampaignProps> = ({ url,redirect }) => {
+const RedirectBtn: React.FC<AddCampaignProps> = ({ url,redirect }) => {    
 
     const router = useRouter();
 

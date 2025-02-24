@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/hooks/use-auth';
 import { paths } from '@/paths';
-import { User } from '@/types/auth';
+import { User, SignUpFormData } from '@/types/auth';
 import { signUpSchema } from '@/types/schema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Box, CircularProgress, Grid } from '@mui/material';
@@ -30,32 +30,26 @@ export function SignUpForm(): React.JSX.Element {
 
   const {
     register,
+    setValue,
     handleSubmit,
     setError,
     formState: { errors },
-  } = useForm<User>({ resolver: zodResolver(signUpSchema) });
+  } = useForm<SignUpFormData>({ resolver: zodResolver(signUpSchema) });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
-      logo.current = file
-      setFileError(null);
+      setValue('logo',file);
     }
     e.target.value = '';
   };
 
   const onSubmit = React.useCallback(
-    async (values: User): Promise<void> => {
+    async (values: SignUpFormData): Promise<void> => {
       setIsPending(true);
       try {
-        if (!logo || !logo.current) {
-          setFileError('Logo is required');
-          setIsPending(false);
-          return;
-        }
-
-        const result = await authClient.signUp(values,logo.current);
+        const result = await authClient.signUp(values);
         if (result) {
           setIsUserCreated(true);
           await checkSession?.();
@@ -83,8 +77,17 @@ export function SignUpForm(): React.JSX.Element {
           </Link>
         </Typography>
       </Stack>
+      
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Stack spacing={2}>
+        <Stack 
+          spacing={2} 
+          sx={{
+            border: '1px solid',
+            borderColor: 'divider',
+            borderRadius: 1,
+            p: 3
+          }}
+        >
           {/* First Name */}
           <Grid item xs={12} md={6} mb={1}>
             <Box sx={{ minWidth: 120 }}>
@@ -168,12 +171,12 @@ export function SignUpForm(): React.JSX.Element {
                 display: "flex",
                 alignItems: "center",
                 border: "2px dashed",
-                borderColor: "primary.main", // Primary color for the dotted border
+                borderColor: "primary.main", 
                 borderRadius: "8px",
                 cursor: "pointer",
                 transition: "border-color 0.3s ease",
                 "&:hover": {
-                  borderColor: "primary.dark", // Change border color on hover
+                  borderColor: "primary.dark",
                 },
               }}
             >
@@ -198,9 +201,9 @@ export function SignUpForm(): React.JSX.Element {
                 {selectedFile?.name || 'Select Company Logo'}
               </Button>
             </Box>
-            {fileError && (
+            {errors.logo && (
               <Typography variant="caption" color="error.main">
-                {fileError}
+                {errors.logo.message}
               </Typography>
             )}
           </Grid>
